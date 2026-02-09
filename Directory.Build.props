@@ -1,0 +1,42 @@
+<Project>
+  <!-- ============================================ -->
+  <!-- Skip all settings for Docker Compose projects -->
+  <!-- ============================================ -->
+  <PropertyGroup Condition="$(MSBuildProjectExtension) == '.dcproj'">
+    <ImportProjectProps>false</ImportProjectProps>
+  </PropertyGroup>
+
+  <!-- ============================================ -->
+  <!-- 1. Repository root and project.props import -->
+  <!-- ============================================ -->
+  <PropertyGroup>
+    <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
+    <ImportProjectProps Condition="'$(ImportProjectProps)' == ''">true</ImportProjectProps>
+  </PropertyGroup>
+
+  <!-- ============================================ -->
+  <!-- 2. C# 14 / .NET 10 Language settings        -->
+  <!-- ============================================ -->
+  <PropertyGroup Condition="'$(ImportProjectProps)' == 'true'">
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AnalysisLevel>10.0-recommended</AnalysisLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <Import Project="$(RepoRoot)project.props" Condition="'$(ImportProjectProps)' == 'true'"/>
+
+  <!-- ============================================ -->
+  <!-- 3. Code quality settings                    -->
+  <!-- ============================================ -->
+  <PropertyGroup Condition="'$(ImportProjectProps)' == 'true'">
+    <NoWarn>$(NoWarn);NU1507;NU5104;CS1591;CS8669</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors/>
+  </PropertyGroup>
+
+  <!-- ============================================ -->
+</Project>

@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="tests/DKH.McpGateway.Tests/DKH.McpGateway.Tests.csproj" />
+  </Folder>
+  <Project Path="DKH.McpGateway.Api/DKH.McpGateway.Api.csproj" />
+  <Project Path="DKH.McpGateway.Application/DKH.McpGateway.Application.csproj" />
+</Solution>

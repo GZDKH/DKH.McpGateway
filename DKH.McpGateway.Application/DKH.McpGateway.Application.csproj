@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="DKH.Platform"/>
+    <PackageReference Include="DKH.Platform.Grpc.Client"/>
+    <PackageReference Include="DKH.Platform.Logging"/>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions"/>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
+  </ItemGroup>
+</Project>
