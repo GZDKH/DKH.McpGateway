@@ -5,5 +5,14 @@
     <PackageReference Include="DKH.Platform.Logging"/>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions"/>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
+    <PackageReference Include="ModelContextProtocol"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DKH.ProductCatalogService.Contracts"/>
+    <PackageReference Include="DKH.ReferenceService.Contracts"/>
+    <PackageReference Include="DKH.OrderService.Contracts"/>
+    <PackageReference Include="DKH.StorefrontService.Contracts"/>
+    <PackageReference Include="DKH.ReviewService.Contracts"/>
+    <PackageReference Include="DKH.TelegramBotService.Contracts"/>
   </ItemGroup>
 </Project>
