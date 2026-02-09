@@ -14,35 +14,35 @@
   </Folder>
   <Folder Name="/.scripts/">
     <File Path=".scripts/config.ps1" />
-    <Folder Name="/build/">
-      <File Path=".scripts/build/build.ps1" />
-    </Folder>
-    <Folder Name="/config/">
-      <File Path=".scripts/config/config.json" />
-      <File Path=".scripts/config/environment-manager.ps1" />
-      <File Path=".scripts/config/project-finder.ps1" />
-      <File Path=".scripts/config/scripts.manifest.json" />
-    </Folder>
-    <Folder Name="/database/">
-      <File Path=".scripts/database/postgres-db.ps1" />
-    </Folder>
-    <Folder Name="/docker/">
-      <File Path=".scripts/docker/build-docker-run.ps1" />
-    </Folder>
-    <Folder Name="/maintenance/">
-      <File Path=".scripts/maintenance/clean-packages.ps1" />
-      <File Path=".scripts/maintenance/clean.ps1" />
-    </Folder>
-    <Folder Name="/utilities/">
-      <File Path=".scripts/utilities/set-commit-date.ps1" />
-      <File Path=".scripts/utilities/setup-private-nuget.ps1" />
-    </Folder>
-    <Folder Name="/modules/">
-      <File Path=".scripts/modules/dkh.configuration.psm1" />
-    </Folder>
-    <Folder Name="/tools/">
-      <File Path=".scripts/tools/user-secrets.ps1" />
-    </Folder>
+  </Folder>
+  <Folder Name="/.scripts/build/">
+    <File Path=".scripts/build/build.ps1" />
+  </Folder>
+  <Folder Name="/.scripts/config/">
+    <File Path=".scripts/config/config.json" />
+    <File Path=".scripts/config/environment-manager.ps1" />
+    <File Path=".scripts/config/project-finder.ps1" />
+    <File Path=".scripts/config/scripts.manifest.json" />
+  </Folder>
+  <Folder Name="/.scripts/database/">
+    <File Path=".scripts/database/postgres-db.ps1" />
+  </Folder>
+  <Folder Name="/.scripts/docker/">
+    <File Path=".scripts/docker/build-docker-run.ps1" />
+  </Folder>
+  <Folder Name="/.scripts/maintenance/">
+    <File Path=".scripts/maintenance/clean-packages.ps1" />
+    <File Path=".scripts/maintenance/clean.ps1" />
+  </Folder>
+  <Folder Name="/.scripts/utilities/">
+    <File Path=".scripts/utilities/set-commit-date.ps1" />
+    <File Path=".scripts/utilities/setup-private-nuget.ps1" />
+  </Folder>
+  <Folder Name="/.scripts/modules/">
+    <File Path=".scripts/modules/dkh.configuration.psm1" />
+  </Folder>
+  <Folder Name="/.scripts/tools/">
+    <File Path=".scripts/tools/user-secrets.ps1" />
   </Folder>
   <Project Path="DKH.McpGateway.Api/DKH.McpGateway.Api.csproj" />
   <Project Path="DKH.McpGateway.Application/DKH.McpGateway.Application.csproj" />
