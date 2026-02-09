@@ -1,0 +1,27 @@
+{
+  "PROJECT": {
+    "SOLUTION_NAME": "DKH.McpGateway",
+    "PROJECT_NAME": "DKH.McpGateway.Api",
+    "APPSETTINGS_FILE": "appsettings.json"
+  },
+  "DOCKER": {
+    "IMAGE_NAME": "dkh-mcpgateway",
+    "NETWORK_NAME": "dkh-network"
+  },
+  "NUGET": {
+    "SOURCES": [
+      {
+        "NAME": "nuget.org",
+        "URL": "https://api.nuget.org/v3/index.json",
+        "PROTOCOL_VERSION": "3"
+      },
+      {
+        "NAME": "github-dotnet-gzdkh",
+        "URL": "https://nuget.pkg.github.com/GZDKH/index.json",
+        "PROTOCOL_VERSION": "3",
+        "IS_PRIVATE": true
+      }
+    ]
+  }
+}
+
