@@ -54,6 +54,15 @@ public static class GetProductTool
                 priceAdjustment = v.PriceAdjustment,
                 stockQuantity = v.StockQuantity,
             }),
+            origin = product.Origin is not null && !string.IsNullOrEmpty(product.Origin.CountryCode)
+                ? new
+                {
+                    countryCode = product.Origin.CountryCode,
+                    stateProvinceCode = product.Origin.HasStateProvinceCode ? product.Origin.StateProvinceCode : null,
+                    cityCode = product.Origin.HasCityCode ? product.Origin.CityCode : null,
+                    placeName = product.Origin.Details?.HasPlaceName == true ? product.Origin.Details.PlaceName : null,
+                }
+                : null,
         };
 
         return JsonSerializer.Serialize(result, McpJsonDefaults.Options);

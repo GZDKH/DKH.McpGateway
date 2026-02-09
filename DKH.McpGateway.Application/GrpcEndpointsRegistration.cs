@@ -12,6 +12,7 @@ using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductsCrud.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductSearchQuery.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.TagsCrud.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantQuery.v1;
+using DKH.ReferenceService.Contracts.Api.CityQuery.V1;
 using DKH.ReferenceService.Contracts.Api.CountriesCrud.V1;
 using DKH.ReferenceService.Contracts.Api.CountryQuery.V1;
 using DKH.ReferenceService.Contracts.Api.CurrenciesCrud.V1;
@@ -20,6 +21,7 @@ using DKH.ReferenceService.Contracts.Api.DeliveryQuery.V1;
 using DKH.ReferenceService.Contracts.Api.LanguageQuery.V1;
 using DKH.ReferenceService.Contracts.Api.LanguagesCrud.V1;
 using DKH.ReferenceService.Contracts.Api.MeasurementQuery.V1;
+using DKH.ReferenceService.Contracts.Api.StateProvinceQuery.V1;
 using DKH.ReviewService.Contracts.Api.V1;
 using DKH.StorefrontService.Contracts.V1;
 using DKH.TelegramBotService.Contracts.Management.V1;
@@ -68,6 +70,8 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<CountriesCrudService.CountriesCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<CurrenciesCrudService.CurrenciesCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<LanguagesCrudService.LanguagesCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<StateProvinceQueryService.StateProvinceQueryServiceClient>();
+        grpc.AddEndpointFromConfiguration<CityQueryService.CityQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<ReferenceDataExchangeClient>("ReferenceDataExchangeServiceClient");
 
         // OrderService (5007)
