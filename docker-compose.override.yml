@@ -1,0 +1,6 @@
+services:
+  dkh.mcp.gateway.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    ports:
+      - "5013:5013"

@@ -1,0 +1,29 @@
+services:
+  dkh.mcp.gateway.api:
+    image: ${DOCKER_REGISTRY-}dkh-mcp-gateway
+    container_name: dkh.mcp.gateway.api
+    build:
+      context: .
+      dockerfile: DKH.McpGateway.Api/Dockerfile
+      secrets:
+        - github_nuget_username
+        - github_nuget_token
+    volumes:
+      - dkh-mcp-gateway-api-logs:/app/logs
+    networks:
+      - dkh-network
+    restart: unless-stopped
+
+volumes:
+  dkh-mcp-gateway-api-logs:
+
+networks:
+  dkh-network:
+    name: dkh-network
+    external: true
+
+secrets:
+  github_nuget_username:
+    environment: GITHUB_NUGET_USERNAME
+  github_nuget_token:
+    environment: GITHUB_NUGET_TOKEN
