@@ -18,6 +18,7 @@ using DKH.ReferenceService.Contracts.Api.CountryQuery.V1;
 using DKH.ReferenceService.Contracts.Api.CurrenciesCrud.V1;
 using DKH.ReferenceService.Contracts.Api.CurrencyQuery.V1;
 using DKH.ReferenceService.Contracts.Api.DeliveryQuery.V1;
+using DKH.ReferenceService.Contracts.Api.DeliveryTimesCrud.V1;
 using DKH.ReferenceService.Contracts.Api.LanguageQuery.V1;
 using DKH.ReferenceService.Contracts.Api.LanguagesCrud.V1;
 using DKH.ReferenceService.Contracts.Api.MeasurementQuery.V1;
@@ -74,6 +75,7 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<LanguagesCrudService.LanguagesCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<StateProvinceQueryService.StateProvinceQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<CityQueryService.CityQueryServiceClient>();
+        grpc.AddEndpointFromConfiguration<DeliveryTimesCrudService.DeliveryTimesCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<ReferenceDataExchangeClient>("ReferenceDataExchangeServiceClient");
 
         // OrderService (5007)
