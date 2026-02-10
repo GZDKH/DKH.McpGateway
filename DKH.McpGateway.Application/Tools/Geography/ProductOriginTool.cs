@@ -1,7 +1,7 @@
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductQuery.v1;
-using DKH.ReferenceService.Contracts.Api.CityQuery.V1;
-using DKH.ReferenceService.Contracts.Api.CountryQuery.V1;
-using DKH.ReferenceService.Contracts.Api.StateProvinceQuery.V1;
+using DKH.ReferenceService.Contracts.Reference.Api.CityManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.StateProvinceManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Geography;
 
@@ -11,9 +11,9 @@ public static class ProductOriginTool
     [McpServerTool(Name = "get_product_origin"), Description("Get product manufacturing/sourcing origin with resolved country, province, and city names.")]
     public static async Task<string> ExecuteAsync(
         ProductQueryService.ProductQueryServiceClient productClient,
-        CountryQueryService.CountryQueryServiceClient countryClient,
-        StateProvinceQueryService.StateProvinceQueryServiceClient provinceClient,
-        CityQueryService.CityQueryServiceClient cityClient,
+        CountryManagementService.CountryManagementServiceClient countryClient,
+        StateProvinceManagementService.StateProvinceManagementServiceClient provinceClient,
+        CityManagementService.CityManagementServiceClient cityClient,
         [Description("Product SEO name or slug")] string productSeoName,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
@@ -42,33 +42,30 @@ public static class ProductOriginTool
         var origin = product.Origin;
         var langCode = languageCode.Contains('-') ? languageCode : $"{languageCode}-RU";
 
-        var countryTask = countryClient.GetCountryByCodeAsync(
-            new GetCountryByCodeRequest { TwoLetterCode = origin.CountryCode, LanguageCode = langCode },
+        var countryTask = countryClient.GetAsync(
+            new GetCountryRequest { Code = origin.CountryCode, Language = langCode },
             cancellationToken: cancellationToken).ResponseAsync;
 
-        Task<StateProvinceResponse>? provinceTask = null;
+        Task<GetStateProvinceResponse>? provinceTask = null;
         if (origin.HasStateProvinceCode)
         {
-            provinceTask = provinceClient.GetStateProvinceByCodeAsync(
-                new GetStateProvinceByCodeRequest
+            provinceTask = provinceClient.GetAsync(
+                new GetStateProvinceRequest
                 {
-                    CountryCode = origin.CountryCode,
-                    StateCode = origin.StateProvinceCode,
-                    LanguageCode = langCode,
+                    Code = origin.StateProvinceCode,
+                    Language = langCode,
                 },
                 cancellationToken: cancellationToken).ResponseAsync;
         }
 
-        Task<CityResponse>? cityTask = null;
+        Task<GetCityResponse>? cityTask = null;
         if (origin.HasStateProvinceCode && origin.HasCityCode)
         {
-            cityTask = cityClient.GetCityByCodeAsync(
-                new GetCityByCodeRequest
+            cityTask = cityClient.GetAsync(
+                new GetCityRequest
                 {
-                    CountryCode = origin.CountryCode,
-                    StateCode = origin.StateProvinceCode,
-                    CityCode = origin.CityCode,
-                    LanguageCode = langCode,
+                    Code = origin.CityCode,
+                    Language = langCode,
                 },
                 cancellationToken: cancellationToken).ResponseAsync;
         }
@@ -86,12 +83,12 @@ public static class ProductOriginTool
             productSeoName = product.SeoName,
             origin = new
             {
-                country = new { code = origin.CountryCode, name = country.Name },
+                country = new { code = origin.CountryCode, name = country.Data.Translations.FirstOrDefault()?.Name ?? string.Empty },
                 province = provinceTask is not null
-                    ? new { code = origin.StateProvinceCode, name = provinceTask.Result.Name }
+                    ? new { code = origin.StateProvinceCode, name = provinceTask.Result.Data.Translations.FirstOrDefault()?.Name ?? string.Empty }
                     : null,
                 city = cityTask is not null
-                    ? new { code = origin.CityCode, name = cityTask.Result.Name }
+                    ? new { code = origin.CityCode, name = cityTask.Result.Data.Translations.FirstOrDefault()?.Name ?? string.Empty }
                     : null,
                 placeName = origin.Details?.HasPlaceName == true ? origin.Details.PlaceName : null,
                 altitude = origin.Details?.HasAltitudeMin == true

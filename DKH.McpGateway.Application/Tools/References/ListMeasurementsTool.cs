@@ -1,4 +1,5 @@
-using DKH.ReferenceService.Contracts.Api.MeasurementQuery.V1;
+using DKH.ReferenceService.Contracts.Reference.Api.DimensionManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.References;
 
@@ -10,32 +11,33 @@ public static class ListMeasurementsTool
 {
     [McpServerTool(Name = "list_measurements"), Description("List measurement units: weights and dimensions with their conversion ratios.")]
     public static async Task<string> ExecuteAsync(
-        MeasurementQueryService.MeasurementQueryServiceClient client,
+        WeightManagementService.WeightManagementServiceClient weightClient,
+        DimensionManagementService.DimensionManagementServiceClient dimensionClient,
         [Description("Language code for translations (e.g. 'ru-RU', 'en-US')")] string languageCode = "ru-RU",
         CancellationToken cancellationToken = default)
     {
-        var weightsTask = client.GetWeightsAsync(
-            new GetWeightsRequest { LanguageCode = languageCode },
+        var weightsTask = weightClient.ListAsync(
+            new ListWeightsRequest { Language = languageCode, PageSize = 1000 },
             cancellationToken: cancellationToken).ResponseAsync;
 
-        var dimensionsTask = client.GetDimensionsAsync(
-            new GetDimensionsRequest { LanguageCode = languageCode },
+        var dimensionsTask = dimensionClient.ListAsync(
+            new ListDimensionsRequest { Language = languageCode, PageSize = 1000 },
             cancellationToken: cancellationToken).ResponseAsync;
 
         await Task.WhenAll(weightsTask, dimensionsTask);
 
         var result = new
         {
-            weights = weightsTask.Result.Weights.Select(static w => new
+            weights = weightsTask.Result.Items.Select(static w => new
             {
                 code = w.Code,
-                name = w.Name,
+                name = w.Translations.FirstOrDefault()?.Name ?? string.Empty,
                 ratioToPrimary = w.RatioToPrimary,
             }),
-            dimensions = dimensionsTask.Result.Dimensions.Select(static d => new
+            dimensions = dimensionsTask.Result.Items.Select(static d => new
             {
                 code = d.Code,
-                name = d.Name,
+                name = d.Translations.FirstOrDefault()?.Name ?? string.Empty,
                 ratioToPrimary = d.RatioToPrimary,
             }),
         };
