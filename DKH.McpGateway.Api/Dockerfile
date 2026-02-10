@@ -28,8 +28,8 @@ RUN if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then \
 WORKDIR /src
 COPY ["Directory.Packages.props", "."]
 COPY ["Directory.Build.props", "."]
-COPY ["nuget.config", "."]
 COPY ["project.props", "."]
+COPY ["nuget.config", "."]
 
 # Inject GitHub NuGet credentials via dotnet CLI (secure, no layer caching)
 RUN --mount=type=secret,id=github_nuget_username \
@@ -46,7 +46,8 @@ RUN --mount=type=secret,id=github_nuget_username \
 COPY ["DKH.McpGateway.Api/DKH.McpGateway.Api.csproj", "DKH.McpGateway.Api/"]
 COPY ["DKH.McpGateway.Application/DKH.McpGateway.Application.csproj", "DKH.McpGateway.Application/"]
 RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
-    dotnet restore "./DKH.McpGateway.Api/DKH.McpGateway.Api.csproj"
+    RUNTIME_ID=$(if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then echo "linux-arm64"; else echo "linux-x64"; fi) && \
+    dotnet restore "./DKH.McpGateway.Api/DKH.McpGateway.Api.csproj" -r $RUNTIME_ID /p:PublishReadyToRun=true
 COPY . .
 
 # This stage is used to publish the service project to be copied to the final stage
@@ -54,11 +55,12 @@ FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 WORKDIR "/src/DKH.McpGateway.Api"
 RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
+    RUNTIME_ID=$(if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then echo "linux-arm64"; else echo "linux-x64"; fi) && \
     if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then \
     Protobuf_ProtocPath=/usr/bin/protoc \
-    dotnet publish "./DKH.McpGateway.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false /p:PublishReadyToRun=true --no-restore; \
+    dotnet publish "./DKH.McpGateway.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish -r $RUNTIME_ID /p:UseAppHost=false /p:PublishReadyToRun=true --no-restore; \
     else \
-    dotnet publish "./DKH.McpGateway.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false /p:PublishReadyToRun=true --no-restore; \
+    dotnet publish "./DKH.McpGateway.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish -r $RUNTIME_ID /p:UseAppHost=false /p:PublishReadyToRun=true --no-restore; \
     fi
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
