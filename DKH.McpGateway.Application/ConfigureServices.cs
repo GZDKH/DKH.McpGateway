@@ -22,6 +22,7 @@ public static class ConfigureServices
             .AddMcpServer(options =>
                 options.ServerInfo = new() { Name = "DKH.McpGateway", Version = "1.0.0" })
             .WithToolsFromAssembly(typeof(ConfigureServices).Assembly)
-            .WithResourcesFromAssembly(typeof(ConfigureServices).Assembly);
+            .WithResourcesFromAssembly(typeof(ConfigureServices).Assembly)
+            .WithPromptsFromAssembly(typeof(ConfigureServices).Assembly);
     }
 }
