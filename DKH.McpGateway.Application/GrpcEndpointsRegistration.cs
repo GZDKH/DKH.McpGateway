@@ -24,7 +24,9 @@ using DKH.ReferenceService.Contracts.Api.MeasurementQuery.V1;
 using DKH.ReferenceService.Contracts.Api.StateProvinceQuery.V1;
 using DKH.ReviewService.Contracts.Api.V1;
 using DKH.StorefrontService.Contracts.V1;
+using DKH.TelegramBotService.Contracts.Auth.V1;
 using DKH.TelegramBotService.Contracts.Management.V1;
+using DKH.TelegramBotService.Contracts.Notifications.V1;
 using DKH.TelegramBotService.Contracts.Scheduling.V1;
 using GrpcOrderService = DKH.OrderService.Contracts.Api.V1.OrderService;
 using GrpcReviewService = DKH.ReviewService.Contracts.Api.V1.ReviewService;
@@ -92,5 +94,7 @@ public static class GrpcEndpointsRegistration
         // TelegramBotService (5001)
         grpc.AddEndpointFromConfiguration<TelegramBotManagement.TelegramBotManagementClient>();
         grpc.AddEndpointFromConfiguration<TelegramScheduling.TelegramSchedulingClient>();
+        grpc.AddEndpointFromConfiguration<TelegramNotifications.TelegramNotificationsClient>();
+        grpc.AddEndpointFromConfiguration<TelegramAuthService.TelegramAuthServiceClient>();
     }
 }
