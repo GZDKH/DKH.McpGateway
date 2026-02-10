@@ -11,6 +11,7 @@ public static class ManageStorefrontTool
         "For create: provide code, name, and optional description/features. " +
         "For update/delete: provide storefrontCode to identify the storefront.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         StorefrontCrudService.StorefrontCrudServiceClient client,
         [Description("Action: create, update, or delete")] string action,
         [Description("Storefront code (required for update/delete, e.g. 'my-store')")] string? storefrontCode = null,
@@ -24,6 +25,8 @@ public static class ManageStorefrontTool
         [Description("Enable wishlist feature (for create/update)")] bool? wishlistEnabled = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrEmpty(storefrontCode) || string.IsNullOrEmpty(name))

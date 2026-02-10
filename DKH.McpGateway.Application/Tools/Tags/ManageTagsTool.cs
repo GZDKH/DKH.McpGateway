@@ -29,6 +29,7 @@ public static class ManageTagsTool
         "For delete: provide the tag name to search and delete. " +
         "Example JSON: " + ExampleJson)]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductCatalogDataExchangeClient exchangeClient,
         TagsCrudService.TagsCrudServiceClient crudClient,
         [Description("Action: create, update, or delete")] string action,
@@ -36,6 +37,8 @@ public static class ManageTagsTool
         [Description("Tag name to find for delete (e.g. 'UNESCO Heritage' or 'Наследие UNESCO')")] string? tagName = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase)
             || string.Equals(action, "update", StringComparison.OrdinalIgnoreCase))
         {

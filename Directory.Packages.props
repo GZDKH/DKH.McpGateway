@@ -7,6 +7,7 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.2"/>
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2"/>
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2"/>
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.2"/>
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2"/>
   </ItemGroup>
   <ItemGroup>
@@ -26,6 +27,7 @@
     <PackageVersion Include="DKH.StorefrontService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.ReviewService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.TelegramBotService.Contracts" Version="1.0.0"/>
+    <PackageVersion Include="DKH.ApiManagementService.Contracts" Version="1.0.0"/>
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>

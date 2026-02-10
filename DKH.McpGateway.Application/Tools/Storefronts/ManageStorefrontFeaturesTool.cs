@@ -10,6 +10,7 @@ public static class ManageStorefrontFeaturesTool
         "Actions: 'get' to view features, 'enable' or 'disable' a specific feature, " +
         "'update' to set multiple features at once.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         StorefrontCrudService.StorefrontCrudServiceClient crudClient,
         StorefrontFeaturesService.StorefrontFeaturesServiceClient featuresClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -22,6 +23,8 @@ public static class ManageStorefrontFeaturesTool
         [Description("Enable wishlist (for update action)")] bool? wishlistEnabled = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         var storefront = await crudClient.GetByCodeAsync(
             new GetStorefrontByCodeRequest { Code = storefrontCode },
             cancellationToken: cancellationToken);

@@ -10,6 +10,7 @@ public static class ManageTelegramManagerGroupsTool
         "about events like new orders, payments, etc. " +
         "Actions: 'list' to view groups, 'add' to create, 'remove' to delete.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         TelegramBotManagement.TelegramBotManagementClient client,
         [Description("Bot ID (required for all actions)")] string botId,
         [Description("Action: list, add, or remove")] string action,
@@ -19,6 +20,8 @@ public static class ManageTelegramManagerGroupsTool
         [Description("Manager group ID returned from list (for remove)")] string? managerGroupId = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "list", StringComparison.OrdinalIgnoreCase))
         {
             var response = await client.GetManagerGroupsAsync(

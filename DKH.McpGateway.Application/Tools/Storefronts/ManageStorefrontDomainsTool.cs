@@ -10,6 +10,7 @@ public static class ManageStorefrontDomainsTool
         "Actions: 'list' to view domains, 'add' to add a domain, " +
         "'remove' to delete, 'verify' to check DNS, 'set_primary' to set primary domain.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         StorefrontCrudService.StorefrontCrudServiceClient crudClient,
         StorefrontDomainService.StorefrontDomainServiceClient domainClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -19,6 +20,8 @@ public static class ManageStorefrontDomainsTool
         [Description("Set as primary domain (for add)")] bool? isPrimary = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         var storefront = await crudClient.GetByCodeAsync(
             new GetStorefrontByCodeRequest { Code = storefrontCode },
             cancellationToken: cancellationToken);

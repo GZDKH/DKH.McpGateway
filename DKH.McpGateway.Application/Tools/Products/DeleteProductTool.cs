@@ -9,10 +9,13 @@ public static class DeleteProductTool
         "Delete a product from the catalog by its code. " +
         "Searches for the product by code, then deletes it.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductsCrudService.ProductsCrudServiceClient client,
         [Description("Product code (e.g. 'TEA-XIHU-LONGJING-SHIFENG')")] string productCode,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         var searchResponse = await client.GetProductsAsync(
             new GetProductsRequest
             {

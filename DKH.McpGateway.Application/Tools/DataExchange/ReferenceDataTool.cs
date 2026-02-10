@@ -19,6 +19,7 @@ public static class ReferenceDataTool
         "cities, quantity_units, price_labels, dimensions, delivery_times, weights. " +
         "Formats: json, csv, excel, xml.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ReferenceDataExchangeClient client,
         [Description("Action: import, export, validate, or template")] string action,
         [Description("Data profile: countries, currencies, languages, state_provinces, cities, quantity_units, etc.")] string profile,
@@ -32,6 +33,8 @@ public static class ReferenceDataTool
         [Description("Include example data row (for template)")] bool? includeExample = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "import", StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrEmpty(content))

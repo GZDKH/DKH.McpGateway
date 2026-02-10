@@ -11,6 +11,7 @@ public static class ManageDeliveryTimeTool
         "For create: provide code, delivery day ranges, and translations. " +
         "For update/delete: provide code to identify the delivery time.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         DeliveryTimesCrudService.DeliveryTimesCrudServiceClient client,
         [Description("Action: create, update, or delete")] string action,
         [Description("Delivery time code, e.g. 'standard', 'express', 'next-day' (required)")] string code,
@@ -23,6 +24,8 @@ public static class ManageDeliveryTimeTool
         [Description("Published (for create/update)")] bool? published = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
         {
             var request = new CreateDeliveryTimeRequest

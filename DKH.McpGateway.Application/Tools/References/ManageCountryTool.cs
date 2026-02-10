@@ -11,6 +11,7 @@ public static class ManageCountryTool
         "For create: provide twoLetterCode, threeLetterCode, nativeName, and translations. " +
         "For update/delete: provide twoLetterCode to identify the country.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         CountriesCrudService.CountriesCrudServiceClient client,
         [Description("Action: create, update, or delete")] string action,
         [Description("ISO two-letter code, e.g. 'US', 'CN', 'RU' (required)")] string twoLetterCode,
@@ -22,6 +23,8 @@ public static class ManageCountryTool
         [Description("Published (for create/update)")] bool? published = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrEmpty(threeLetterCode) || string.IsNullOrEmpty(nativeName))

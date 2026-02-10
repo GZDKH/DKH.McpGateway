@@ -11,6 +11,7 @@ public static class ManageTelegramSchedulingTool
         "Actions: 'create' to schedule a new message, 'list' to view scheduled messages, " +
         "'update' to modify pending message, 'cancel' to cancel a pending message.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         TelegramScheduling.TelegramSchedulingClient client,
         [Description("Bot ID (required for all actions)")] string botId,
         [Description("Action: create, list, update, or cancel")] string action,
@@ -25,6 +26,8 @@ public static class ManageTelegramSchedulingTool
         [Description("Page size, 1-100 (for list)")] int? pageSize = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrEmpty(chatId) || string.IsNullOrEmpty(text) || string.IsNullOrEmpty(scheduledAt))

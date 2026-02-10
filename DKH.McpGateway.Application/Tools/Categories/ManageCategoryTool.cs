@@ -29,6 +29,7 @@ public static class ManageCategoryTool
         "For delete: provide the category code. " +
         "Example JSON: " + ExampleJson)]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductCatalogDataExchangeClient exchangeClient,
         CategoriesCrudService.CategoriesCrudServiceClient crudClient,
         [Description("Action: create, update, or delete")] string action,
@@ -36,6 +37,8 @@ public static class ManageCategoryTool
         [Description("Category code (for delete, e.g. 'CAT-GREEN-TEA')")] string? categoryCode = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase)
             || string.Equals(action, "update", StringComparison.OrdinalIgnoreCase))
         {

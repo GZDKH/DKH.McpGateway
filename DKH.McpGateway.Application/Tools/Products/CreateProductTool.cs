@@ -85,6 +85,7 @@ public static class CreateProductTool
         "Reference brands, tags, catalogs, manufacturers, and specifications by their codes (not UUIDs). " +
         "Example JSON: " + ExampleJson)]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductCatalogDataExchangeClient client,
         [Description(
             "Product JSON in data-exchange format. Required fields: code, translations (lang, name). " +
@@ -94,6 +95,8 @@ public static class CreateProductTool
         string productJson,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         var jsonBytes = System.Text.Encoding.UTF8.GetBytes($"[{productJson}]");
 
         var response = await client.ImportAsync(

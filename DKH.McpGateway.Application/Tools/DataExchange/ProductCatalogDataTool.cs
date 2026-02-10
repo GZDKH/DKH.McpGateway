@@ -21,6 +21,7 @@ public static class ProductCatalogDataTool
         "specification_attributes, specification_attribute_groups, specification_attribute_options. " +
         "Formats: json, csv, excel, xml.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductCatalogDataExchangeClient client,
         [Description("Action: import, export, validate, or template")] string action,
         [Description("Data profile: products, brands, categories, tags, manufacturers, packages, catalogs, etc.")] string profile,
@@ -41,6 +42,8 @@ public static class ProductCatalogDataTool
         [Description("Include example data row (for template)")] bool? includeExample = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "import", StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrEmpty(content))

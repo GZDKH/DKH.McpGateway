@@ -29,6 +29,7 @@ using DKH.TelegramBotService.Contracts.Auth.V1;
 using DKH.TelegramBotService.Contracts.Management.V1;
 using DKH.TelegramBotService.Contracts.Notifications.V1;
 using DKH.TelegramBotService.Contracts.Scheduling.V1;
+using DKH.ApiManagementService.Contracts.Services.V1;
 using GrpcOrderService = DKH.OrderService.Contracts.Api.V1.OrderService;
 using GrpcReviewService = DKH.ReviewService.Contracts.Api.V1.ReviewService;
 using ProductCatalogDataExchangeClient =
@@ -98,5 +99,9 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<TelegramScheduling.TelegramSchedulingClient>();
         grpc.AddEndpointFromConfiguration<TelegramNotifications.TelegramNotificationsClient>();
         grpc.AddEndpointFromConfiguration<TelegramAuthService.TelegramAuthServiceClient>();
+
+        // ApiManagementService (5012)
+        grpc.AddEndpointFromConfiguration<ApiKeyValidationService.ApiKeyValidationServiceClient>();
+        grpc.AddEndpointFromConfiguration<ApiKeyUsageService.ApiKeyUsageServiceClient>();
     }
 }

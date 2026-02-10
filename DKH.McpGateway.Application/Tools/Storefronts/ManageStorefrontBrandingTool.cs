@@ -10,6 +10,7 @@ public static class ManageStorefrontBrandingTool
         "Update storefront branding: logo, favicon, theme colors, typography, layout, and custom CSS. " +
         "Use action 'update' to set branding, 'reset' to reset to defaults, 'get' to view current branding.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         StorefrontCrudService.StorefrontCrudServiceClient crudClient,
         StorefrontBrandingService.StorefrontBrandingServiceClient brandingClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -28,6 +29,8 @@ public static class ManageStorefrontBrandingTool
         [Description("Custom CSS")] string? customCss = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         var storefront = await crudClient.GetByCodeAsync(
             new GetStorefrontByCodeRequest { Code = storefrontCode },
             cancellationToken: cancellationToken);

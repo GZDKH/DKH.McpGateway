@@ -29,6 +29,7 @@ public static class ManageBrandTool
         "For delete: provide the brand name to search and delete. " +
         "Example JSON: " + ExampleJson)]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductCatalogDataExchangeClient exchangeClient,
         BrandsCrudService.BrandsCrudServiceClient crudClient,
         [Description("Action: create, update, or delete")] string action,
@@ -36,6 +37,8 @@ public static class ManageBrandTool
         [Description("Brand name or code to find for delete (e.g. 'Xihu (West Lake)' or 'BRAND-XIHU')")] string? brandName = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase)
             || string.Equals(action, "update", StringComparison.OrdinalIgnoreCase))
         {

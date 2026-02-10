@@ -22,6 +22,7 @@ await Platform
     {
         if (!useStdio)
         {
+            app.UseApiKeyAuth();
             app.MapMcp();
         }
     })

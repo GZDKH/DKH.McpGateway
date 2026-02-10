@@ -10,6 +10,7 @@ public static class ManageTelegramBotTool
         "Actions: 'create' to register a new bot, 'list' to view bots for a storefront, " +
         "'deactivate' to disable a bot, 'get' to get bot by storefront, 'stats' to view bot statistics.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         TelegramBotManagement.TelegramBotManagementClient client,
         [Description("Action: create, list, deactivate, get, stats, or ping")] string action,
         [Description("Storefront ID (required for create/list/get)")] string? storefrontId = null,
@@ -18,6 +19,8 @@ public static class ManageTelegramBotTool
         [Description("Bot ID (for deactivate/stats)")] string? botId = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "ping", StringComparison.OrdinalIgnoreCase))
         {
             var response = await client.PingAsync(

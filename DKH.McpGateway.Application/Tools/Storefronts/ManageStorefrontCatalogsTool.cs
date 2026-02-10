@@ -10,6 +10,7 @@ public static class ManageStorefrontCatalogsTool
         "Actions: 'list' to view linked catalogs, 'add' to link a catalog, " +
         "'remove' to unlink, 'set_default' to set the default catalog.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         StorefrontCrudService.StorefrontCrudServiceClient crudClient,
         StorefrontCatalogService.StorefrontCatalogServiceClient catalogClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -22,6 +23,8 @@ public static class ManageStorefrontCatalogsTool
         [Description("Custom display name (for add)")] string? displayName = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         var storefront = await crudClient.GetByCodeAsync(
             new GetStorefrontByCodeRequest { Code = storefrontCode },
             cancellationToken: cancellationToken);

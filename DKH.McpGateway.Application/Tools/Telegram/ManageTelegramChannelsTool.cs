@@ -10,6 +10,7 @@ public static class ManageTelegramChannelsTool
         "Actions: 'list' to view channels, 'add' to link a channel, " +
         "'remove' to unlink, 'update_stats' to sync subscriber count, 'broadcast' to send a message.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         TelegramBotManagement.TelegramBotManagementClient client,
         [Description("Bot ID (required for all actions)")] string botId,
         [Description("Action: list, add, remove, update_stats, or broadcast")] string action,
@@ -21,6 +22,8 @@ public static class ManageTelegramChannelsTool
         [Description("Send silently without notification (for broadcast)")] bool? disableNotification = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "list", StringComparison.OrdinalIgnoreCase))
         {
             var response = await client.GetChannelsAsync(

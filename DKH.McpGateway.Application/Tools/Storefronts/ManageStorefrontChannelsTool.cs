@@ -10,6 +10,7 @@ public static class ManageStorefrontChannelsTool
         "Manage storefront sales channels (Telegram, WeChat, VK, Web, Mobile). " +
         "Actions: 'list' to view channels, 'add' to create, 'update' to modify, 'remove' to delete.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         StorefrontCrudService.StorefrontCrudServiceClient crudClient,
         StorefrontChannelService.StorefrontChannelServiceClient channelClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -22,6 +23,8 @@ public static class ManageStorefrontChannelsTool
         [Description("Purpose: Sales, Support, or Notifications (for add/update)")] string? purpose = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         var storefront = await crudClient.GetByCodeAsync(
             new GetStorefrontByCodeRequest { Code = storefrontCode },
             cancellationToken: cancellationToken);

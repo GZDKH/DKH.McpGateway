@@ -11,6 +11,7 @@ public static class ManageLanguageTool
         "For create: provide cultureName and translations. " +
         "For update/delete: provide cultureName to identify the language (e.g. 'en-US', 'ru-RU', 'zh-CN').")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         LanguagesCrudService.LanguagesCrudServiceClient client,
         [Description("Action: create, update, or delete")] string action,
         [Description("Culture name, e.g. 'en-US', 'ru-RU', 'zh-CN' (required)")] string cultureName,
@@ -19,6 +20,8 @@ public static class ManageLanguageTool
         [Description("Published (for create/update)")] bool? published = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
         {
             var request = new CreateLanguageRequest

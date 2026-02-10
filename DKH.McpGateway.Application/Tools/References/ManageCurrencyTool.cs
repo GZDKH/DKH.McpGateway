@@ -11,6 +11,7 @@ public static class ManageCurrencyTool
         "For create: provide code, symbol, rate, and translations. " +
         "For update/delete: provide code to identify the currency (e.g. 'USD', 'EUR', 'CNY').")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         CurrenciesCrudService.CurrenciesCrudServiceClient client,
         [Description("Action: create, update, or delete")] string action,
         [Description("Currency code, e.g. 'USD', 'EUR', 'CNY' (required)")] string code,
@@ -23,6 +24,8 @@ public static class ManageCurrencyTool
         [Description("Published (for create/update)")] bool? published = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
         {
             if (string.IsNullOrEmpty(symbol))

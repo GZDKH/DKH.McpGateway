@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DKH.McpGateway.Application;
@@ -8,9 +9,15 @@ namespace DKH.McpGateway.Application;
 public static class ConfigureServices
 {
     /// <summary>
-    /// Registers application services.
+    /// Registers application services including memory cache for API key validation.
     /// </summary>
-    public static IServiceCollection AddApplication(this IServiceCollection services) => services;
+    public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        services.AddMemoryCache();
+        services.AddHttpContextAccessor();
+        services.AddScoped<IApiKeyContext, HttpApiKeyContext>();
+        return services;
+    }
 
     /// <summary>
     /// Registers the MCP server with tools, resources, and prompts.
@@ -24,5 +31,16 @@ public static class ConfigureServices
             .WithToolsFromAssembly(typeof(ConfigureServices).Assembly)
             .WithResourcesFromAssembly(typeof(ConfigureServices).Assembly)
             .WithPromptsFromAssembly(typeof(ConfigureServices).Assembly);
+    }
+
+    /// <summary>
+    /// Adds API key authentication and usage recording middleware.
+    /// Must be called before <c>MapMcp()</c> in the HTTP pipeline.
+    /// </summary>
+    public static IApplicationBuilder UseApiKeyAuth(this IApplicationBuilder app)
+    {
+        app.UseMiddleware<ApiKeyAuthMiddleware>();
+        app.UseMiddleware<ApiKeyUsageRecorder>();
+        return app;
     }
 }

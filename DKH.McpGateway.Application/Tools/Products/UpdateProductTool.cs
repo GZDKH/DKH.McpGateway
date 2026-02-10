@@ -54,6 +54,7 @@ public static class UpdateProductTool
         "Reference brands, tags, catalogs, and specifications by their codes. " +
         "Example JSON: " + ExampleJson)]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductCatalogDataExchangeClient client,
         [Description(
             "Product JSON in data-exchange format. 'code' is required to identify the product. " +
@@ -62,6 +63,8 @@ public static class UpdateProductTool
         string productJson,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Write);
+
         var jsonBytes = System.Text.Encoding.UTF8.GetBytes($"[{productJson}]");
 
         var response = await client.ImportAsync(
