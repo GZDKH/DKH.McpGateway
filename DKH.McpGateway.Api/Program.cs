@@ -8,7 +8,8 @@ if (useStdio)
         .AddMcpServer(options =>
             options.ServerInfo = new() { Name = "DKH.McpGateway", Version = "1.0.0" })
         .WithStdioServerTransport()
-        .WithToolsFromAssembly(typeof(ConfigureServices).Assembly);
+        .WithToolsFromAssembly(typeof(ConfigureServices).Assembly)
+        .WithResourcesFromAssembly(typeof(ConfigureServices).Assembly);
 
     var host = builder.Build();
     await host.RunAsync();
@@ -23,7 +24,8 @@ else
                 .AddMcpServer(options =>
                     options.ServerInfo = new() { Name = "DKH.McpGateway", Version = "1.0.0" })
                 .WithHttpTransport()
-                .WithToolsFromAssembly(typeof(ConfigureServices).Assembly);
+                .WithToolsFromAssembly(typeof(ConfigureServices).Assembly)
+                .WithResourcesFromAssembly(typeof(ConfigureServices).Assembly);
 
             builder.Services.AddApplication();
         })
