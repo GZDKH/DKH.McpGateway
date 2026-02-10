@@ -1,5 +1,4 @@
-using DKH.ReferenceService.Contracts.Api.CurrenciesCrud.V1;
-using DKH.ReferenceService.Contracts.Models.Currency.V1;
+using DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.References;
 
@@ -7,165 +6,97 @@ namespace DKH.McpGateway.Application.Tools.References;
 public static class ManageCurrencyTool
 {
     [McpServerTool(Name = "manage_currency"), Description(
-        "Create, update, or delete a currency. " +
-        "For create: provide code, symbol, rate, and translations. " +
-        "For update/delete: provide code to identify the currency (e.g. 'USD', 'EUR', 'CNY').")]
+        "Manage currencies: create, update, upsert, delete, get, or list. " +
+        "For create/update/upsert: provide currency JSON with fields: code, rate, symbol, customFormatting, " +
+        "isPrimary, published, displayOrder, translations [{languageCode, name}]. " +
+        "For delete/get: provide currency code. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        CurrenciesCrudService.CurrenciesCrudServiceClient client,
-        [Description("Action: create, update, or delete")] string action,
-        [Description("Currency code, e.g. 'USD', 'EUR', 'CNY' (required)")] string code,
-        [Description("Currency symbol, e.g. '$', '€', '¥' (for create)")] string? symbol = null,
-        [Description("Exchange rate relative to primary currency (for create/update)")] double? rate = null,
-        [Description("Is primary currency (for create/update)")] bool? isPrimary = null,
-        [Description("Custom formatting string (for create/update)")] string? customFormatting = null,
-        [Description("Translations as JSON array: [{\"lang\":\"en\",\"name\":\"US Dollar\"},{\"lang\":\"ru\",\"name\":\"Доллар США\"}]")] string? translations = null,
-        [Description("Display order (for create/update)")] int? displayOrder = null,
-        [Description("Published (for create/update)")] bool? published = null,
+        CurrencyManagementService.CurrencyManagementServiceClient client,
+        [Description("Action: create, update, upsert, delete, get, or list")] string action,
+        [Description("Currency JSON (for create/update/upsert)")] string? json = null,
+        [Description("Currency code (for delete/get, e.g. 'USD', 'RUB')")] string? code = null,
+        [Description("Search text (for list)")] string? search = null,
+        [Description("Page number (for list, default 1)")] int? page = null,
+        [Description("Page size (for list, default 20)")] int? pageSize = null,
+        [Description("Language code to filter translations (for get/list)")] string? language = null,
         CancellationToken cancellationToken = default)
     {
-        apiKeyContext.EnsurePermission(McpPermissions.Write);
-
-        if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
+        return action.ToLowerInvariant() switch
         {
-            if (string.IsNullOrEmpty(symbol))
-            {
-                return JsonSerializer.Serialize(
-                    new { success = false, error = "symbol is required for create" },
-                    McpJsonDefaults.Options);
-            }
-
-            var request = new CreateCurrencyRequest
-            {
-                Code = code,
-                Symbol = symbol,
-                Rate = rate ?? 1.0,
-                IsPrimary = isPrimary ?? false,
-                CustomFormatting = customFormatting ?? "",
-            };
-
-            if (displayOrder.HasValue)
-            {
-                request.DisplayOrder = displayOrder.Value;
-            }
-
-            if (published.HasValue)
-            {
-                request.Published = published.Value;
-            }
-
-            AddTranslations(request.Translations, translations);
-
-            var response = await client.CreateCurrencyAsync(request, cancellationToken: cancellationToken);
-            var c = response.Currency;
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "created",
-                currency = new { c.Id, c.Code, c.Symbol, c.Rate, c.IsPrimary },
-            }, McpJsonDefaults.Options);
-        }
-
-        var found = await client.GetCurrencyByCodeAsync(
-            new GetCurrencyByCodeRequest { Code = code },
-            cancellationToken: cancellationToken);
-
-        if (found.Currency is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Currency with code '{code}' not found" },
-                McpJsonDefaults.Options);
-        }
-
-        if (string.Equals(action, "update", StringComparison.OrdinalIgnoreCase))
-        {
-            var request = new UpdateCurrencyRequest
-            {
-                Id = found.Currency.Id,
-                Code = code,
-                Symbol = symbol ?? found.Currency.Symbol,
-                Rate = rate ?? found.Currency.Rate,
-                IsPrimary = isPrimary ?? found.Currency.IsPrimary,
-                CustomFormatting = customFormatting ?? found.Currency.CustomFormatting,
-            };
-
-            if (displayOrder.HasValue)
-            {
-                request.DisplayOrder = displayOrder.Value;
-            }
-
-            if (published.HasValue)
-            {
-                request.Published = published.Value;
-            }
-
-            if (!string.IsNullOrEmpty(translations))
-            {
-                AddTranslations(request.Translations, translations);
-            }
-            else
-            {
-                request.Translations.AddRange(found.Currency.Translations);
-            }
-
-            var response = await client.UpdateCurrencyAsync(request, cancellationToken: cancellationToken);
-            var c = response.Currency;
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "updated",
-                currency = new { c.Id, c.Code, c.Symbol, c.Rate, c.IsPrimary },
-            }, McpJsonDefaults.Options);
-        }
-
-        if (string.Equals(action, "delete", StringComparison.OrdinalIgnoreCase))
-        {
-            await client.DeleteCurrencyAsync(
-                new DeleteCurrencyRequest { Id = found.Currency.Id },
-                cancellationToken: cancellationToken);
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "deleted",
-                deletedCode = code,
-            }, McpJsonDefaults.Options);
-        }
-
-        return JsonSerializer.Serialize(
-            new { success = false, error = $"Unknown action '{action}'. Use: create, update, or delete" },
-            McpJsonDefaults.Options);
+            "create" or "update" or "upsert" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
+            "delete" => await DeleteAsync(client, apiKeyContext, code, cancellationToken),
+            "get" => await GetAsync(client, apiKeyContext, code, language, cancellationToken),
+            "list" => await ListAsync(client, apiKeyContext, search, page, pageSize, language, cancellationToken),
+            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, upsert, delete, get, or list"),
+        };
     }
 
-    private static void AddTranslations(
-        Google.Protobuf.Collections.RepeatedField<CurrencyTranslation> field, string? json)
+    private static async Task<string> ManageAsync(
+        CurrencyManagementService.CurrencyManagementServiceClient client,
+        IApiKeyContext ctx, string action, string? json, CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(json))
+        ctx.EnsurePermission(McpPermissions.Write);
+        if (string.IsNullOrWhiteSpace(json))
         {
-            return;
+            return McpProtoHelper.FormatError("json is required for create/update/upsert");
         }
 
-        var items = JsonSerializer.Deserialize<List<TranslationInput>>(json, McpJsonDefaults.Options);
-        if (items is null)
-        {
-            return;
-        }
+        var data = McpProtoHelper.Parser.Parse<CurrencyData>(json);
+        var request = new ManageCurrencyRequest { Data = data };
 
-        foreach (var item in items)
+        var response = action.ToLowerInvariant() switch
         {
-            field.Add(new CurrencyTranslation
-            {
-                LanguageCode = item.Lang ?? "",
-                Name = item.Name ?? "",
-            });
-        }
+            "create" => await client.CreateAsync(request, cancellationToken: ct),
+            "update" => await client.UpdateAsync(request, cancellationToken: ct),
+            _ => await client.UpsertAsync(request, cancellationToken: ct),
+        };
+
+        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
     }
 
-    private sealed class TranslationInput
+    private static async Task<string> DeleteAsync(
+        CurrencyManagementService.CurrencyManagementServiceClient client,
+        IApiKeyContext ctx, string? code, CancellationToken ct)
     {
-        public string? Lang { get; set; }
-        public string? Name { get; set; }
+        ctx.EnsurePermission(McpPermissions.Write);
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return McpProtoHelper.FormatError("code is required for delete");
+        }
+
+        var response = await client.DeleteAsync(new DeleteCurrencyRequest { Code = code }, cancellationToken: ct);
+        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+    }
+
+    private static async Task<string> GetAsync(
+        CurrencyManagementService.CurrencyManagementServiceClient client,
+        IApiKeyContext ctx, string? code, string? language, CancellationToken ct)
+    {
+        ctx.EnsurePermission(McpPermissions.Read);
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return McpProtoHelper.FormatError("code is required for get");
+        }
+
+        var response = await client.GetAsync(
+            new GetCurrencyRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
+        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+    }
+
+    private static async Task<string> ListAsync(
+        CurrencyManagementService.CurrencyManagementServiceClient client,
+        IApiKeyContext ctx, string? search, int? page, int? pageSize, string? language, CancellationToken ct)
+    {
+        ctx.EnsurePermission(McpPermissions.Read);
+        var response = await client.ListAsync(new ListCurrenciesRequest
+        {
+            Search = search ?? "",
+            Page = page ?? 1,
+            PageSize = pageSize ?? 20,
+            Language = language ?? "",
+        }, cancellationToken: ct);
+
+        return McpProtoHelper.FormatListResponse(response.Items, response.TotalCount, response.Page, response.PageSize);
     }
 }

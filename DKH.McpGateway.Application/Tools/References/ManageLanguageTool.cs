@@ -1,5 +1,4 @@
-using DKH.ReferenceService.Contracts.Api.LanguagesCrud.V1;
-using DKH.ReferenceService.Contracts.Models.Language.V1;
+using DKH.ReferenceService.Contracts.Reference.Api.LanguageManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.References;
 
@@ -7,153 +6,98 @@ namespace DKH.McpGateway.Application.Tools.References;
 public static class ManageLanguageTool
 {
     [McpServerTool(Name = "manage_language"), Description(
-        "Create, update, or delete a language. " +
-        "For create: provide cultureName and translations. " +
-        "For update/delete: provide cultureName to identify the language (e.g. 'en-US', 'ru-RU', 'zh-CN').")]
+        "Manage languages: create, update, upsert, delete, get, or list. " +
+        "For create/update/upsert: provide language JSON with fields: cultureName, nativeName, " +
+        "twoLetterLanguageName, threeLetterLanguageName, twoLetterRegionName, threeLetterRegionName, " +
+        "published, displayOrder, translations [{languageCode, name}]. " +
+        "For delete/get: provide language culture name. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        LanguagesCrudService.LanguagesCrudServiceClient client,
-        [Description("Action: create, update, or delete")] string action,
-        [Description("Culture name, e.g. 'en-US', 'ru-RU', 'zh-CN' (required)")] string cultureName,
-        [Description("Translations as JSON array: [{\"lang\":\"en\",\"name\":\"English\"},{\"lang\":\"ru\",\"name\":\"Английский\"}]")] string? translations = null,
-        [Description("Display order (for create/update)")] int? displayOrder = null,
-        [Description("Published (for create/update)")] bool? published = null,
+        LanguageManagementService.LanguageManagementServiceClient client,
+        [Description("Action: create, update, upsert, delete, get, or list")] string action,
+        [Description("Language JSON (for create/update/upsert)")] string? json = null,
+        [Description("Language culture name (for delete/get, e.g. 'en', 'ru', 'zh')")] string? code = null,
+        [Description("Search text (for list)")] string? search = null,
+        [Description("Page number (for list, default 1)")] int? page = null,
+        [Description("Page size (for list, default 20)")] int? pageSize = null,
+        [Description("Language code to filter translations (for get/list)")] string? language = null,
         CancellationToken cancellationToken = default)
     {
-        apiKeyContext.EnsurePermission(McpPermissions.Write);
-
-        if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
+        return action.ToLowerInvariant() switch
         {
-            var request = new CreateLanguageRequest
-            {
-                CultureName = cultureName,
-            };
-
-            if (displayOrder.HasValue)
-            {
-                request.DisplayOrder = displayOrder.Value;
-            }
-
-            if (published.HasValue)
-            {
-                request.Published = published.Value;
-            }
-
-            AddTranslations(request.Translations, translations);
-
-            var response = await client.CreateLanguageAsync(request, cancellationToken: cancellationToken);
-            var l = response.Languages;
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "created",
-                language = new { l.Id, l.CultureName, l.NativeName, l.TwoLetterLanguageName },
-            }, McpJsonDefaults.Options);
-        }
-
-        var found = await FindLanguageByCultureAsync(client, cultureName, cancellationToken);
-        if (found is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Language with culture '{cultureName}' not found" },
-                McpJsonDefaults.Options);
-        }
-
-        if (string.Equals(action, "update", StringComparison.OrdinalIgnoreCase))
-        {
-            var request = new UpdateLanguageRequest
-            {
-                Id = found.Id,
-                CultureName = cultureName,
-            };
-
-            if (displayOrder.HasValue)
-            {
-                request.DisplayOrder = displayOrder.Value;
-            }
-
-            if (published.HasValue)
-            {
-                request.Published = published.Value;
-            }
-
-            if (!string.IsNullOrEmpty(translations))
-            {
-                AddTranslations(request.Translations, translations);
-            }
-            else
-            {
-                request.Translations.AddRange(found.Translations);
-            }
-
-            var response = await client.UpdateLanguageAsync(request, cancellationToken: cancellationToken);
-            var l = response.Languages;
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "updated",
-                language = new { l.Id, l.CultureName, l.NativeName, l.TwoLetterLanguageName },
-            }, McpJsonDefaults.Options);
-        }
-
-        if (string.Equals(action, "delete", StringComparison.OrdinalIgnoreCase))
-        {
-            await client.DeleteLanguageAsync(
-                new DeleteLanguageRequest { Id = found.Id },
-                cancellationToken: cancellationToken);
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "deleted",
-                deletedCulture = cultureName,
-            }, McpJsonDefaults.Options);
-        }
-
-        return JsonSerializer.Serialize(
-            new { success = false, error = $"Unknown action '{action}'. Use: create, update, or delete" },
-            McpJsonDefaults.Options);
+            "create" or "update" or "upsert" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
+            "delete" => await DeleteAsync(client, apiKeyContext, code, cancellationToken),
+            "get" => await GetAsync(client, apiKeyContext, code, language, cancellationToken),
+            "list" => await ListAsync(client, apiKeyContext, search, page, pageSize, language, cancellationToken),
+            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, upsert, delete, get, or list"),
+        };
     }
 
-    private static async Task<Language?> FindLanguageByCultureAsync(
-        LanguagesCrudService.LanguagesCrudServiceClient client, string culture, CancellationToken ct)
+    private static async Task<string> ManageAsync(
+        LanguageManagementService.LanguageManagementServiceClient client,
+        IApiKeyContext ctx, string action, string? json, CancellationToken ct)
     {
-        var response = await client.GetLanguagesAsync(
-            new GetLanguagesRequest { Filter = $"CultureName == \"{culture}\"", PageSize = 1 },
-            cancellationToken: ct);
+        ctx.EnsurePermission(McpPermissions.Write);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return McpProtoHelper.FormatError("json is required for create/update/upsert");
+        }
 
-        return response.Languages.FirstOrDefault();
+        var data = McpProtoHelper.Parser.Parse<LanguageData>(json);
+        var request = new ManageLanguageRequest { Data = data };
+
+        var response = action.ToLowerInvariant() switch
+        {
+            "create" => await client.CreateAsync(request, cancellationToken: ct),
+            "update" => await client.UpdateAsync(request, cancellationToken: ct),
+            _ => await client.UpsertAsync(request, cancellationToken: ct),
+        };
+
+        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
     }
 
-    private static void AddTranslations(
-        Google.Protobuf.Collections.RepeatedField<LanguageTranslation> field, string? json)
+    private static async Task<string> DeleteAsync(
+        LanguageManagementService.LanguageManagementServiceClient client,
+        IApiKeyContext ctx, string? code, CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(json))
+        ctx.EnsurePermission(McpPermissions.Write);
+        if (string.IsNullOrWhiteSpace(code))
         {
-            return;
+            return McpProtoHelper.FormatError("code is required for delete");
         }
 
-        var items = JsonSerializer.Deserialize<List<TranslationInput>>(json, McpJsonDefaults.Options);
-        if (items is null)
-        {
-            return;
-        }
-
-        foreach (var item in items)
-        {
-            field.Add(new LanguageTranslation
-            {
-                LanguageCode = item.Lang ?? "",
-                Name = item.Name ?? "",
-            });
-        }
+        var response = await client.DeleteAsync(new DeleteLanguageRequest { Code = code }, cancellationToken: ct);
+        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
     }
 
-    private sealed class TranslationInput
+    private static async Task<string> GetAsync(
+        LanguageManagementService.LanguageManagementServiceClient client,
+        IApiKeyContext ctx, string? code, string? language, CancellationToken ct)
     {
-        public string? Lang { get; set; }
-        public string? Name { get; set; }
+        ctx.EnsurePermission(McpPermissions.Read);
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return McpProtoHelper.FormatError("code is required for get");
+        }
+
+        var response = await client.GetAsync(
+            new GetLanguageRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
+        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+    }
+
+    private static async Task<string> ListAsync(
+        LanguageManagementService.LanguageManagementServiceClient client,
+        IApiKeyContext ctx, string? search, int? page, int? pageSize, string? language, CancellationToken ct)
+    {
+        ctx.EnsurePermission(McpPermissions.Read);
+        var response = await client.ListAsync(new ListLanguagesRequest
+        {
+            Search = search ?? "",
+            Page = page ?? 1,
+            PageSize = pageSize ?? 20,
+            Language = language ?? "",
+        }, cancellationToken: ct);
+
+        return McpProtoHelper.FormatListResponse(response.Items, response.TotalCount, response.Page, response.PageSize);
     }
 }

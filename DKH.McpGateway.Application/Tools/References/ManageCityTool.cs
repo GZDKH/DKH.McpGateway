@@ -1,21 +1,21 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.TagManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.CityManagement.v1;
 
-namespace DKH.McpGateway.Application.Tools.Tags;
+namespace DKH.McpGateway.Application.Tools.References;
 
 [McpServerToolType]
-public static class ManageTagsTool
+public static class ManageCityTool
 {
-    [McpServerTool(Name = "manage_tags"), Description(
-        "Manage tags: create, update, upsert, delete, get, or list. " +
-        "For create/update/upsert: provide tag JSON with fields: code, displayOrder, published, " +
-        "translations [{languageCode, name}]. " +
-        "For delete/get: provide tag code. For list: optionally provide search, page, pageSize.")]
+    [McpServerTool(Name = "manage_city"), Description(
+        "Manage cities: create, update, upsert, delete, get, or list. " +
+        "For create/update/upsert: provide city JSON with fields: code, country, state, " +
+        "published, displayOrder, translations [{languageCode, name}]. " +
+        "For delete/get: provide city code. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        TagManagementService.TagManagementServiceClient client,
+        CityManagementService.CityManagementServiceClient client,
         [Description("Action: create, update, upsert, delete, get, or list")] string action,
-        [Description("Tag JSON (for create/update/upsert)")] string? json = null,
-        [Description("Tag code (for delete/get)")] string? code = null,
+        [Description("City JSON (for create/update/upsert)")] string? json = null,
+        [Description("City code (for delete/get)")] string? code = null,
         [Description("Search text (for list)")] string? search = null,
         [Description("Page number (for list, default 1)")] int? page = null,
         [Description("Page size (for list, default 20)")] int? pageSize = null,
@@ -33,7 +33,7 @@ public static class ManageTagsTool
     }
 
     private static async Task<string> ManageAsync(
-        TagManagementService.TagManagementServiceClient client,
+        CityManagementService.CityManagementServiceClient client,
         IApiKeyContext ctx, string action, string? json, CancellationToken ct)
     {
         ctx.EnsurePermission(McpPermissions.Write);
@@ -42,8 +42,8 @@ public static class ManageTagsTool
             return McpProtoHelper.FormatError("json is required for create/update/upsert");
         }
 
-        var data = McpProtoHelper.Parser.Parse<TagData>(json);
-        var request = new ManageTagRequest { Data = data };
+        var data = McpProtoHelper.Parser.Parse<CityData>(json);
+        var request = new ManageCityRequest { Data = data };
 
         var response = action.ToLowerInvariant() switch
         {
@@ -56,7 +56,7 @@ public static class ManageTagsTool
     }
 
     private static async Task<string> DeleteAsync(
-        TagManagementService.TagManagementServiceClient client,
+        CityManagementService.CityManagementServiceClient client,
         IApiKeyContext ctx, string? code, CancellationToken ct)
     {
         ctx.EnsurePermission(McpPermissions.Write);
@@ -65,12 +65,12 @@ public static class ManageTagsTool
             return McpProtoHelper.FormatError("code is required for delete");
         }
 
-        var response = await client.DeleteAsync(new DeleteTagRequest { Code = code }, cancellationToken: ct);
+        var response = await client.DeleteAsync(new DeleteCityRequest { Code = code }, cancellationToken: ct);
         return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
     }
 
     private static async Task<string> GetAsync(
-        TagManagementService.TagManagementServiceClient client,
+        CityManagementService.CityManagementServiceClient client,
         IApiKeyContext ctx, string? code, string? language, CancellationToken ct)
     {
         ctx.EnsurePermission(McpPermissions.Read);
@@ -80,16 +80,16 @@ public static class ManageTagsTool
         }
 
         var response = await client.GetAsync(
-            new GetTagRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
+            new GetCityRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
         return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
     }
 
     private static async Task<string> ListAsync(
-        TagManagementService.TagManagementServiceClient client,
+        CityManagementService.CityManagementServiceClient client,
         IApiKeyContext ctx, string? search, int? page, int? pageSize, string? language, CancellationToken ct)
     {
         ctx.EnsurePermission(McpPermissions.Read);
-        var response = await client.ListAsync(new ListTagsRequest
+        var response = await client.ListAsync(new ListCitiesRequest
         {
             Search = search ?? "",
             Page = page ?? 1,

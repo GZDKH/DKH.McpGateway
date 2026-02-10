@@ -1,5 +1,4 @@
-using DKH.ReferenceService.Contracts.Api.CountriesCrud.V1;
-using DKH.ReferenceService.Contracts.Models.Country.V1;
+using DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.References;
 
@@ -7,169 +6,97 @@ namespace DKH.McpGateway.Application.Tools.References;
 public static class ManageCountryTool
 {
     [McpServerTool(Name = "manage_country"), Description(
-        "Create, update, or delete a country. " +
-        "For create: provide twoLetterCode, threeLetterCode, nativeName, and translations. " +
-        "For update/delete: provide twoLetterCode to identify the country.")]
+        "Manage countries: create, update, upsert, delete, get, or list. " +
+        "For create/update/upsert: provide country JSON with fields: twoLetterCode, threeLetterCode, numericCode, " +
+        "nativeName, published, displayOrder, translations [{languageCode, name}]. " +
+        "For delete/get: provide country two-letter code. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        CountriesCrudService.CountriesCrudServiceClient client,
-        [Description("Action: create, update, or delete")] string action,
-        [Description("ISO two-letter code, e.g. 'US', 'CN', 'RU' (required)")] string twoLetterCode,
-        [Description("ISO three-letter code, e.g. 'USA', 'CHN', 'RUS' (for create)")] string? threeLetterCode = null,
-        [Description("ISO numeric code, e.g. 840 for USA (for create)")] int? numericCode = null,
-        [Description("Native name, e.g. 'United States' (for create/update)")] string? nativeName = null,
-        [Description("Translations as JSON array: [{\"lang\":\"en\",\"name\":\"United States\"},{\"lang\":\"ru\",\"name\":\"США\"}]")] string? translations = null,
-        [Description("Display order (for create/update)")] int? displayOrder = null,
-        [Description("Published (for create/update)")] bool? published = null,
+        CountryManagementService.CountryManagementServiceClient client,
+        [Description("Action: create, update, upsert, delete, get, or list")] string action,
+        [Description("Country JSON (for create/update/upsert)")] string? json = null,
+        [Description("Country two-letter code (for delete/get, e.g. 'US', 'CN')")] string? code = null,
+        [Description("Search text (for list)")] string? search = null,
+        [Description("Page number (for list, default 1)")] int? page = null,
+        [Description("Page size (for list, default 20)")] int? pageSize = null,
+        [Description("Language code to filter translations (for get/list)")] string? language = null,
         CancellationToken cancellationToken = default)
     {
-        apiKeyContext.EnsurePermission(McpPermissions.Write);
-
-        if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
+        return action.ToLowerInvariant() switch
         {
-            if (string.IsNullOrEmpty(threeLetterCode) || string.IsNullOrEmpty(nativeName))
-            {
-                return JsonSerializer.Serialize(
-                    new { success = false, error = "threeLetterCode and nativeName are required for create" },
-                    McpJsonDefaults.Options);
-            }
-
-            var request = new CreateCountryRequest
-            {
-                TwoLetterCode = twoLetterCode,
-                ThreeLetterCode = threeLetterCode,
-                NumericCode = numericCode ?? 0,
-                NativeName = nativeName,
-            };
-
-            if (displayOrder.HasValue)
-            {
-                request.DisplayOrder = displayOrder.Value;
-            }
-
-            if (published.HasValue)
-            {
-                request.Published = published.Value;
-            }
-
-            AddTranslations(request.Translations, translations);
-
-            var response = await client.CreateCountryAsync(request, cancellationToken: cancellationToken);
-            var c = response.Country;
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "created",
-                country = new { c.Id, c.TwoLetterCode, c.ThreeLetterCode, c.NativeName },
-            }, McpJsonDefaults.Options);
-        }
-
-        var found = await FindCountryByCodeAsync(client, twoLetterCode, cancellationToken);
-        if (found is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Country with code '{twoLetterCode}' not found" },
-                McpJsonDefaults.Options);
-        }
-
-        if (string.Equals(action, "update", StringComparison.OrdinalIgnoreCase))
-        {
-            var request = new UpdateCountryRequest
-            {
-                Id = found.Id,
-                TwoLetterCode = twoLetterCode,
-                ThreeLetterCode = threeLetterCode ?? found.ThreeLetterCode,
-                NumericCode = numericCode ?? found.NumericCode,
-                NativeName = nativeName ?? found.NativeName,
-            };
-
-            if (displayOrder.HasValue)
-            {
-                request.DisplayOrder = displayOrder.Value;
-            }
-
-            if (published.HasValue)
-            {
-                request.Published = published.Value;
-            }
-
-            if (!string.IsNullOrEmpty(translations))
-            {
-                AddTranslations(request.Translations, translations);
-            }
-            else
-            {
-                request.Translations.AddRange(found.Translations);
-            }
-
-            var response = await client.UpdateCountryAsync(request, cancellationToken: cancellationToken);
-            var c = response.Country;
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "updated",
-                country = new { c.Id, c.TwoLetterCode, c.ThreeLetterCode, c.NativeName },
-            }, McpJsonDefaults.Options);
-        }
-
-        if (string.Equals(action, "delete", StringComparison.OrdinalIgnoreCase))
-        {
-            await client.DeleteCountryAsync(
-                new DeleteCountryRequest { Id = found.Id },
-                cancellationToken: cancellationToken);
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "deleted",
-                deletedCode = twoLetterCode,
-            }, McpJsonDefaults.Options);
-        }
-
-        return JsonSerializer.Serialize(
-            new { success = false, error = $"Unknown action '{action}'. Use: create, update, or delete" },
-            McpJsonDefaults.Options);
+            "create" or "update" or "upsert" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
+            "delete" => await DeleteAsync(client, apiKeyContext, code, cancellationToken),
+            "get" => await GetAsync(client, apiKeyContext, code, language, cancellationToken),
+            "list" => await ListAsync(client, apiKeyContext, search, page, pageSize, language, cancellationToken),
+            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, upsert, delete, get, or list"),
+        };
     }
 
-    private static async Task<Country?> FindCountryByCodeAsync(
-        CountriesCrudService.CountriesCrudServiceClient client, string code, CancellationToken ct)
+    private static async Task<string> ManageAsync(
+        CountryManagementService.CountryManagementServiceClient client,
+        IApiKeyContext ctx, string action, string? json, CancellationToken ct)
     {
-        var response = await client.GetCountriesAsync(
-            new GetCountriesRequest { Filter = $"TwoLetterCode == \"{code}\"", PageSize = 1 },
-            cancellationToken: ct);
+        ctx.EnsurePermission(McpPermissions.Write);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return McpProtoHelper.FormatError("json is required for create/update/upsert");
+        }
 
-        return response.Country.FirstOrDefault();
+        var data = McpProtoHelper.Parser.Parse<CountryData>(json);
+        var request = new ManageCountryRequest { Data = data };
+
+        var response = action.ToLowerInvariant() switch
+        {
+            "create" => await client.CreateAsync(request, cancellationToken: ct),
+            "update" => await client.UpdateAsync(request, cancellationToken: ct),
+            _ => await client.UpsertAsync(request, cancellationToken: ct),
+        };
+
+        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
     }
 
-    private static void AddTranslations(
-        Google.Protobuf.Collections.RepeatedField<CountryTranslation> field, string? json)
+    private static async Task<string> DeleteAsync(
+        CountryManagementService.CountryManagementServiceClient client,
+        IApiKeyContext ctx, string? code, CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(json))
+        ctx.EnsurePermission(McpPermissions.Write);
+        if (string.IsNullOrWhiteSpace(code))
         {
-            return;
+            return McpProtoHelper.FormatError("code is required for delete");
         }
 
-        var items = JsonSerializer.Deserialize<List<TranslationInput>>(json, McpJsonDefaults.Options);
-        if (items is null)
-        {
-            return;
-        }
-
-        foreach (var item in items)
-        {
-            field.Add(new CountryTranslation
-            {
-                LanguageCode = item.Lang ?? "",
-                Name = item.Name ?? "",
-            });
-        }
+        var response = await client.DeleteAsync(new DeleteCountryRequest { Code = code }, cancellationToken: ct);
+        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
     }
 
-    private sealed class TranslationInput
+    private static async Task<string> GetAsync(
+        CountryManagementService.CountryManagementServiceClient client,
+        IApiKeyContext ctx, string? code, string? language, CancellationToken ct)
     {
-        public string? Lang { get; set; }
-        public string? Name { get; set; }
+        ctx.EnsurePermission(McpPermissions.Read);
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return McpProtoHelper.FormatError("code is required for get");
+        }
+
+        var response = await client.GetAsync(
+            new GetCountryRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
+        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+    }
+
+    private static async Task<string> ListAsync(
+        CountryManagementService.CountryManagementServiceClient client,
+        IApiKeyContext ctx, string? search, int? page, int? pageSize, string? language, CancellationToken ct)
+    {
+        ctx.EnsurePermission(McpPermissions.Read);
+        var response = await client.ListAsync(new ListCountriesRequest
+        {
+            Search = search ?? "",
+            Page = page ?? 1,
+            PageSize = pageSize ?? 20,
+            Language = language ?? "",
+        }, cancellationToken: ct);
+
+        return McpProtoHelper.FormatListResponse(response.Items, response.TotalCount, response.Page, response.PageSize);
     }
 }

@@ -1,28 +1,36 @@
 using DKH.Platform.Grpc.Client;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandsCrud.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogsCrud.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoriesCrud.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ManufacturersCrud.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.PackagesCrud.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ManufacturerManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.PackageManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrGroupManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrOptionManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductsCrud.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductSearchQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.TagsCrud.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecAttributeManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecGroupManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecOptionManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.TagManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantAttrManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantAttrValueManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantQuery.v1;
-using DKH.ReferenceService.Contracts.Api.CityQuery.V1;
-using DKH.ReferenceService.Contracts.Api.CountriesCrud.V1;
-using DKH.ReferenceService.Contracts.Api.CountryQuery.V1;
-using DKH.ReferenceService.Contracts.Api.CurrenciesCrud.V1;
-using DKH.ReferenceService.Contracts.Api.CurrencyQuery.V1;
-using DKH.ReferenceService.Contracts.Api.DeliveryQuery.V1;
-using DKH.ReferenceService.Contracts.Api.DeliveryTimesCrud.V1;
-using DKH.ReferenceService.Contracts.Api.LanguageQuery.V1;
-using DKH.ReferenceService.Contracts.Api.LanguagesCrud.V1;
-using DKH.ReferenceService.Contracts.Api.MeasurementQuery.V1;
-using DKH.ReferenceService.Contracts.Api.StateProvinceQuery.V1;
+using DKH.ReferenceService.Contracts.Reference.Api.CityManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.DeliveryTimeManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.DimensionManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.LanguageManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.PriceLabelManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.QuantityUnitManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.StateProvinceManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.StateProvinceTypeManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v1;
 using DKH.ReviewService.Contracts.Api.V1;
 using DKH.StorefrontService.Contracts.V1;
 using DKH.TelegramBotService.Contracts.Auth.V1;
@@ -49,34 +57,44 @@ public static class GrpcEndpointsRegistration
     /// </summary>
     public static void AddMcpGatewayEndpoints(this IPlatformGrpcClientBuilder grpc)
     {
-        // ProductCatalogService (5003)
+        // ProductCatalogService — Query (5003)
         grpc.AddEndpointFromConfiguration<ProductQueryService.ProductQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<ProductSearchQueryService.ProductSearchQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<BrandQueryService.BrandQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<CatalogQueryService.CatalogQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<CategoryQueryService.CategoryQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<VariantQueryService.VariantQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<BrandsCrudService.BrandsCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<CatalogsCrudService.CatalogsCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<CategoriesCrudService.CategoriesCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<ProductsCrudService.ProductsCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<TagsCrudService.TagsCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<ManufacturersCrudService.ManufacturersCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<PackagesCrudService.PackagesCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<ProductCatalogDataExchangeClient>("ProductCatalogDataExchangeServiceClient");
 
-        // ReferenceService (5004)
-        grpc.AddEndpointFromConfiguration<CountryQueryService.CountryQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<CurrencyQueryService.CurrencyQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<LanguageQueryService.LanguageQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<MeasurementQueryService.MeasurementQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<DeliveryQueryService.DeliveryQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<CountriesCrudService.CountriesCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<CurrenciesCrudService.CurrenciesCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<LanguagesCrudService.LanguagesCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<StateProvinceQueryService.StateProvinceQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<CityQueryService.CityQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<DeliveryTimesCrudService.DeliveryTimesCrudServiceClient>();
+        // ProductCatalogService — Management (5003)
+        grpc.AddEndpointFromConfiguration<BrandManagementService.BrandManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<CatalogManagementService.CatalogManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<CategoryManagementService.CategoryManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<ManufacturerManagementService.ManufacturerManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<PackageManagementService.PackageManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<ProductManagementService.ProductManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<TagManagementService.TagManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<SpecGroupManagementService.SpecGroupManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<SpecAttributeManagementService.SpecAttributeManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<SpecOptionManagementService.SpecOptionManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<ProductAttrGroupManagementService.ProductAttrGroupManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<ProductAttrManagementService.ProductAttrManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<ProductAttrOptionManagementService.ProductAttrOptionManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<VariantAttrManagementService.VariantAttrManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<VariantAttrValueManagementService.VariantAttrValueManagementServiceClient>();
+
+        // ReferenceService — Management (5004)
+        grpc.AddEndpointFromConfiguration<CountryManagementService.CountryManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<CurrencyManagementService.CurrencyManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<LanguageManagementService.LanguageManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<DeliveryTimeManagementService.DeliveryTimeManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<DimensionManagementService.DimensionManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<WeightManagementService.WeightManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<QuantityUnitManagementService.QuantityUnitManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<PriceLabelManagementService.PriceLabelManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<StateProvinceManagementService.StateProvinceManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<StateProvinceTypeManagementService.StateProvinceTypeManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<CityManagementService.CityManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<ReferenceDataExchangeClient>("ReferenceDataExchangeServiceClient");
 
         // OrderService (5007)

@@ -21,8 +21,8 @@
     <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="0.8.0-preview.1"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="DKH.ProductCatalogService.Contracts" Version="1.0.0"/>
-    <PackageVersion Include="DKH.ReferenceService.Contracts" Version="1.0.0"/>
+    <PackageVersion Include="DKH.ProductCatalogService.Contracts" Version="2.0.0"/>
+    <PackageVersion Include="DKH.ReferenceService.Contracts" Version="2.0.0"/>
     <PackageVersion Include="DKH.OrderService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.StorefrontService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.ReviewService.Contracts" Version="1.0.0"/>

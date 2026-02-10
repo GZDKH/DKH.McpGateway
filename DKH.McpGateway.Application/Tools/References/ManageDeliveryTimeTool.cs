@@ -1,5 +1,4 @@
-using DKH.ReferenceService.Contracts.Api.DeliveryTimesCrud.V1;
-using DKH.ReferenceService.Contracts.Models.DeliveryTime.V1;
+using DKH.ReferenceService.Contracts.Reference.Api.DeliveryTimeManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.References;
 
@@ -7,179 +6,97 @@ namespace DKH.McpGateway.Application.Tools.References;
 public static class ManageDeliveryTimeTool
 {
     [McpServerTool(Name = "manage_delivery_time"), Description(
-        "Create, update, or delete a delivery time. " +
-        "For create: provide code, delivery day ranges, and translations. " +
-        "For update/delete: provide code to identify the delivery time.")]
+        "Manage delivery times: create, update, upsert, delete, get, or list. " +
+        "For create/update/upsert: provide delivery time JSON with fields: code, color, isDefault, " +
+        "deliveryNotBeforeDays, deliveryNotLateDays, published, displayOrder, translations [{languageCode, name}]. " +
+        "For delete/get: provide delivery time code. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        DeliveryTimesCrudService.DeliveryTimesCrudServiceClient client,
-        [Description("Action: create, update, or delete")] string action,
-        [Description("Delivery time code, e.g. 'standard', 'express', 'next-day' (required)")] string code,
-        [Description("Minimum delivery days (for create/update)")] int? minDays = null,
-        [Description("Maximum delivery days (for create/update)")] int? maxDays = null,
-        [Description("Color hex code, e.g. '#28a745' (for create/update)")] string? color = null,
-        [Description("Is default delivery time (for create/update)")] bool? isDefault = null,
-        [Description("Translations as JSON array: [{\"lang\":\"en\",\"name\":\"Standard delivery\"},{\"lang\":\"ru\",\"name\":\"Стандартная доставка\"}]")] string? translations = null,
-        [Description("Display order (for create/update)")] int? displayOrder = null,
-        [Description("Published (for create/update)")] bool? published = null,
+        DeliveryTimeManagementService.DeliveryTimeManagementServiceClient client,
+        [Description("Action: create, update, upsert, delete, get, or list")] string action,
+        [Description("Delivery time JSON (for create/update/upsert)")] string? json = null,
+        [Description("Delivery time code (for delete/get)")] string? code = null,
+        [Description("Search text (for list)")] string? search = null,
+        [Description("Page number (for list, default 1)")] int? page = null,
+        [Description("Page size (for list, default 20)")] int? pageSize = null,
+        [Description("Language code to filter translations (for get/list)")] string? language = null,
         CancellationToken cancellationToken = default)
     {
-        apiKeyContext.EnsurePermission(McpPermissions.Write);
-
-        if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
+        return action.ToLowerInvariant() switch
         {
-            var request = new CreateDeliveryTimeRequest
-            {
-                Code = code,
-                DeliveryNotBeforeDays = minDays ?? 1,
-                DeliveryNotLateDays = maxDays ?? 5,
-                Color = color ?? "",
-                IsDefault = isDefault ?? false,
-            };
-
-            if (displayOrder.HasValue)
-            {
-                request.DisplayOrder = displayOrder.Value;
-            }
-
-            if (published.HasValue)
-            {
-                request.Published = published.Value;
-            }
-
-            AddTranslations(request.Translations, translations);
-
-            var response = await client.CreateDeliveryTimeAsync(request, cancellationToken: cancellationToken);
-            var d = response.DeliveryTime;
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "created",
-                deliveryTime = new
-                {
-                    d.Id,
-                    d.Code,
-                    d.DeliveryNotBeforeDays,
-                    d.DeliveryNotLateDays,
-                    d.IsDefault,
-                },
-            }, McpJsonDefaults.Options);
-        }
-
-        var found = await FindByCodeAsync(client, code, cancellationToken);
-        if (found is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Delivery time with code '{code}' not found" },
-                McpJsonDefaults.Options);
-        }
-
-        if (string.Equals(action, "update", StringComparison.OrdinalIgnoreCase))
-        {
-            var request = new UpdateDeliveryTimeRequest
-            {
-                Id = found.Id,
-                Code = code,
-                DeliveryNotBeforeDays = minDays ?? found.DeliveryNotBeforeDays,
-                DeliveryNotLateDays = maxDays ?? found.DeliveryNotLateDays,
-                Color = color ?? found.Color,
-                IsDefault = isDefault ?? found.IsDefault,
-            };
-
-            if (displayOrder.HasValue)
-            {
-                request.DisplayOrder = displayOrder.Value;
-            }
-
-            if (published.HasValue)
-            {
-                request.Published = published.Value;
-            }
-
-            if (!string.IsNullOrEmpty(translations))
-            {
-                AddTranslations(request.Translations, translations);
-            }
-            else
-            {
-                request.Translations.AddRange(found.Translations);
-            }
-
-            var response = await client.UpdateDeliveryTimeAsync(request, cancellationToken: cancellationToken);
-            var d = response.DeliveryTime;
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "updated",
-                deliveryTime = new
-                {
-                    d.Id,
-                    d.Code,
-                    d.DeliveryNotBeforeDays,
-                    d.DeliveryNotLateDays,
-                    d.IsDefault,
-                },
-            }, McpJsonDefaults.Options);
-        }
-
-        if (string.Equals(action, "delete", StringComparison.OrdinalIgnoreCase))
-        {
-            await client.DeleteDeliveryTimeAsync(
-                new DeleteDeliveryTimeRequest { Id = found.Id },
-                cancellationToken: cancellationToken);
-
-            return JsonSerializer.Serialize(new
-            {
-                success = true,
-                action = "deleted",
-                deletedCode = code,
-            }, McpJsonDefaults.Options);
-        }
-
-        return JsonSerializer.Serialize(
-            new { success = false, error = $"Unknown action '{action}'. Use: create, update, or delete" },
-            McpJsonDefaults.Options);
+            "create" or "update" or "upsert" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
+            "delete" => await DeleteAsync(client, apiKeyContext, code, cancellationToken),
+            "get" => await GetAsync(client, apiKeyContext, code, language, cancellationToken),
+            "list" => await ListAsync(client, apiKeyContext, search, page, pageSize, language, cancellationToken),
+            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, upsert, delete, get, or list"),
+        };
     }
 
-    private static async Task<DeliveryTime?> FindByCodeAsync(
-        DeliveryTimesCrudService.DeliveryTimesCrudServiceClient client, string code, CancellationToken ct)
+    private static async Task<string> ManageAsync(
+        DeliveryTimeManagementService.DeliveryTimeManagementServiceClient client,
+        IApiKeyContext ctx, string action, string? json, CancellationToken ct)
     {
-        var response = await client.GetDeliveryTimesAsync(
-            new GetDeliveryTimesRequest { Filter = $"Code == \"{code}\"", PageSize = 1 },
-            cancellationToken: ct);
+        ctx.EnsurePermission(McpPermissions.Write);
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return McpProtoHelper.FormatError("json is required for create/update/upsert");
+        }
 
-        return response.DeliveryTimes.FirstOrDefault();
+        var data = McpProtoHelper.Parser.Parse<DeliveryTimeData>(json);
+        var request = new ManageDeliveryTimeRequest { Data = data };
+
+        var response = action.ToLowerInvariant() switch
+        {
+            "create" => await client.CreateAsync(request, cancellationToken: ct),
+            "update" => await client.UpdateAsync(request, cancellationToken: ct),
+            _ => await client.UpsertAsync(request, cancellationToken: ct),
+        };
+
+        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
     }
 
-    private static void AddTranslations(
-        Google.Protobuf.Collections.RepeatedField<DeliveryTimeTranslation> field, string? json)
+    private static async Task<string> DeleteAsync(
+        DeliveryTimeManagementService.DeliveryTimeManagementServiceClient client,
+        IApiKeyContext ctx, string? code, CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(json))
+        ctx.EnsurePermission(McpPermissions.Write);
+        if (string.IsNullOrWhiteSpace(code))
         {
-            return;
+            return McpProtoHelper.FormatError("code is required for delete");
         }
 
-        var items = JsonSerializer.Deserialize<List<TranslationInput>>(json, McpJsonDefaults.Options);
-        if (items is null)
-        {
-            return;
-        }
-
-        foreach (var item in items)
-        {
-            field.Add(new DeliveryTimeTranslation
-            {
-                LanguageCode = item.Lang ?? "",
-                Name = item.Name ?? "",
-            });
-        }
+        var response = await client.DeleteAsync(new DeleteDeliveryTimeRequest { Code = code }, cancellationToken: ct);
+        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
     }
 
-    private sealed class TranslationInput
+    private static async Task<string> GetAsync(
+        DeliveryTimeManagementService.DeliveryTimeManagementServiceClient client,
+        IApiKeyContext ctx, string? code, string? language, CancellationToken ct)
     {
-        public string? Lang { get; set; }
-        public string? Name { get; set; }
+        ctx.EnsurePermission(McpPermissions.Read);
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return McpProtoHelper.FormatError("code is required for get");
+        }
+
+        var response = await client.GetAsync(
+            new GetDeliveryTimeRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
+        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+    }
+
+    private static async Task<string> ListAsync(
+        DeliveryTimeManagementService.DeliveryTimeManagementServiceClient client,
+        IApiKeyContext ctx, string? search, int? page, int? pageSize, string? language, CancellationToken ct)
+    {
+        ctx.EnsurePermission(McpPermissions.Read);
+        var response = await client.ListAsync(new ListDeliveryTimesRequest
+        {
+            Search = search ?? "",
+            Page = page ?? 1,
+            PageSize = pageSize ?? 20,
+            Language = language ?? "",
+        }, cancellationToken: ct);
+
+        return McpProtoHelper.FormatListResponse(response.Items, response.TotalCount, response.Page, response.PageSize);
     }
 }
