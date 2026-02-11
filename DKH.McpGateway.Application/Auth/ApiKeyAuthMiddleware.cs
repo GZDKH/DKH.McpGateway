@@ -16,6 +16,12 @@ public sealed class ApiKeyAuthMiddleware(
 
     public async Task InvokeAsync(HttpContext context)
     {
+        if (context.Request.Path.StartsWithSegments("/health"))
+        {
+            await next(context);
+            return;
+        }
+
         if (!context.Request.Headers.TryGetValue(ApiKeyHeader, out var apiKeyValues) ||
             string.IsNullOrWhiteSpace(apiKeyValues.ToString()))
         {

@@ -26,6 +26,7 @@ await Platform
             app.MapMcp();
         }
     })
+    .AddPlatformHealthChecks()
     .AddPlatformLogging()
     .AddPlatformGrpcEndpoints((_, grpc) => grpc.AddMcpGatewayEndpoints())
     .Build()
