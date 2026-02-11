@@ -6,15 +6,15 @@ namespace DKH.McpGateway.Application.Tools.References;
 public static class ManagePriceLabelTool
 {
     [McpServerTool(Name = "manage_price_label"), Description(
-        "Manage price labels: create, update, upsert, delete, get, or list. " +
-        "For create/update/upsert: provide price label JSON with fields: code, isMsrp, displayShortNameInLists, " +
+        "Manage price labels: create, update, delete, get, or list. " +
+        "For create/update: provide price label JSON with fields: code, isMsrp, displayShortNameInLists, " +
         "published, displayOrder, translations [{languageCode, name, shortName, description}]. " +
         "For delete/get: provide price label code. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
         PriceLabelManagementService.PriceLabelManagementServiceClient client,
-        [Description("Action: create, update, upsert, delete, get, or list")] string action,
-        [Description("Price label JSON (for create/update/upsert)")] string? json = null,
+        [Description("Action: create, update, delete, get, or list")] string action,
+        [Description("Price label JSON (for create/update)")] string? json = null,
         [Description("Price label code (for delete/get)")] string? code = null,
         [Description("Search text (for list)")] string? search = null,
         [Description("Page number (for list, default 1)")] int? page = null,
@@ -24,11 +24,11 @@ public static class ManagePriceLabelTool
     {
         return action.ToLowerInvariant() switch
         {
-            "create" or "update" or "upsert" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
+            "create" or "update" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
             "delete" => await DeleteAsync(client, apiKeyContext, code, cancellationToken),
             "get" => await GetAsync(client, apiKeyContext, code, language, cancellationToken),
             "list" => await ListAsync(client, apiKeyContext, search, page, pageSize, language, cancellationToken),
-            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, upsert, delete, get, or list"),
+            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, delete, get, or list"),
         };
     }
 
@@ -39,7 +39,7 @@ public static class ManagePriceLabelTool
         ctx.EnsurePermission(McpPermissions.Write);
         if (string.IsNullOrWhiteSpace(json))
         {
-            return McpProtoHelper.FormatError("json is required for create/update/upsert");
+            return McpProtoHelper.FormatError("json is required for create/update");
         }
 
         var data = McpProtoHelper.Parser.Parse<PriceLabelData>(json);
@@ -49,7 +49,7 @@ public static class ManagePriceLabelTool
         {
             "create" => await client.CreateAsync(request, cancellationToken: ct),
             "update" => await client.UpdateAsync(request, cancellationToken: ct),
-            _ => await client.UpsertAsync(request, cancellationToken: ct),
+            _ => await client.UpdateAsync(request, cancellationToken: ct),
         };
 
         return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);

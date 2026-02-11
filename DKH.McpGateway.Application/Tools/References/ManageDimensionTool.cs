@@ -6,15 +6,15 @@ namespace DKH.McpGateway.Application.Tools.References;
 public static class ManageDimensionTool
 {
     [McpServerTool(Name = "manage_dimension"), Description(
-        "Manage dimensions: create, update, upsert, delete, get, or list. " +
-        "For create/update/upsert: provide dimension JSON with fields: code, ratioToPrimary, isPrimary, " +
+        "Manage dimensions: create, update, delete, get, or list. " +
+        "For create/update: provide dimension JSON with fields: code, ratioToPrimary, isPrimary, " +
         "published, displayOrder, translations [{languageCode, name}]. " +
         "For delete/get: provide dimension code. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
         DimensionManagementService.DimensionManagementServiceClient client,
-        [Description("Action: create, update, upsert, delete, get, or list")] string action,
-        [Description("Dimension JSON (for create/update/upsert)")] string? json = null,
+        [Description("Action: create, update, delete, get, or list")] string action,
+        [Description("Dimension JSON (for create/update)")] string? json = null,
         [Description("Dimension code (for delete/get)")] string? code = null,
         [Description("Search text (for list)")] string? search = null,
         [Description("Page number (for list, default 1)")] int? page = null,
@@ -24,11 +24,11 @@ public static class ManageDimensionTool
     {
         return action.ToLowerInvariant() switch
         {
-            "create" or "update" or "upsert" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
+            "create" or "update" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
             "delete" => await DeleteAsync(client, apiKeyContext, code, cancellationToken),
             "get" => await GetAsync(client, apiKeyContext, code, language, cancellationToken),
             "list" => await ListAsync(client, apiKeyContext, search, page, pageSize, language, cancellationToken),
-            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, upsert, delete, get, or list"),
+            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, delete, get, or list"),
         };
     }
 
@@ -39,7 +39,7 @@ public static class ManageDimensionTool
         ctx.EnsurePermission(McpPermissions.Write);
         if (string.IsNullOrWhiteSpace(json))
         {
-            return McpProtoHelper.FormatError("json is required for create/update/upsert");
+            return McpProtoHelper.FormatError("json is required for create/update");
         }
 
         var data = McpProtoHelper.Parser.Parse<DimensionData>(json);
@@ -49,7 +49,7 @@ public static class ManageDimensionTool
         {
             "create" => await client.CreateAsync(request, cancellationToken: ct),
             "update" => await client.UpdateAsync(request, cancellationToken: ct),
-            _ => await client.UpsertAsync(request, cancellationToken: ct),
+            _ => await client.UpdateAsync(request, cancellationToken: ct),
         };
 
         return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
