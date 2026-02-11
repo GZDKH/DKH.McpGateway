@@ -7,11 +7,6 @@ internal static class McpProtoHelper
     internal static readonly JsonParser Parser = new(JsonParser.Settings.Default.WithIgnoreUnknownFields(true));
     internal static readonly JsonFormatter Formatter = new(JsonFormatter.Settings.Default.WithIndentation());
 
-    internal static string FormatManageResponse(bool success, string action, string code, IEnumerable<string> errors)
-    {
-        return JsonSerializer.Serialize(new { success, action, code, errors }, McpJsonDefaults.Options);
-    }
-
     internal static string FormatOk()
     {
         return JsonSerializer.Serialize(new { success = true }, McpJsonDefaults.Options);

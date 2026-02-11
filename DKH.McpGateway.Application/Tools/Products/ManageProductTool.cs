@@ -53,14 +53,14 @@ public static class ManageProductTool
         if (action.Equals("create", StringComparison.OrdinalIgnoreCase))
         {
             var request = McpProtoHelper.Parser.Parse<CreateProductRequest>(json);
-            var response = await client.CreateAsync(request, cancellationToken: ct);
-            return McpProtoHelper.FormatManageResponse(response.Success, "created", response.Code, response.Errors);
+            var data = await client.CreateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.Formatter.Format(data);
         }
         else
         {
             var request = McpProtoHelper.Parser.Parse<UpdateProductRequest>(json);
-            var response = await client.UpdateAsync(request, cancellationToken: ct);
-            return McpProtoHelper.FormatManageResponse(response.Success, "updated", response.Code, response.Errors);
+            var data = await client.UpdateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.Formatter.Format(data);
         }
     }
 
@@ -74,8 +74,8 @@ public static class ManageProductTool
             return McpProtoHelper.FormatError("code is required for delete");
         }
 
-        var response = await client.DeleteAsync(new DeleteProductRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatManageResponse(response.Success, "deleted", response.Code, response.Errors);
+        await client.DeleteAsync(new DeleteProductRequest { Code = code }, cancellationToken: ct);
+        return $"Deleted: {code}";
     }
 
     private static async Task<string> GetAsync(

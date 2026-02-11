@@ -45,14 +45,14 @@ public static class ManageSpecGroupTool
         if (action.Equals("create", StringComparison.OrdinalIgnoreCase))
         {
             var request = McpProtoHelper.Parser.Parse<CreateSpecGroupRequest>(json);
-            var response = await client.CreateAsync(request, cancellationToken: ct);
-            return McpProtoHelper.FormatManageResponse(response.Success, "created", response.Code, response.Errors);
+            var data = await client.CreateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.Formatter.Format(data);
         }
         else
         {
             var request = McpProtoHelper.Parser.Parse<UpdateSpecGroupRequest>(json);
-            var response = await client.UpdateAsync(request, cancellationToken: ct);
-            return McpProtoHelper.FormatManageResponse(response.Success, "updated", response.Code, response.Errors);
+            var data = await client.UpdateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.Formatter.Format(data);
         }
     }
 
@@ -66,8 +66,8 @@ public static class ManageSpecGroupTool
             return McpProtoHelper.FormatError("code is required for delete");
         }
 
-        var response = await client.DeleteAsync(new DeleteSpecGroupRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatManageResponse(response.Success, "deleted", response.Code, response.Errors);
+        await client.DeleteAsync(new DeleteSpecGroupRequest { Code = code }, cancellationToken: ct);
+        return $"Deleted: {code}";
     }
 
     private static async Task<string> GetAsync(
