@@ -79,9 +79,9 @@ public static class ManageVariantAttrValueTool
             return McpProtoHelper.FormatError("code is required for get");
         }
 
-        var response = await client.GetAsync(
+        var data = await client.GetAsync(
             new GetVariantAttrValueRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+        return McpProtoHelper.Formatter.Format(data);
     }
 
     private static async Task<string> ListAsync(
