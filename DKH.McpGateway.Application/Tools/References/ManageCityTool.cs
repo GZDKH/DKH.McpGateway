@@ -52,7 +52,7 @@ public static class ManageCityTool
             _ => await client.UpdateAsync(request, cancellationToken: ct),
         };
 
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+        return McpProtoHelper.FormatManageResponse(response.Code, response.Errors);
     }
 
     private static async Task<string> DeleteAsync(
@@ -66,7 +66,7 @@ public static class ManageCityTool
         }
 
         var response = await client.DeleteAsync(new DeleteCityRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+        return McpProtoHelper.FormatManageResponse(response.Code, response.Errors);
     }
 
     private static async Task<string> GetAsync(

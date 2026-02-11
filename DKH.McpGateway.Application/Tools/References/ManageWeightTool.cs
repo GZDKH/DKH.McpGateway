@@ -52,7 +52,7 @@ public static class ManageWeightTool
             _ => await client.UpdateAsync(request, cancellationToken: ct),
         };
 
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+        return McpProtoHelper.FormatManageResponse(response.Code, response.Errors);
     }
 
     private static async Task<string> DeleteAsync(
@@ -66,7 +66,7 @@ public static class ManageWeightTool
         }
 
         var response = await client.DeleteAsync(new DeleteWeightRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+        return McpProtoHelper.FormatManageResponse(response.Code, response.Errors);
     }
 
     private static async Task<string> GetAsync(

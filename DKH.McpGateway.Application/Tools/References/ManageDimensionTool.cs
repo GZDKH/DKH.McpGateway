@@ -52,7 +52,7 @@ public static class ManageDimensionTool
             _ => await client.UpdateAsync(request, cancellationToken: ct),
         };
 
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+        return McpProtoHelper.FormatManageResponse(response.Code, response.Errors);
     }
 
     private static async Task<string> DeleteAsync(
@@ -66,7 +66,7 @@ public static class ManageDimensionTool
         }
 
         var response = await client.DeleteAsync(new DeleteDimensionRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+        return McpProtoHelper.FormatManageResponse(response.Code, response.Errors);
     }
 
     private static async Task<string> GetAsync(
