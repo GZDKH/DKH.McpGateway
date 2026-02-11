@@ -12,10 +12,9 @@ internal static class McpProtoHelper
         return JsonSerializer.Serialize(new { success, action, code, errors }, McpJsonDefaults.Options);
     }
 
-    internal static string FormatManageResponse(string code, IEnumerable<string> errors)
+    internal static string FormatOk()
     {
-        var errorList = errors as ICollection<string> ?? [.. errors];
-        return JsonSerializer.Serialize(new { success = errorList.Count == 0, code, errors = errorList }, McpJsonDefaults.Options);
+        return JsonSerializer.Serialize(new { success = true }, McpJsonDefaults.Options);
     }
 
     internal static string FormatGetResponse<TData>(bool found, TData? data) where TData : IMessage

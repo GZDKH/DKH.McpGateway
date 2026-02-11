@@ -46,14 +46,14 @@ public static class ManageLanguageTool
         var data = McpProtoHelper.Parser.Parse<LanguageData>(json);
         var request = new ManageLanguageRequest { Data = data };
 
-        var response = action.ToLowerInvariant() switch
+        _ = action.ToLowerInvariant() switch
         {
             "create" => await client.CreateAsync(request, cancellationToken: ct),
             "update" => await client.UpdateAsync(request, cancellationToken: ct),
             _ => await client.UpdateAsync(request, cancellationToken: ct),
         };
 
-        return McpProtoHelper.FormatManageResponse(response.Code, response.Errors);
+        return McpProtoHelper.FormatOk();
     }
 
     private static async Task<string> DeleteAsync(
@@ -66,8 +66,8 @@ public static class ManageLanguageTool
             return McpProtoHelper.FormatError("code is required for delete");
         }
 
-        var response = await client.DeleteAsync(new DeleteLanguageRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatManageResponse(response.Code, response.Errors);
+        await client.DeleteAsync(new DeleteLanguageRequest { Code = code }, cancellationToken: ct);
+        return McpProtoHelper.FormatOk();
     }
 
     private static async Task<string> GetAsync(
