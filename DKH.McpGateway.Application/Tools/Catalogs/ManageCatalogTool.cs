@@ -6,15 +6,15 @@ namespace DKH.McpGateway.Application.Tools.Catalogs;
 public static class ManageCatalogTool
 {
     [McpServerTool(Name = "manage_catalog"), Description(
-        "Manage catalogs: create, update, upsert, delete, get, or list. " +
-        "For create/update/upsert: provide catalog JSON with fields: code, currencyCode, displayOrder, published, " +
+        "Manage catalogs: create, update, delete, get, or list. " +
+        "For create/update: provide catalog JSON with fields: code, currencyCode, displayOrder, published, " +
         "translations [{languageCode, name, description, seoName}], categories [{...}], media [{...}]. " +
         "For delete/get: provide catalog code. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
         CatalogManagementService.CatalogManagementServiceClient client,
-        [Description("Action: create, update, upsert, delete, get, or list")] string action,
-        [Description("Catalog JSON (for create/update/upsert)")] string? json = null,
+        [Description("Action: create, update, delete, get, or list")] string action,
+        [Description("Catalog JSON (for create/update)")] string? json = null,
         [Description("Catalog code (for delete/get)")] string? code = null,
         [Description("Search text (for list)")] string? search = null,
         [Description("Page number (for list, default 1)")] int? page = null,
@@ -24,11 +24,11 @@ public static class ManageCatalogTool
     {
         return action.ToLowerInvariant() switch
         {
-            "create" or "update" or "upsert" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
+            "create" or "update" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
             "delete" => await DeleteAsync(client, apiKeyContext, code, cancellationToken),
             "get" => await GetAsync(client, apiKeyContext, code, language, cancellationToken),
             "list" => await ListAsync(client, apiKeyContext, search, page, pageSize, language, cancellationToken),
-            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, upsert, delete, get, or list"),
+            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, delete, get, or list"),
         };
     }
 
@@ -39,20 +39,21 @@ public static class ManageCatalogTool
         ctx.EnsurePermission(McpPermissions.Write);
         if (string.IsNullOrWhiteSpace(json))
         {
-            return McpProtoHelper.FormatError("json is required for create/update/upsert");
+            return McpProtoHelper.FormatError("json is required for create/update");
         }
 
-        var data = McpProtoHelper.Parser.Parse<CatalogData>(json);
-        var request = new ManageCatalogRequest { Data = data };
-
-        var response = action.ToLowerInvariant() switch
+        if (action.Equals("create", StringComparison.OrdinalIgnoreCase))
         {
-            "create" => await client.CreateAsync(request, cancellationToken: ct),
-            "update" => await client.UpdateAsync(request, cancellationToken: ct),
-            _ => await client.UpsertAsync(request, cancellationToken: ct),
-        };
-
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+            var request = McpProtoHelper.Parser.Parse<CreateCatalogRequest>(json);
+            var response = await client.CreateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.FormatManageResponse(response.Success, "created", response.Code, response.Errors);
+        }
+        else
+        {
+            var request = McpProtoHelper.Parser.Parse<UpdateCatalogRequest>(json);
+            var response = await client.UpdateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.FormatManageResponse(response.Success, "updated", response.Code, response.Errors);
+        }
     }
 
     private static async Task<string> DeleteAsync(
@@ -66,7 +67,7 @@ public static class ManageCatalogTool
         }
 
         var response = await client.DeleteAsync(new DeleteCatalogRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+        return McpProtoHelper.FormatManageResponse(response.Success, "deleted", response.Code, response.Errors);
     }
 
     private static async Task<string> GetAsync(

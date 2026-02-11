@@ -1,11 +1,11 @@
 using Google.Protobuf;
+using ExportRequest = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.ExportRequest;
+using GetImportTemplateRequest = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.GetImportTemplateRequest;
+using ImportOptions = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.ImportOptions;
+using ImportRequest = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.ImportRequest;
 using ProductCatalogDataExchangeClient =
     DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
-using ImportRequest = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.ImportRequest;
-using ImportOptions = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.ImportOptions;
-using ExportRequest = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.ExportRequest;
 using ValidateImportRequest = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.ValidateImportRequest;
-using GetImportTemplateRequest = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.GetImportTemplateRequest;
 
 namespace DKH.McpGateway.Application.Tools.DataExchange;
 

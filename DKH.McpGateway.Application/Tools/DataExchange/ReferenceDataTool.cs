@@ -1,10 +1,10 @@
 using Google.Protobuf;
+using ExportRequest = DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.ExportRequest;
+using GetImportTemplateRequest = DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.GetImportTemplateRequest;
+using ImportRequest = DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.ImportRequest;
 using ReferenceDataExchangeClient =
     DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
-using ImportRequest = DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.ImportRequest;
-using ExportRequest = DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.ExportRequest;
 using ValidateImportRequest = DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.ValidateImportRequest;
-using GetImportTemplateRequest = DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.GetImportTemplateRequest;
 
 namespace DKH.McpGateway.Application.Tools.DataExchange;
 

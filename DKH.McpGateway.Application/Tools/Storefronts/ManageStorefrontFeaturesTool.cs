@@ -109,7 +109,7 @@ public static class ManageStorefrontFeaturesTool
                 new GetFeaturesRequest { StorefrontId = storefrontId },
                 cancellationToken: cancellationToken);
 
-            var features = current.Features ?? new DKH.StorefrontService.Contracts.V1.Models.StorefrontFeatures();
+            var features = current.Features ?? new StorefrontService.Contracts.V1.Models.StorefrontFeatures();
             if (cartEnabled.HasValue)
             {
                 features.CartEnabled = cartEnabled.Value;
@@ -152,7 +152,7 @@ public static class ManageStorefrontFeaturesTool
             McpJsonDefaults.Options);
     }
 
-    private static object FormatFeatures(DKH.StorefrontService.Contracts.V1.Models.StorefrontFeatures f) => new
+    private static object FormatFeatures(StorefrontService.Contracts.V1.Models.StorefrontFeatures f) => new
     {
         cartEnabled = f.CartEnabled,
         ordersEnabled = f.OrdersEnabled,

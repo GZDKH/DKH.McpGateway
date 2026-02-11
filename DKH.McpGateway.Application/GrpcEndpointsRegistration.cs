@@ -1,18 +1,14 @@
+using DKH.ApiManagementService.Contracts.Services.V1;
 using DKH.Platform.Grpc.Client;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandQuery.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogQuery.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryQuery.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ManufacturerManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.PackageManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrGroupManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrOptionManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductSearchQuery.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecAttributeManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecGroupManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecOptionManagement.v1;
@@ -37,7 +33,6 @@ using DKH.TelegramBotService.Contracts.Auth.V1;
 using DKH.TelegramBotService.Contracts.Management.V1;
 using DKH.TelegramBotService.Contracts.Notifications.V1;
 using DKH.TelegramBotService.Contracts.Scheduling.V1;
-using DKH.ApiManagementService.Contracts.Services.V1;
 using GrpcOrderService = DKH.OrderService.Contracts.Api.V1.OrderService;
 using GrpcReviewService = DKH.ReviewService.Contracts.Api.V1.ReviewService;
 using ProductCatalogDataExchangeClient =
@@ -57,16 +52,9 @@ public static class GrpcEndpointsRegistration
     /// </summary>
     public static void AddMcpGatewayEndpoints(this IPlatformGrpcClientBuilder grpc)
     {
-        // ProductCatalogService — Query (5003)
-        grpc.AddEndpointFromConfiguration<ProductQueryService.ProductQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<ProductSearchQueryService.ProductSearchQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<BrandQueryService.BrandQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<CatalogQueryService.CatalogQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<CategoryQueryService.CategoryQueryServiceClient>();
+        // ProductCatalogService (5003)
         grpc.AddEndpointFromConfiguration<VariantQueryService.VariantQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<ProductCatalogDataExchangeClient>("ProductCatalogDataExchangeServiceClient");
-
-        // ProductCatalogService — Management (5003)
         grpc.AddEndpointFromConfiguration<BrandManagementService.BrandManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<CatalogManagementService.CatalogManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<CategoryManagementService.CategoryManagementServiceClient>();

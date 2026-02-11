@@ -1,4 +1,4 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandQuery.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Products;
 
@@ -10,13 +10,13 @@ public static class ListBrandsTool
 {
     [McpServerTool(Name = "list_brands"), Description("List all brands in the catalog with product counts.")]
     public static async Task<string> ExecuteAsync(
-        BrandQueryService.BrandQueryServiceClient client,
+        BrandManagementService.BrandManagementServiceClient client,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
     {
         var response = await client.GetBrandsAsync(
-            new GetBrandsRequest
+            new GetCatalogBrandsRequest
             {
                 CatalogSeoName = catalogSeoName,
                 LanguageCode = languageCode,

@@ -6,15 +6,15 @@ namespace DKH.McpGateway.Application.Tools.Brands;
 public static class ManageBrandTool
 {
     [McpServerTool(Name = "manage_brand"), Description(
-        "Manage brands: create, update, upsert, delete, get, or list. " +
-        "For create/update/upsert: provide brand JSON with fields: code, displayOrder, published, " +
+        "Manage brands: create, update, delete, get, or list. " +
+        "For create/update: provide brand JSON with fields: code, displayOrder, published, " +
         "translations [{languageCode, name, description, seoName}]. " +
         "For delete/get: provide brand code. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
         BrandManagementService.BrandManagementServiceClient client,
-        [Description("Action: create, update, upsert, delete, get, or list")] string action,
-        [Description("Brand JSON (for create/update/upsert)")] string? json = null,
+        [Description("Action: create, update, delete, get, or list")] string action,
+        [Description("Brand JSON (for create/update)")] string? json = null,
         [Description("Brand code (for delete/get)")] string? code = null,
         [Description("Search text (for list)")] string? search = null,
         [Description("Page number (for list, default 1)")] int? page = null,
@@ -24,11 +24,11 @@ public static class ManageBrandTool
     {
         return action.ToLowerInvariant() switch
         {
-            "create" or "update" or "upsert" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
+            "create" or "update" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
             "delete" => await DeleteAsync(client, apiKeyContext, code, cancellationToken),
             "get" => await GetAsync(client, apiKeyContext, code, language, cancellationToken),
             "list" => await ListAsync(client, apiKeyContext, search, page, pageSize, language, cancellationToken),
-            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, upsert, delete, get, or list"),
+            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, delete, get, or list"),
         };
     }
 
@@ -39,20 +39,21 @@ public static class ManageBrandTool
         ctx.EnsurePermission(McpPermissions.Write);
         if (string.IsNullOrWhiteSpace(json))
         {
-            return McpProtoHelper.FormatError("json is required for create/update/upsert");
+            return McpProtoHelper.FormatError("json is required for create/update");
         }
 
-        var data = McpProtoHelper.Parser.Parse<BrandData>(json);
-        var request = new ManageBrandRequest { Data = data };
-
-        var response = action.ToLowerInvariant() switch
+        if (action.Equals("create", StringComparison.OrdinalIgnoreCase))
         {
-            "create" => await client.CreateAsync(request, cancellationToken: ct),
-            "update" => await client.UpdateAsync(request, cancellationToken: ct),
-            _ => await client.UpsertAsync(request, cancellationToken: ct),
-        };
-
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+            var request = McpProtoHelper.Parser.Parse<CreateBrandRequest>(json);
+            var response = await client.CreateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.FormatManageResponse(response.Success, "created", response.Code, response.Errors);
+        }
+        else
+        {
+            var request = McpProtoHelper.Parser.Parse<UpdateBrandRequest>(json);
+            var response = await client.UpdateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.FormatManageResponse(response.Success, "updated", response.Code, response.Errors);
+        }
     }
 
     private static async Task<string> DeleteAsync(
@@ -66,7 +67,7 @@ public static class ManageBrandTool
         }
 
         var response = await client.DeleteAsync(new DeleteBrandRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+        return McpProtoHelper.FormatManageResponse(response.Success, "deleted", response.Code, response.Errors);
     }
 
     private static async Task<string> GetAsync(

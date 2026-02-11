@@ -1,4 +1,4 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductQuery.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CityManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.StateProvinceManagement.v1;
@@ -10,7 +10,7 @@ public static class ProductOriginTool
 {
     [McpServerTool(Name = "get_product_origin"), Description("Get product manufacturing/sourcing origin with resolved country, province, and city names.")]
     public static async Task<string> ExecuteAsync(
-        ProductQueryService.ProductQueryServiceClient productClient,
+        ProductManagementService.ProductManagementServiceClient productClient,
         CountryManagementService.CountryManagementServiceClient countryClient,
         StateProvinceManagementService.StateProvinceManagementServiceClient provinceClient,
         CityManagementService.CityManagementServiceClient cityClient,

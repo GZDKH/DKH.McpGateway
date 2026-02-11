@@ -1,4 +1,4 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductSearchQuery.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 using DKH.ReviewService.Contracts.Api.V1;
 
 namespace DKH.McpGateway.Application.Tools.Reviews;
@@ -8,7 +8,7 @@ public static class ProductReviewRankingTool
 {
     [McpServerTool(Name = "product_review_ranking"), Description("Rank products by review metrics: average rating or review count. Cross-references product catalog with review aggregates.")]
     public static async Task<string> ExecuteAsync(
-        ProductSearchQueryService.ProductSearchQueryServiceClient searchClient,
+        ProductManagementService.ProductManagementServiceClient searchClient,
         ReviewQueryService.ReviewQueryServiceClient reviewClient,
         [Description("Storefront ID (UUID)")] string storefrontId,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",

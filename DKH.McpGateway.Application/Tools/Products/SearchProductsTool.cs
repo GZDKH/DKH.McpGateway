@@ -1,4 +1,4 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductSearchQuery.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Products;
 
@@ -10,7 +10,7 @@ public static class SearchProductsTool
 {
     [McpServerTool(Name = "search_products"), Description("Search products in the catalog with optional filters for category, brand, and price range.")]
     public static async Task<string> ExecuteAsync(
-        ProductSearchQueryService.ProductSearchQueryServiceClient client,
+        ProductManagementService.ProductManagementServiceClient client,
         [Description("Search query text")] string query,
         [Description("Catalog SEO name (e.g. 'main-catalog')")] string catalogSeoName = "main-catalog",
         [Description("Language code (e.g. 'en', 'ru')")] string languageCode = "ru",

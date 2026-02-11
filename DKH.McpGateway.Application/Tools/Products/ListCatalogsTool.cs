@@ -1,4 +1,4 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogQuery.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Products;
 
@@ -10,12 +10,12 @@ public static class ListCatalogsTool
 {
     [McpServerTool(Name = "list_catalogs"), Description("List all available product catalogs.")]
     public static async Task<string> ExecuteAsync(
-        CatalogQueryService.CatalogQueryServiceClient client,
+        CatalogManagementService.CatalogManagementServiceClient client,
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
     {
         var response = await client.GetCatalogsAsync(
-            new GetCatalogsRequest { LanguageCode = languageCode },
+            new GetStorefrontCatalogsRequest { LanguageCode = languageCode },
             cancellationToken: cancellationToken);
 
         var result = new

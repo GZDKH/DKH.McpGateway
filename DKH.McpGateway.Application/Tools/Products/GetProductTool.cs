@@ -1,4 +1,4 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductQuery.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Products;
 
@@ -10,7 +10,7 @@ public static class GetProductTool
 {
     [McpServerTool(Name = "get_product"), Description("Get detailed product information including variants, specifications, and media.")]
     public static async Task<string> ExecuteAsync(
-        ProductQueryService.ProductQueryServiceClient client,
+        ProductManagementService.ProductManagementServiceClient client,
         [Description("Product SEO name or slug")] string productSeoName,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",

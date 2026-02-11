@@ -1,4 +1,4 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryQuery.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Products;
 
@@ -10,7 +10,7 @@ public static class ListCategoriesTool
 {
     [McpServerTool(Name = "list_categories"), Description("Get the category tree for a catalog with optional depth limit.")]
     public static async Task<string> ExecuteAsync(
-        CategoryQueryService.CategoryQueryServiceClient client,
+        CategoryManagementService.CategoryManagementServiceClient client,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
         [Description("Maximum tree depth (0 = unlimited)")] int maxDepth = 0,

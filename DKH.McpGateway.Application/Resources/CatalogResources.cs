@@ -1,6 +1,6 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductQuery.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 
 namespace DKH.McpGateway.Application.Resources;
 
@@ -10,11 +10,11 @@ public static class CatalogResources
     [McpServerResource(Name = "catalog://catalogs", MimeType = "application/json")]
     [Description("List of all available product catalogs with product counts.")]
     public static async Task<string> GetCatalogsAsync(
-        CatalogQueryService.CatalogQueryServiceClient client,
+        CatalogManagementService.CatalogManagementServiceClient client,
         CancellationToken cancellationToken = default)
     {
         var response = await client.GetCatalogsAsync(
-            new GetCatalogsRequest { LanguageCode = "ru" },
+            new GetStorefrontCatalogsRequest { LanguageCode = "ru" },
             cancellationToken: cancellationToken);
 
         return JsonSerializer.Serialize(new
@@ -31,7 +31,7 @@ public static class CatalogResources
     [McpServerResource(Name = "catalog://categories", MimeType = "application/json")]
     [Description("Category tree for a catalog. Provide catalogSeoName to select a specific catalog.")]
     public static async Task<string> GetCategoriesAsync(
-        CategoryQueryService.CategoryQueryServiceClient client,
+        CategoryManagementService.CategoryManagementServiceClient client,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
@@ -54,7 +54,7 @@ public static class CatalogResources
     [McpServerResource(Name = "catalog://products", MimeType = "application/json")]
     [Description("Get detailed product information by SEO name.")]
     public static async Task<string> GetProductAsync(
-        ProductQueryService.ProductQueryServiceClient client,
+        ProductManagementService.ProductManagementServiceClient client,
         [Description("Product SEO name or slug")] string productSeoName,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",

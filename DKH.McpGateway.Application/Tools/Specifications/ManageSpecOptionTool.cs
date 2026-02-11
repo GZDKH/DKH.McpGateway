@@ -6,15 +6,15 @@ namespace DKH.McpGateway.Application.Tools.Specifications;
 public static class ManageSpecOptionTool
 {
     [McpServerTool(Name = "manage_spec_option"), Description(
-        "Manage specification options: create, update, upsert, delete, get, or list. " +
-        "For create/update/upsert: provide spec option JSON with fields: code, specificationAttributeCode, displayOrder, " +
+        "Manage specification options: create, update, delete, get, or list. " +
+        "For create/update: provide spec option JSON with fields: code, specificationAttributeCode, displayOrder, " +
         "colorSquaresRgb, published, translations [{languageCode, name, description}]. " +
         "For delete/get: provide spec option code. For list: optionally provide search, page, pageSize.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
         SpecOptionManagementService.SpecOptionManagementServiceClient client,
-        [Description("Action: create, update, upsert, delete, get, or list")] string action,
-        [Description("Spec option JSON (for create/update/upsert)")] string? json = null,
+        [Description("Action: create, update, delete, get, or list")] string action,
+        [Description("Spec option JSON (for create/update)")] string? json = null,
         [Description("Spec option code (for delete/get)")] string? code = null,
         [Description("Search text (for list)")] string? search = null,
         [Description("Page number (for list, default 1)")] int? page = null,
@@ -24,11 +24,11 @@ public static class ManageSpecOptionTool
     {
         return action.ToLowerInvariant() switch
         {
-            "create" or "update" or "upsert" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
+            "create" or "update" => await ManageAsync(client, apiKeyContext, action, json, cancellationToken),
             "delete" => await DeleteAsync(client, apiKeyContext, code, cancellationToken),
             "get" => await GetAsync(client, apiKeyContext, code, language, cancellationToken),
             "list" => await ListAsync(client, apiKeyContext, search, page, pageSize, language, cancellationToken),
-            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, upsert, delete, get, or list"),
+            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: create, update, delete, get, or list"),
         };
     }
 
@@ -39,20 +39,21 @@ public static class ManageSpecOptionTool
         ctx.EnsurePermission(McpPermissions.Write);
         if (string.IsNullOrWhiteSpace(json))
         {
-            return McpProtoHelper.FormatError("json is required for create/update/upsert");
+            return McpProtoHelper.FormatError("json is required for create/update");
         }
 
-        var data = McpProtoHelper.Parser.Parse<SpecOptionData>(json);
-        var request = new ManageSpecOptionRequest { Data = data };
-
-        var response = action.ToLowerInvariant() switch
+        if (action.Equals("create", StringComparison.OrdinalIgnoreCase))
         {
-            "create" => await client.CreateAsync(request, cancellationToken: ct),
-            "update" => await client.UpdateAsync(request, cancellationToken: ct),
-            _ => await client.UpsertAsync(request, cancellationToken: ct),
-        };
-
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+            var request = McpProtoHelper.Parser.Parse<CreateSpecOptionRequest>(json);
+            var response = await client.CreateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.FormatManageResponse(response.Success, "created", response.Code, response.Errors);
+        }
+        else
+        {
+            var request = McpProtoHelper.Parser.Parse<UpdateSpecOptionRequest>(json);
+            var response = await client.UpdateAsync(request, cancellationToken: ct);
+            return McpProtoHelper.FormatManageResponse(response.Success, "updated", response.Code, response.Errors);
+        }
     }
 
     private static async Task<string> DeleteAsync(
@@ -66,7 +67,7 @@ public static class ManageSpecOptionTool
         }
 
         var response = await client.DeleteAsync(new DeleteSpecOptionRequest { Code = code }, cancellationToken: ct);
-        return McpProtoHelper.FormatManageResponse(response.Success, response.Action, response.Code, response.Errors);
+        return McpProtoHelper.FormatManageResponse(response.Success, "deleted", response.Code, response.Errors);
     }
 
     private static async Task<string> GetAsync(

@@ -1,6 +1,6 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryQuery.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductSearchQuery.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Products;
 
@@ -9,9 +9,9 @@ public static class ProductStatsTool
 {
     [McpServerTool(Name = "product_stats"), Description("Get product catalog statistics: total count, brand distribution, and top categories.")]
     public static async Task<string> ExecuteAsync(
-        ProductSearchQueryService.ProductSearchQueryServiceClient searchClient,
-        BrandQueryService.BrandQueryServiceClient brandClient,
-        CategoryQueryService.CategoryQueryServiceClient categoryClient,
+        ProductManagementService.ProductManagementServiceClient searchClient,
+        BrandManagementService.BrandManagementServiceClient brandClient,
+        CategoryManagementService.CategoryManagementServiceClient categoryClient,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
@@ -28,7 +28,7 @@ public static class ProductStatsTool
             cancellationToken: cancellationToken).ResponseAsync;
 
         var brandsTask = brandClient.GetBrandsAsync(
-            new GetBrandsRequest { CatalogSeoName = catalogSeoName, LanguageCode = languageCode },
+            new GetCatalogBrandsRequest { CatalogSeoName = catalogSeoName, LanguageCode = languageCode },
             cancellationToken: cancellationToken).ResponseAsync;
 
         var categoriesTask = categoryClient.GetCategoryTreeAsync(
