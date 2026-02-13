@@ -51,6 +51,7 @@ COPY ["DKH.McpGateway.Api/DKH.McpGateway.Api.csproj", "DKH.McpGateway.Api/"]
 COPY ["DKH.McpGateway.Application/DKH.McpGateway.Application.csproj", "DKH.McpGateway.Application/"]
 RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     RUNTIME_ID=$(if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then echo "linux-arm64"; else echo "linux-x64"; fi) && \
+    if [ -f /usr/bin/protoc ]; then export PROTOBUF_PROTOC=/usr/bin/protoc; fi && \
     dotnet restore "./DKH.McpGateway.Api/DKH.McpGateway.Api.csproj" -r $RUNTIME_ID /p:PublishReadyToRun=true
 # Preserve authenticated nuget.config before COPY overwrites it
 RUN cp nuget.config /tmp/nuget.config.auth
@@ -63,13 +64,9 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR "/src/DKH.McpGateway.Api"
 RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
     RUNTIME_ID=$(if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then echo "linux-arm64"; else echo "linux-x64"; fi) && \
+    if [ -f /usr/bin/protoc ]; then export PROTOBUF_PROTOC=/usr/bin/protoc; fi && \
     dotnet restore "./DKH.McpGateway.Api.csproj" -r $RUNTIME_ID /p:PublishReadyToRun=true && \
-    if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then \
-    Protobuf_ProtocPath=/usr/bin/protoc \
-    dotnet publish "./DKH.McpGateway.Api.csproj" --no-restore -c $BUILD_CONFIGURATION -o /app/publish -r $RUNTIME_ID /p:UseAppHost=false /p:PublishReadyToRun=true; \
-    else \
-    dotnet publish "./DKH.McpGateway.Api.csproj" --no-restore -c $BUILD_CONFIGURATION -o /app/publish -r $RUNTIME_ID /p:UseAppHost=false /p:PublishReadyToRun=true; \
-    fi
+    dotnet publish "./DKH.McpGateway.Api.csproj" --no-restore -c $BUILD_CONFIGURATION -o /app/publish -r $RUNTIME_ID /p:UseAppHost=false /p:PublishReadyToRun=true
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
