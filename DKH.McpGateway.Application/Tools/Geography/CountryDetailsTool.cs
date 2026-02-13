@@ -24,7 +24,7 @@ public static class CountryDetailsTool
 
         await Task.WhenAll(countryTask, provincesTask);
 
-        var country = countryTask.Result.Data;
+        var country = countryTask.Result;
         var allProvinces = provincesTask.Result.Items;
 
         var filtered = allProvinces

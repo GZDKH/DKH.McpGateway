@@ -42,7 +42,7 @@ public static class ManageCountryTool
             return McpProtoHelper.FormatError("json is required for create/update");
         }
 
-        var data = McpProtoHelper.Parser.Parse<CountryData>(json);
+        var data = McpProtoHelper.Parser.Parse<CountryModel>(json);
         var request = new ManageCountryRequest { Data = data };
 
         _ = action.ToLowerInvariant() switch
@@ -81,7 +81,7 @@ public static class ManageCountryTool
 
         var response = await client.GetAsync(
             new GetCountryRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
-        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+        return McpProtoHelper.Formatter.Format(response);
     }
 
     private static async Task<string> ListAsync(

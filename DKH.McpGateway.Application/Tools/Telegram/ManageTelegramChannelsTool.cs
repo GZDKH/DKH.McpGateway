@@ -27,7 +27,7 @@ public static class ManageTelegramChannelsTool
         if (string.Equals(action, "list", StringComparison.OrdinalIgnoreCase))
         {
             var response = await client.GetChannelsAsync(
-                new GetChannelsRequest { BotId = botId },
+                new GetChannelsRequest { BotId = new GuidValue(botId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -57,7 +57,7 @@ public static class ManageTelegramChannelsTool
             var response = await client.AddChannelAsync(
                 new AddChannelRequest
                 {
-                    BotId = botId,
+                    BotId = new GuidValue(botId),
                     TelegramChannelId = telegramChannelId,
                     Name = channelName ?? "",
                 },
@@ -86,7 +86,7 @@ public static class ManageTelegramChannelsTool
             }
 
             var response = await client.RemoveChannelAsync(
-                new RemoveChannelRequest { ChannelId = channelId },
+                new RemoveChannelRequest { ChannelId = new GuidValue(channelId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -106,7 +106,7 @@ public static class ManageTelegramChannelsTool
             }
 
             var response = await client.UpdateChannelStatsAsync(
-                new UpdateChannelStatsRequest { ChannelId = channelId },
+                new UpdateChannelStatsRequest { ChannelId = new GuidValue(channelId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -128,8 +128,8 @@ public static class ManageTelegramChannelsTool
 
             var request = new BroadcastToChannelRequest
             {
-                BotId = botId,
-                ChannelId = channelId,
+                BotId = new GuidValue(botId),
+                ChannelId = new GuidValue(channelId),
                 Message = message,
                 DisableNotification = disableNotification ?? false,
             };

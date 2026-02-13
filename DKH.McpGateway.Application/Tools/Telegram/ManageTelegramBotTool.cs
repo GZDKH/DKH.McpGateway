@@ -45,7 +45,7 @@ public static class ManageTelegramBotTool
 
             var request = new CreateBotRequest
             {
-                StorefrontId = storefrontId,
+                StorefrontId = new GuidValue(storefrontId),
                 Token = token,
                 MiniAppUrl = miniAppUrl ?? "",
             };
@@ -75,7 +75,7 @@ public static class ManageTelegramBotTool
             }
 
             var response = await client.ListBotsAsync(
-                new ListBotsRequest { StorefrontId = storefrontId },
+                new ListBotsRequest { StorefrontId = new GuidValue(storefrontId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -103,7 +103,7 @@ public static class ManageTelegramBotTool
             }
 
             var response = await client.GetBotByStorefrontIdAsync(
-                new GetBotByStorefrontIdRequest { StorefrontId = storefrontId },
+                new GetBotByStorefrontIdRequest { StorefrontId = new GuidValue(storefrontId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -131,7 +131,7 @@ public static class ManageTelegramBotTool
             }
 
             var response = await client.DeactivateBotAsync(
-                new DeactivateBotRequest { BotId = botId },
+                new DeactivateBotRequest { BotId = new GuidValue(botId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -152,7 +152,7 @@ public static class ManageTelegramBotTool
             }
 
             var response = await client.GetBotStatsAsync(
-                new GetBotStatsRequest { BotId = botId },
+                new GetBotStatsRequest { BotId = new GuidValue(botId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

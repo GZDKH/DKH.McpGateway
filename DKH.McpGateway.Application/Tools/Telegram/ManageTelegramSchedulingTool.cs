@@ -46,7 +46,7 @@ public static class ManageTelegramSchedulingTool
 
             var request = new CreateScheduledBroadcastRequest
             {
-                BotId = botId,
+                BotId = new GuidValue(botId),
                 ChatId = chatId,
                 Text = text,
                 ScheduledAt = Timestamp.FromDateTimeOffset(scheduledTime),
@@ -79,9 +79,8 @@ public static class ManageTelegramSchedulingTool
         {
             var request = new ListScheduledBroadcastsRequest
             {
-                BotId = botId,
-                Page = page ?? 1,
-                PageSize = pageSize ?? 20,
+                BotId = new GuidValue(botId),
+                Pagination = new PaginationRequest { Page = page ?? 1, PageSize = pageSize ?? 20 },
             };
 
             if (!string.IsNullOrEmpty(status))
@@ -94,9 +93,9 @@ public static class ManageTelegramSchedulingTool
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                totalCount = response.TotalCount,
-                page = response.Page,
-                pageSize = response.PageSize,
+                totalCount = response.Pagination.TotalCount,
+                page = response.Pagination.CurrentPage,
+                pageSize = response.Pagination.PageSize,
                 items = response.Items.Select(i => new
                 {
                     i.Id,
@@ -123,7 +122,7 @@ public static class ManageTelegramSchedulingTool
 
             var request = new UpdateScheduledBroadcastRequest
             {
-                Id = broadcastId,
+                Id = new GuidValue(broadcastId),
             };
 
             if (!string.IsNullOrEmpty(text))
@@ -172,7 +171,7 @@ public static class ManageTelegramSchedulingTool
             }
 
             var response = await client.CancelScheduledBroadcastAsync(
-                new CancelScheduledBroadcastRequest { Id = broadcastId },
+                new CancelScheduledBroadcastRequest { Id = new GuidValue(broadcastId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

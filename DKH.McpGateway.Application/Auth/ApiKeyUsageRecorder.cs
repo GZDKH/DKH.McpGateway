@@ -27,7 +27,7 @@ public sealed class ApiKeyUsageRecorder(
                 {
                     await usageClient.RecordUsageAsync(new RecordUsageRequest
                     {
-                        ApiKeyId = apiKeyId,
+                        ApiKeyId = new GuidValue(apiKeyId),
                         Endpoint = context.Request.Path.ToString(),
                         StatusCode = context.Response.StatusCode,
                         IpAddress = context.Connection.RemoteIpAddress?.ToString() ?? "",

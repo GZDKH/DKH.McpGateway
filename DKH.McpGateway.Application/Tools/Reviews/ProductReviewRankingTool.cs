@@ -43,8 +43,8 @@ public static class ProductReviewRankingTool
         var aggregatesResponse = await reviewClient.GetProductsReviewAggregatesAsync(
             new GetProductsReviewAggregatesRequest
             {
-                StorefrontId = storefrontId,
-                ProductIds = { productIds },
+                StorefrontId = new GuidValue(storefrontId),
+                ProductIds = { productIds.Select(id => new GuidValue(id)) },
             },
             cancellationToken: cancellationToken);
 
@@ -58,7 +58,7 @@ public static class ProductReviewRankingTool
             {
                 rank = idx + 1,
                 productId = a.ProductId,
-                productName = productMap.TryGetValue(a.ProductId, out var p) ? p.Name : null,
+                productName = productMap.TryGetValue(new GuidValue(a.ProductId), out var p) ? p.Name : null,
                 averageScore = Math.Round(a.AverageScore, 2),
                 totalReviews = a.TotalCount,
                 positiveRate = a.TotalCount > 0

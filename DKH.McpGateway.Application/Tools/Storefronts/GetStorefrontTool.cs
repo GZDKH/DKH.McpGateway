@@ -29,7 +29,7 @@ public static class GetStorefrontTool
         else
         {
             storefront = await client.GetAsync(
-                new GetStorefrontRequest { Id = storefrontId! },
+                new GetStorefrontRequest { Id = new GuidValue(storefrontId!) },
                 cancellationToken: cancellationToken);
         }
 

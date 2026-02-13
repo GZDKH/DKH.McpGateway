@@ -15,8 +15,8 @@ public static class ReviewStatsTool
         var response = await client.GetProductReviewAggregateAsync(
             new GetProductReviewAggregateRequest
             {
-                StorefrontId = storefrontId,
-                ProductId = productId,
+                StorefrontId = new GuidValue(storefrontId),
+                ProductId = new GuidValue(productId),
             },
             cancellationToken: cancellationToken);
 

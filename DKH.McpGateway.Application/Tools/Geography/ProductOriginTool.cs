@@ -46,7 +46,7 @@ public static class ProductOriginTool
             new GetCountryRequest { Code = origin.CountryCode, Language = langCode },
             cancellationToken: cancellationToken).ResponseAsync;
 
-        Task<GetStateProvinceResponse>? provinceTask = null;
+        Task<StateProvinceModel>? provinceTask = null;
         if (origin.HasStateProvinceCode)
         {
             provinceTask = provinceClient.GetAsync(
@@ -58,7 +58,7 @@ public static class ProductOriginTool
                 cancellationToken: cancellationToken).ResponseAsync;
         }
 
-        Task<GetCityResponse>? cityTask = null;
+        Task<CityModel>? cityTask = null;
         if (origin.HasStateProvinceCode && origin.HasCityCode)
         {
             cityTask = cityClient.GetAsync(
@@ -83,12 +83,12 @@ public static class ProductOriginTool
             productSeoName = product.SeoName,
             origin = new
             {
-                country = new { code = origin.CountryCode, name = country.Data.Translations.FirstOrDefault()?.Name ?? string.Empty },
+                country = new { code = origin.CountryCode, name = country.Translations.FirstOrDefault()?.Name ?? string.Empty },
                 province = provinceTask is not null
-                    ? new { code = origin.StateProvinceCode, name = provinceTask.Result.Data.Translations.FirstOrDefault()?.Name ?? string.Empty }
+                    ? new { code = origin.StateProvinceCode, name = provinceTask.Result.Translations.FirstOrDefault()?.Name ?? string.Empty }
                     : null,
                 city = cityTask is not null
-                    ? new { code = origin.CityCode, name = cityTask.Result.Data.Translations.FirstOrDefault()?.Name ?? string.Empty }
+                    ? new { code = origin.CityCode, name = cityTask.Result.Translations.FirstOrDefault()?.Name ?? string.Empty }
                     : null,
                 placeName = origin.Details?.HasPlaceName == true ? origin.Details.PlaceName : null,
                 altitude = origin.Details?.HasAltitudeMin == true

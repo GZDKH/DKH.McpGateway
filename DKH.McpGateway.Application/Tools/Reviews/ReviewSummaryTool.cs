@@ -19,10 +19,9 @@ public static class ReviewSummaryTool
         var response = await client.GetProductReviewsAsync(
             new GetProductReviewsRequest
             {
-                StorefrontId = storefrontId,
-                ProductId = productId,
-                Page = 1,
-                PageSize = limit,
+                StorefrontId = new GuidValue(storefrontId),
+                ProductId = new GuidValue(productId),
+                Pagination = new PaginationRequest { Page = 1, PageSize = limit },
                 SortBy = sortBy,
             },
             cancellationToken: cancellationToken);

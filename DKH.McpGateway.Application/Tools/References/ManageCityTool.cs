@@ -42,7 +42,7 @@ public static class ManageCityTool
             return McpProtoHelper.FormatError("json is required for create/update");
         }
 
-        var data = McpProtoHelper.Parser.Parse<CityData>(json);
+        var data = McpProtoHelper.Parser.Parse<CityModel>(json);
         var request = new ManageCityRequest { Data = data };
 
         _ = action.ToLowerInvariant() switch
@@ -81,7 +81,7 @@ public static class ManageCityTool
 
         var response = await client.GetAsync(
             new GetCityRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
-        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+        return McpProtoHelper.Formatter.Format(response);
     }
 
     private static async Task<string> ListAsync(

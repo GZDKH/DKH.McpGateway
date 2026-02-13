@@ -104,7 +104,7 @@ public static class ManageStorefrontChannelsTool
             var request = new UpdateChannelRequest
             {
                 StorefrontId = storefrontId,
-                ChannelId = channelId,
+                ChannelId = new GuidValue(channelId),
                 IsActive = isActive ?? true,
                 Purpose = ParseChannelPurpose(purpose),
             };
@@ -134,7 +134,7 @@ public static class ManageStorefrontChannelsTool
             }
 
             var response = await channelClient.RemoveChannelAsync(
-                new RemoveChannelRequest { StorefrontId = storefrontId, ChannelId = channelId },
+                new RemoveChannelRequest { StorefrontId = storefrontId, ChannelId = new GuidValue(channelId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

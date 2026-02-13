@@ -42,7 +42,7 @@ public static class ManageCurrencyTool
             return McpProtoHelper.FormatError("json is required for create/update");
         }
 
-        var data = McpProtoHelper.Parser.Parse<CurrencyData>(json);
+        var data = McpProtoHelper.Parser.Parse<CurrencyModel>(json);
         var request = new ManageCurrencyRequest { Data = data };
 
         _ = action.ToLowerInvariant() switch
@@ -81,7 +81,7 @@ public static class ManageCurrencyTool
 
         var response = await client.GetAsync(
             new GetCurrencyRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
-        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+        return McpProtoHelper.Formatter.Format(response);
     }
 
     private static async Task<string> ListAsync(

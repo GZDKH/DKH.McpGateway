@@ -42,7 +42,7 @@ public static class ManageStateProvinceTool
             return McpProtoHelper.FormatError("json is required for create/update");
         }
 
-        var data = McpProtoHelper.Parser.Parse<StateProvinceData>(json);
+        var data = McpProtoHelper.Parser.Parse<StateProvinceModel>(json);
         var request = new ManageStateProvinceRequest { Data = data };
 
         _ = action.ToLowerInvariant() switch
@@ -81,7 +81,7 @@ public static class ManageStateProvinceTool
 
         var response = await client.GetAsync(
             new GetStateProvinceRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
-        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+        return McpProtoHelper.Formatter.Format(response);
     }
 
     private static async Task<string> ListAsync(

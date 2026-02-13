@@ -40,7 +40,7 @@ public static class ManageStorefrontTool
             {
                 Code = storefrontCode,
                 Name = name,
-                OwnerId = ownerId ?? "",
+                OwnerId = new GuidValue(ownerId ?? ""),
             };
 
             if (description is not null)
