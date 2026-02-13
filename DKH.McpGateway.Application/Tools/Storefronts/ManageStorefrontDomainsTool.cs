@@ -98,7 +98,7 @@ public static class ManageStorefrontDomainsTool
             }
 
             var response = await domainClient.RemoveDomainAsync(
-                new RemoveDomainRequest { StorefrontId = storefrontId, DomainId = domainId },
+                new RemoveDomainRequest { StorefrontId = storefrontId, DomainId = new GuidValue(domainId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -118,7 +118,7 @@ public static class ManageStorefrontDomainsTool
             }
 
             var response = await domainClient.VerifyDomainAsync(
-                new VerifyDomainRequest { StorefrontId = storefrontId, DomainId = domainId },
+                new VerifyDomainRequest { StorefrontId = storefrontId, DomainId = new GuidValue(domainId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -140,7 +140,7 @@ public static class ManageStorefrontDomainsTool
             }
 
             var response = await domainClient.SetPrimaryAsync(
-                new SetPrimaryDomainRequest { StorefrontId = storefrontId, DomainId = domainId },
+                new SetPrimaryDomainRequest { StorefrontId = storefrontId, DomainId = new GuidValue(domainId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

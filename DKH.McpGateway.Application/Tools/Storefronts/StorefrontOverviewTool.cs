@@ -15,19 +15,19 @@ public static class StorefrontOverviewTool
         CancellationToken cancellationToken = default)
     {
         var storefrontTask = crudClient.GetAsync(
-            new GetStorefrontRequest { Id = storefrontId },
+            new GetStorefrontRequest { Id = new GuidValue(storefrontId) },
             cancellationToken: cancellationToken).ResponseAsync;
 
         var domainsTask = domainClient.GetDomainsAsync(
-            new GetDomainsRequest { StorefrontId = storefrontId },
+            new GetDomainsRequest { StorefrontId = new GuidValue(storefrontId) },
             cancellationToken: cancellationToken).ResponseAsync;
 
         var channelsTask = channelClient.GetChannelsAsync(
-            new GetChannelsRequest { StorefrontId = storefrontId },
+            new GetChannelsRequest { StorefrontId = new GuidValue(storefrontId) },
             cancellationToken: cancellationToken).ResponseAsync;
 
         var catalogsTask = catalogClient.GetCatalogsAsync(
-            new GetCatalogsRequest { StorefrontId = storefrontId },
+            new GetCatalogsRequest { StorefrontId = new GuidValue(storefrontId) },
             cancellationToken: cancellationToken).ResponseAsync;
 
         await Task.WhenAll(storefrontTask, domainsTask, channelsTask, catalogsTask);

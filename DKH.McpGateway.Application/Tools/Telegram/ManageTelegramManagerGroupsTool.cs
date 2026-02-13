@@ -25,7 +25,7 @@ public static class ManageTelegramManagerGroupsTool
         if (string.Equals(action, "list", StringComparison.OrdinalIgnoreCase))
         {
             var response = await client.GetManagerGroupsAsync(
-                new GetManagerGroupsRequest { BotId = botId },
+                new GetManagerGroupsRequest { BotId = new GuidValue(botId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -53,7 +53,7 @@ public static class ManageTelegramManagerGroupsTool
 
             var request = new AddManagerGroupRequest
             {
-                BotId = botId,
+                BotId = new GuidValue(botId),
                 TelegramGroupId = telegramGroupId,
                 Name = groupName ?? "",
             };
@@ -91,7 +91,7 @@ public static class ManageTelegramManagerGroupsTool
             }
 
             var response = await client.RemoveManagerGroupAsync(
-                new RemoveManagerGroupRequest { ManagerGroupId = managerGroupId },
+                new RemoveManagerGroupRequest { ManagerGroupId = new GuidValue(managerGroupId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

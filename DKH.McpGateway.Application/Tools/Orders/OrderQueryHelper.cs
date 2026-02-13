@@ -73,9 +73,8 @@ internal static class OrderQueryHelper
         {
             var request = new ListOrdersRequest
             {
-                StorefrontId = storefrontId ?? string.Empty,
-                Page = page,
-                PageSize = PageSize,
+                StorefrontId = new GuidValue(storefrontId ?? string.Empty),
+                Pagination = new PaginationRequest { Page = page, PageSize = PageSize },
             };
 
             if (from.HasValue)

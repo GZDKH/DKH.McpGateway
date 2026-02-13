@@ -15,14 +15,14 @@ public static class ListStorefrontsTool
         pageSize = Math.Clamp(pageSize, 1, 50);
 
         var response = await client.GetAllAsync(
-            new GetAllStorefrontsRequest { Page = page, PageSize = pageSize },
+            new GetAllStorefrontsRequest { Pagination = new PaginationRequest { Page = page, PageSize = pageSize } },
             cancellationToken: cancellationToken);
 
         var result = new
         {
-            totalCount = response.TotalCount,
-            page = response.Page,
-            pageSize = response.PageSize,
+            totalCount = response.Pagination.TotalCount,
+            page = response.Pagination.CurrentPage,
+            pageSize = response.Pagination.PageSize,
             storefronts = response.Storefronts.Select(static s => new
             {
                 id = s.Id,

@@ -12,7 +12,7 @@ public static class GetStorefrontFeaturesTool
         CancellationToken cancellationToken = default)
     {
         var response = await client.GetFeaturesAsync(
-            new GetFeaturesRequest { StorefrontId = storefrontId },
+            new GetFeaturesRequest { StorefrontId = new GuidValue(storefrontId) },
             cancellationToken: cancellationToken);
 
         var f = response.Features;

@@ -12,7 +12,7 @@ public static class GetStorefrontBrandingTool
         CancellationToken cancellationToken = default)
     {
         var response = await client.GetBrandingAsync(
-            new GetBrandingRequest { StorefrontId = storefrontId },
+            new GetBrandingRequest { StorefrontId = new GuidValue(storefrontId) },
             cancellationToken: cancellationToken);
 
         var b = response.Branding;

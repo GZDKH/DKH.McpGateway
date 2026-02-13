@@ -71,7 +71,7 @@ public static class ManageStorefrontCatalogsTool
             var request = new AddCatalogRequest
             {
                 StorefrontId = storefrontId,
-                CatalogId = catalogId,
+                CatalogId = new GuidValue(catalogId),
                 DisplayOrder = displayOrder ?? 0,
                 IsDefault = isDefault ?? false,
                 IsVisible = isVisible ?? true,
@@ -102,7 +102,7 @@ public static class ManageStorefrontCatalogsTool
             }
 
             var response = await catalogClient.RemoveCatalogAsync(
-                new RemoveCatalogRequest { StorefrontId = storefrontId, CatalogLinkId = catalogLinkId },
+                new RemoveCatalogRequest { StorefrontId = storefrontId, CatalogLinkId = new GuidValue(catalogLinkId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -122,7 +122,7 @@ public static class ManageStorefrontCatalogsTool
             }
 
             var response = await catalogClient.SetDefaultCatalogAsync(
-                new SetDefaultCatalogRequest { StorefrontId = storefrontId, CatalogLinkId = catalogLinkId },
+                new SetDefaultCatalogRequest { StorefrontId = storefrontId, CatalogLinkId = new GuidValue(catalogLinkId) },
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

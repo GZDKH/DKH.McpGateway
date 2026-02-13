@@ -12,12 +12,12 @@ public static class StorefrontResources
         CancellationToken cancellationToken = default)
     {
         var response = await client.GetAllAsync(
-            new GetAllStorefrontsRequest { Page = 1, PageSize = 50 },
+            new GetAllStorefrontsRequest { Pagination = new PaginationRequest { Page = 1, PageSize = 50 } },
             cancellationToken: cancellationToken);
 
         return JsonSerializer.Serialize(new
         {
-            totalCount = response.TotalCount,
+            totalCount = response.Pagination.TotalCount,
             storefronts = response.Storefronts.Select(static s => new
             {
                 id = s.Id,

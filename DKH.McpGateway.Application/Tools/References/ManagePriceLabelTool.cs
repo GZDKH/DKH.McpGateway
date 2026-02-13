@@ -42,7 +42,7 @@ public static class ManagePriceLabelTool
             return McpProtoHelper.FormatError("json is required for create/update");
         }
 
-        var data = McpProtoHelper.Parser.Parse<PriceLabelData>(json);
+        var data = McpProtoHelper.Parser.Parse<PriceLabelModel>(json);
         var request = new ManagePriceLabelRequest { Data = data };
 
         _ = action.ToLowerInvariant() switch
@@ -81,7 +81,7 @@ public static class ManagePriceLabelTool
 
         var response = await client.GetAsync(
             new GetPriceLabelRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
-        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+        return McpProtoHelper.Formatter.Format(response);
     }
 
     private static async Task<string> ListAsync(

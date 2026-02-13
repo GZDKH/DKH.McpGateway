@@ -42,7 +42,7 @@ public static class ManageDimensionTool
             return McpProtoHelper.FormatError("json is required for create/update");
         }
 
-        var data = McpProtoHelper.Parser.Parse<DimensionData>(json);
+        var data = McpProtoHelper.Parser.Parse<DimensionModel>(json);
         var request = new ManageDimensionRequest { Data = data };
 
         _ = action.ToLowerInvariant() switch
@@ -81,7 +81,7 @@ public static class ManageDimensionTool
 
         var response = await client.GetAsync(
             new GetDimensionRequest { Code = code, Language = language ?? "" }, cancellationToken: ct);
-        return McpProtoHelper.FormatGetResponse(response.Found, response.Data);
+        return McpProtoHelper.Formatter.Format(response);
     }
 
     private static async Task<string> ListAsync(

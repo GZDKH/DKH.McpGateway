@@ -44,7 +44,7 @@ public static class ReferenceResources
             },
             cancellationToken: cancellationToken);
 
-        var data = response.Data;
+        var data = response;
         return JsonSerializer.Serialize(new
         {
             code = data.TwoLetterCode,
