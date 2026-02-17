@@ -1,4 +1,4 @@
-using DKH.StorefrontService.Contracts.V1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontFeaturesManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -7,7 +7,7 @@ public static class GetStorefrontFeaturesTool
 {
     [McpServerTool(Name = "get_storefront_features"), Description("Get storefront feature flags: cart, orders, payments, reviews, wishlist.")]
     public static async Task<string> ExecuteAsync(
-        StorefrontFeaturesService.StorefrontFeaturesServiceClient client,
+        StorefrontFeaturesManagementService.StorefrontFeaturesManagementServiceClient client,
         [Description("Storefront ID (UUID)")] string storefrontId,
         CancellationToken cancellationToken = default)
     {

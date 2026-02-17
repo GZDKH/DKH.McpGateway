@@ -1,5 +1,6 @@
-using DKH.StorefrontService.Contracts.V1;
-using DKH.StorefrontService.Contracts.V1.Models;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using DKH.StorefrontService.Contracts.Storefront.Models.Branding.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -11,8 +12,8 @@ public static class ManageStorefrontBrandingTool
         "Use action 'update' to set branding, 'reset' to reset to defaults, 'get' to view current branding.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        StorefrontCrudService.StorefrontCrudServiceClient crudClient,
-        StorefrontBrandingService.StorefrontBrandingServiceClient brandingClient,
+        StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
+        StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient brandingClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
         [Description("Action: get, update, or reset")] string action,
         [Description("Logo URL")] string? logo = null,
@@ -76,7 +77,7 @@ public static class ManageStorefrontBrandingTool
             var request = new UpdateBrandingRequest
             {
                 StorefrontId = storefrontId,
-                Colors = new ThemeColors
+                Colors = new ThemeColorsModel
                 {
                     Primary = primaryColor ?? "#2563eb",
                     Secondary = secondaryColor ?? "#64748b",
@@ -84,12 +85,12 @@ public static class ManageStorefrontBrandingTool
                     Background = backgroundColor ?? "#ffffff",
                     Text = textColor ?? "#0f172a",
                 },
-                Typography = new ThemeTypography
+                Typography = new ThemeTypographyModel
                 {
                     FontFamily = fontFamily ?? "Inter, sans-serif",
                     BaseFontSize = 16,
                 },
-                Layout = new ThemeLayout
+                Layout = new ThemeLayoutModel
                 {
                     HeaderStyle = headerStyle ?? "sticky",
                     ProductCardStyle = productCardStyle ?? "grid",

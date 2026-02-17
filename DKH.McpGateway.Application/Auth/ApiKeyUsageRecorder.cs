@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using DKH.ApiManagementService.Contracts.Services.V1;
+using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyUsage.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

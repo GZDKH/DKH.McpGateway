@@ -1,4 +1,6 @@
-using DKH.StorefrontService.Contracts.V1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontFeaturesManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Models.Features.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -11,8 +13,8 @@ public static class ManageStorefrontFeaturesTool
         "'update' to set multiple features at once.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        StorefrontCrudService.StorefrontCrudServiceClient crudClient,
-        StorefrontFeaturesService.StorefrontFeaturesServiceClient featuresClient,
+        StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
+        StorefrontFeaturesManagementService.StorefrontFeaturesManagementServiceClient featuresClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
         [Description("Action: get, enable, disable, or update")] string action,
         [Description("Feature name for enable/disable: cart, orders, payments, reviews, wishlist")] string? featureName = null,
@@ -109,7 +111,7 @@ public static class ManageStorefrontFeaturesTool
                 new GetFeaturesRequest { StorefrontId = storefrontId },
                 cancellationToken: cancellationToken);
 
-            var features = current.Features ?? new StorefrontService.Contracts.V1.Models.StorefrontFeatures();
+            var features = current.Features ?? new StorefrontFeaturesModel();
             if (cartEnabled.HasValue)
             {
                 features.CartEnabled = cartEnabled.Value;
@@ -152,7 +154,7 @@ public static class ManageStorefrontFeaturesTool
             McpJsonDefaults.Options);
     }
 
-    private static object FormatFeatures(StorefrontService.Contracts.V1.Models.StorefrontFeatures f) => new
+    private static object FormatFeatures(StorefrontFeaturesModel f) => new
     {
         cartEnabled = f.CartEnabled,
         ordersEnabled = f.OrdersEnabled,

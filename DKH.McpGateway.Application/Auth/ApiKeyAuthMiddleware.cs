@@ -1,4 +1,4 @@
-using DKH.ApiManagementService.Contracts.Services.V1;
+using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyQuery.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -7,7 +7,7 @@ namespace DKH.McpGateway.Application.Auth;
 
 public sealed class ApiKeyAuthMiddleware(
     RequestDelegate next,
-    ApiKeyValidationService.ApiKeyValidationServiceClient validationClient,
+    ApiKeyQueryService.ApiKeyQueryServiceClient validationClient,
     IMemoryCache cache,
     ILogger<ApiKeyAuthMiddleware> logger)
 {

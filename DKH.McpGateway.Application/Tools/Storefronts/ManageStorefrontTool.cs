@@ -1,5 +1,5 @@
-using DKH.StorefrontService.Contracts.V1;
-using DKH.StorefrontService.Contracts.V1.Models;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using DKH.StorefrontService.Contracts.Storefront.Models.Features.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -12,7 +12,7 @@ public static class ManageStorefrontTool
         "For update/delete: provide storefrontCode to identify the storefront.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        StorefrontCrudService.StorefrontCrudServiceClient client,
+        StorefrontsCrudService.StorefrontsCrudServiceClient client,
         [Description("Action: create, update, or delete")] string action,
         [Description("Storefront code (required for update/delete, e.g. 'my-store')")] string? storefrontCode = null,
         [Description("Storefront name (for create/update)")] string? name = null,
@@ -51,7 +51,7 @@ public static class ManageStorefrontTool
             if (cartEnabled.HasValue || ordersEnabled.HasValue || paymentsEnabled.HasValue
                 || reviewsEnabled.HasValue || wishlistEnabled.HasValue)
             {
-                request.Features = new StorefrontFeatures
+                request.Features = new StorefrontFeaturesModel
                 {
                     CartEnabled = cartEnabled ?? false,
                     OrdersEnabled = ordersEnabled ?? false,
@@ -96,7 +96,7 @@ public static class ManageStorefrontTool
             {
                 Id = storefront.Storefront.Id,
                 Name = name ?? storefront.Storefront.Name,
-                Features = storefront.Storefront.Features ?? new StorefrontFeatures(),
+                Features = storefront.Storefront.Features ?? new StorefrontFeaturesModel(),
             };
 
             if (description is not null)

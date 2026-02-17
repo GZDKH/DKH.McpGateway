@@ -1,4 +1,6 @@
-using DKH.ApiManagementService.Contracts.Services.V1;
+using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyQuery.v1;
+using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyUsage.v1;
+using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
 using DKH.Platform.Grpc.Client;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
@@ -27,14 +29,18 @@ using DKH.ReferenceService.Contracts.Reference.Api.QuantityUnitManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.StateProvinceManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.StateProvinceTypeManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v1;
-using DKH.ReviewService.Contracts.Api.V1;
-using DKH.StorefrontService.Contracts.V1;
-using DKH.TelegramBotService.Contracts.Auth.V1;
-using DKH.TelegramBotService.Contracts.Management.V1;
-using DKH.TelegramBotService.Contracts.Notifications.V1;
-using DKH.TelegramBotService.Contracts.Scheduling.V1;
-using GrpcOrderService = DKH.OrderService.Contracts.Api.V1.OrderService;
-using GrpcReviewService = DKH.ReviewService.Contracts.Api.V1.ReviewService;
+using DKH.ReviewService.Contracts.Review.Api.ReviewCrud.v1;
+using DKH.ReviewService.Contracts.Review.Api.ReviewQuery.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontChannelManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontDomainManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontFeaturesManagement.v1;
+using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotAuth.v1;
+using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotCrud.v1;
+using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotNotification.v1;
+using DKH.TelegramBotService.Contracts.TelegramBot.Api.BroadcastManagement.v1;
 using ProductCatalogDataExchangeClient =
     DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ReferenceDataExchangeClient =
@@ -86,28 +92,28 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<ReferenceDataExchangeClient>("ReferenceDataExchangeServiceClient");
 
         // OrderService (5007)
-        grpc.AddEndpointFromConfiguration<GrpcOrderService.OrderServiceClient>();
+        grpc.AddEndpointFromConfiguration<OrderCrudService.OrderCrudServiceClient>();
 
         // StorefrontService (5009)
-        grpc.AddEndpointFromConfiguration<StorefrontCrudService.StorefrontCrudServiceClient>();
-        grpc.AddEndpointFromConfiguration<StorefrontBrandingService.StorefrontBrandingServiceClient>();
-        grpc.AddEndpointFromConfiguration<StorefrontCatalogService.StorefrontCatalogServiceClient>();
-        grpc.AddEndpointFromConfiguration<StorefrontChannelService.StorefrontChannelServiceClient>();
-        grpc.AddEndpointFromConfiguration<StorefrontDomainService.StorefrontDomainServiceClient>();
-        grpc.AddEndpointFromConfiguration<StorefrontFeaturesService.StorefrontFeaturesServiceClient>();
+        grpc.AddEndpointFromConfiguration<StorefrontsCrudService.StorefrontsCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<StorefrontCatalogManagementService.StorefrontCatalogManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<StorefrontChannelManagementService.StorefrontChannelManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<StorefrontDomainManagementService.StorefrontDomainManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<StorefrontFeaturesManagementService.StorefrontFeaturesManagementServiceClient>();
 
         // ReviewService (5011)
-        grpc.AddEndpointFromConfiguration<GrpcReviewService.ReviewServiceClient>();
+        grpc.AddEndpointFromConfiguration<ReviewsCrudService.ReviewsCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<ReviewQueryService.ReviewQueryServiceClient>();
 
         // TelegramBotService (5001)
-        grpc.AddEndpointFromConfiguration<TelegramBotManagement.TelegramBotManagementClient>();
-        grpc.AddEndpointFromConfiguration<TelegramScheduling.TelegramSchedulingClient>();
-        grpc.AddEndpointFromConfiguration<TelegramNotifications.TelegramNotificationsClient>();
-        grpc.AddEndpointFromConfiguration<TelegramAuthService.TelegramAuthServiceClient>();
+        grpc.AddEndpointFromConfiguration<BotsCrudService.BotsCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<BroadcastManagementService.BroadcastManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<BotNotificationService.BotNotificationServiceClient>();
+        grpc.AddEndpointFromConfiguration<BotAuthService.BotAuthServiceClient>();
 
         // ApiManagementService (5012)
-        grpc.AddEndpointFromConfiguration<ApiKeyValidationService.ApiKeyValidationServiceClient>();
+        grpc.AddEndpointFromConfiguration<ApiKeyQueryService.ApiKeyQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<ApiKeyUsageService.ApiKeyUsageServiceClient>();
     }
 }

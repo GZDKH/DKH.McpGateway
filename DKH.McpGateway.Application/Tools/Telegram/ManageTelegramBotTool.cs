@@ -1,4 +1,4 @@
-using DKH.TelegramBotService.Contracts.Management.V1;
+using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotCrud.v1;
 
 namespace DKH.McpGateway.Application.Tools.Telegram;
 
@@ -11,7 +11,7 @@ public static class ManageTelegramBotTool
         "'deactivate' to disable a bot, 'get' to get bot by storefront, 'stats' to view bot statistics.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        TelegramBotManagement.TelegramBotManagementClient client,
+        BotsCrudService.BotsCrudServiceClient client,
         [Description("Action: create, list, deactivate, get, stats, or ping")] string action,
         [Description("Storefront ID (required for create/list/get)")] string? storefrontId = null,
         [Description("Bot API token from Telegram (required for create)")] string? token = null,

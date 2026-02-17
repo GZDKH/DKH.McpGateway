@@ -1,4 +1,4 @@
-using DKH.StorefrontService.Contracts.V1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -7,7 +7,7 @@ public static class GetStorefrontTool
 {
     [McpServerTool(Name = "get_storefront"), Description("Get full storefront details including features by storefront ID or code.")]
     public static async Task<string> ExecuteAsync(
-        StorefrontCrudService.StorefrontCrudServiceClient client,
+        StorefrontsCrudService.StorefrontsCrudServiceClient client,
         [Description("Storefront ID (UUID)")] string? storefrontId = null,
         [Description("Storefront code (alternative to ID)")] string? storefrontCode = null,
         CancellationToken cancellationToken = default)

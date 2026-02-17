@@ -1,4 +1,4 @@
-using DKH.TelegramBotService.Contracts.Management.V1;
+using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotCrud.v1;
 
 namespace DKH.McpGateway.Application.Tools.Telegram;
 
@@ -11,7 +11,7 @@ public static class ManageTelegramManagerGroupsTool
         "Actions: 'list' to view groups, 'add' to create, 'remove' to delete.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        TelegramBotManagement.TelegramBotManagementClient client,
+        BotsCrudService.BotsCrudServiceClient client,
         [Description("Bot ID (required for all actions)")] string botId,
         [Description("Action: list, add, or remove")] string action,
         [Description("Telegram group ID (for add)")] string? telegramGroupId = null,

@@ -1,4 +1,4 @@
-using DKH.TelegramBotService.Contracts.Scheduling.V1;
+using DKH.TelegramBotService.Contracts.TelegramBot.Api.BroadcastManagement.v1;
 using Google.Protobuf.WellKnownTypes;
 
 namespace DKH.McpGateway.Application.Tools.Telegram;
@@ -12,7 +12,7 @@ public static class ManageTelegramSchedulingTool
         "'update' to modify pending message, 'cancel' to cancel a pending message.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        TelegramScheduling.TelegramSchedulingClient client,
+        BroadcastManagementService.BroadcastManagementServiceClient client,
         [Description("Bot ID (required for all actions)")] string botId,
         [Description("Action: create, list, update, or cancel")] string action,
         [Description("Target chat/channel ID (for create)")] string? chatId = null,

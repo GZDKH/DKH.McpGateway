@@ -1,5 +1,5 @@
 using System.Globalization;
-using GrpcOrderService = DKH.OrderService.Contracts.Api.V1.OrderService;
+using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
 
 namespace DKH.McpGateway.Application.Tools.Orders;
 
@@ -10,7 +10,7 @@ public static class OrderTrendsTool
 
     [McpServerTool(Name = "order_trends"), Description("Analyze order trends over time with configurable granularity (day, week, month).")]
     public static async Task<string> ExecuteAsync(
-        GrpcOrderService.OrderServiceClient client,
+        OrderCrudService.OrderCrudServiceClient client,
         [Description("Start of period (ISO 8601, required)")] string periodStart,
         [Description("End of period (ISO 8601, required)")] string periodEnd,
         [Description("Time granularity: day, week, or month (default: day)")] string granularity = "day",

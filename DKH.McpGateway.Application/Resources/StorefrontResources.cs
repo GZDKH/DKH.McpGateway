@@ -1,4 +1,6 @@
-using DKH.StorefrontService.Contracts.V1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontFeaturesManagement.v1;
 
 namespace DKH.McpGateway.Application.Resources;
 
@@ -8,7 +10,7 @@ public static class StorefrontResources
     [McpServerResource(Name = "storefront://storefronts", MimeType = "application/json")]
     [Description("All storefronts with their status and basic configuration.")]
     public static async Task<string> GetStorefrontsAsync(
-        StorefrontCrudService.StorefrontCrudServiceClient client,
+        StorefrontsCrudService.StorefrontsCrudServiceClient client,
         CancellationToken cancellationToken = default)
     {
         var response = await client.GetAllAsync(
@@ -32,9 +34,9 @@ public static class StorefrontResources
     [McpServerResource(Name = "storefront://config", MimeType = "application/json")]
     [Description("Full configuration for a specific storefront by code.")]
     public static async Task<string> GetStorefrontConfigAsync(
-        StorefrontCrudService.StorefrontCrudServiceClient crudClient,
-        StorefrontBrandingService.StorefrontBrandingServiceClient brandingClient,
-        StorefrontFeaturesService.StorefrontFeaturesServiceClient featuresClient,
+        StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
+        StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient brandingClient,
+        StorefrontFeaturesManagementService.StorefrontFeaturesManagementServiceClient featuresClient,
         [Description("Storefront code, e.g. 'main'")] string storefrontCode,
         CancellationToken cancellationToken = default)
     {

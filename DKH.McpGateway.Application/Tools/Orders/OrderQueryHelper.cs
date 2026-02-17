@@ -1,7 +1,6 @@
-using DKH.OrderService.Contracts.Api.V1;
-using DKH.OrderService.Contracts.Models.V1;
+using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
+using DKH.OrderService.Contracts.Order.Models.Order.v1;
 using Google.Protobuf.WellKnownTypes;
-using GrpcOrderService = DKH.OrderService.Contracts.Api.V1.OrderService;
 
 namespace DKH.McpGateway.Application.Tools.Orders;
 
@@ -52,8 +51,8 @@ internal static class OrderQueryHelper
         return (from, to, null);
     }
 
-    internal static async Task<(List<Order> Orders, int TotalCount, string? Error)> FetchOrdersAsync(
-        GrpcOrderService.OrderServiceClient client,
+    internal static async Task<(List<OrderModel> Orders, int TotalCount, string? Error)> FetchOrdersAsync(
+        OrderCrudService.OrderCrudServiceClient client,
         string? storefrontId,
         string? periodStart,
         string? periodEnd,
@@ -65,7 +64,7 @@ internal static class OrderQueryHelper
             return ([], 0, error);
         }
 
-        var orders = new List<Order>();
+        var orders = new List<OrderModel>();
         var totalCount = 0;
         var page = 1;
 
@@ -88,7 +87,7 @@ internal static class OrderQueryHelper
             }
 
             var response = await client.ListOrdersAsync(request, cancellationToken: ct);
-            totalCount = response.Total;
+            totalCount = response.Metadata.TotalCount;
             orders.AddRange(response.Items);
 
             if (orders.Count >= totalCount || response.Items.Count < PageSize)

@@ -1,4 +1,4 @@
-using DKH.ApiManagementService.Contracts.Models.V1;
+using DKH.ApiManagementService.Contracts.ApiManagement.Models.ApiKey.v1;
 using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Auth;

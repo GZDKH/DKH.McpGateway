@@ -1,5 +1,6 @@
-using DKH.StorefrontService.Contracts.V1;
-using DKH.StorefrontService.Contracts.V1.Models;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontChannelManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using DKH.StorefrontService.Contracts.Storefront.Models.Channel.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -11,8 +12,8 @@ public static class ManageStorefrontChannelsTool
         "Actions: 'list' to view channels, 'add' to create, 'update' to modify, 'remove' to delete.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        StorefrontCrudService.StorefrontCrudServiceClient crudClient,
-        StorefrontChannelService.StorefrontChannelServiceClient channelClient,
+        StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
+        StorefrontChannelManagementService.StorefrontChannelManagementServiceClient channelClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
         [Description("Action: list, add, update, or remove")] string action,
         [Description("Channel ID (for update/remove, returned from list)")] string? channelId = null,

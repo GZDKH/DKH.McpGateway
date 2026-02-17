@@ -1,4 +1,5 @@
-using DKH.StorefrontService.Contracts.V1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontDomainManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -11,8 +12,8 @@ public static class ManageStorefrontDomainsTool
         "'remove' to delete, 'verify' to check DNS, 'set_primary' to set primary domain.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        StorefrontCrudService.StorefrontCrudServiceClient crudClient,
-        StorefrontDomainService.StorefrontDomainServiceClient domainClient,
+        StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
+        StorefrontDomainManagementService.StorefrontDomainManagementServiceClient domainClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
         [Description("Action: list, add, remove, verify, or set_primary")] string action,
         [Description("Domain name (for add, e.g. 'shop.example.com')")] string? domain = null,

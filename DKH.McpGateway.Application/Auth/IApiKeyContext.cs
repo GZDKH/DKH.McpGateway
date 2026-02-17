@@ -1,4 +1,4 @@
-using DKH.ApiManagementService.Contracts.Models.V1;
+using DKH.ApiManagementService.Contracts.ApiManagement.Models.ApiKey.v1;
 
 namespace DKH.McpGateway.Application.Auth;
 

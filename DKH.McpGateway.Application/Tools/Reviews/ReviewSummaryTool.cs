@@ -1,4 +1,4 @@
-using DKH.ReviewService.Contracts.Api.V1;
+using DKH.ReviewService.Contracts.Review.Api.ReviewQuery.v1;
 
 namespace DKH.McpGateway.Application.Tools.Reviews;
 

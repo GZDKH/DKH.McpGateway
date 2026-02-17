@@ -1,4 +1,5 @@
-using DKH.StorefrontService.Contracts.V1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -11,8 +12,8 @@ public static class ManageStorefrontCatalogsTool
         "'remove' to unlink, 'set_default' to set the default catalog.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        StorefrontCrudService.StorefrontCrudServiceClient crudClient,
-        StorefrontCatalogService.StorefrontCatalogServiceClient catalogClient,
+        StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
+        StorefrontCatalogManagementService.StorefrontCatalogManagementServiceClient catalogClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
         [Description("Action: list, add, remove, or set_default")] string action,
         [Description("Catalog ID to add/remove/set_default")] string? catalogId = null,

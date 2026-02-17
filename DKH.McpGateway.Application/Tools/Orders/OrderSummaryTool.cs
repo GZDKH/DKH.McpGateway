@@ -1,5 +1,5 @@
-using DKH.OrderService.Contracts.Models.V1;
-using GrpcOrderService = DKH.OrderService.Contracts.Api.V1.OrderService;
+using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
+using DKH.OrderService.Contracts.Order.Models.Order.v1;
 
 namespace DKH.McpGateway.Application.Tools.Orders;
 
@@ -8,7 +8,7 @@ public static class OrderSummaryTool
 {
     [McpServerTool(Name = "order_summary"), Description("Get aggregated order statistics: total count, revenue, average order value, breakdown by status.")]
     public static async Task<string> ExecuteAsync(
-        GrpcOrderService.OrderServiceClient client,
+        OrderCrudService.OrderCrudServiceClient client,
         [Description("Start of period (ISO 8601, e.g. 2024-01-01)")] string? periodStart = null,
         [Description("End of period (ISO 8601, e.g. 2024-12-31)")] string? periodEnd = null,
         [Description("Storefront ID (UUID) to scope the analysis")] string? storefrontId = null,

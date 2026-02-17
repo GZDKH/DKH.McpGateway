@@ -1,4 +1,4 @@
-using GrpcOrderService = DKH.OrderService.Contracts.Api.V1.OrderService;
+using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
 
 namespace DKH.McpGateway.Application.Tools.Orders;
 
@@ -7,7 +7,7 @@ public static class TopSellingProductsTool
 {
     [McpServerTool(Name = "top_selling_products"), Description("Get best-selling products by quantity and revenue (aggregated, no customer data).")]
     public static async Task<string> ExecuteAsync(
-        GrpcOrderService.OrderServiceClient client,
+        OrderCrudService.OrderCrudServiceClient client,
         [Description("Start of period (ISO 8601)")] string? periodStart = null,
         [Description("End of period (ISO 8601)")] string? periodEnd = null,
         [Description("Number of top products to return (default 10, max 50)")] int limit = 10,

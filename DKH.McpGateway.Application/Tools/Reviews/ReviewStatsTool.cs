@@ -1,4 +1,4 @@
-using DKH.ReviewService.Contracts.Api.V1;
+using DKH.ReviewService.Contracts.Review.Api.ReviewQuery.v1;
 
 namespace DKH.McpGateway.Application.Tools.Reviews;
 
@@ -12,15 +12,13 @@ public static class ReviewStatsTool
         [Description("Storefront ID (UUID)")] string storefrontId,
         CancellationToken cancellationToken = default)
     {
-        var response = await client.GetProductReviewAggregateAsync(
+        var agg = await client.GetProductReviewAggregateAsync(
             new GetProductReviewAggregateRequest
             {
                 StorefrontId = new GuidValue(storefrontId),
                 ProductId = new GuidValue(productId),
             },
             cancellationToken: cancellationToken);
-
-        var agg = response.Aggregate;
         var total = agg.TotalCount;
 
         var result = new

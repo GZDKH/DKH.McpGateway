@@ -1,4 +1,7 @@
-using DKH.StorefrontService.Contracts.V1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontChannelManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontDomainManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -7,10 +10,10 @@ public static class StorefrontOverviewTool
 {
     [McpServerTool(Name = "storefront_overview"), Description("Get a comprehensive storefront overview: domains, channels, catalogs, and features in one call.")]
     public static async Task<string> ExecuteAsync(
-        StorefrontCrudService.StorefrontCrudServiceClient crudClient,
-        StorefrontDomainService.StorefrontDomainServiceClient domainClient,
-        StorefrontChannelService.StorefrontChannelServiceClient channelClient,
-        StorefrontCatalogService.StorefrontCatalogServiceClient catalogClient,
+        StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
+        StorefrontDomainManagementService.StorefrontDomainManagementServiceClient domainClient,
+        StorefrontChannelManagementService.StorefrontChannelManagementServiceClient channelClient,
+        StorefrontCatalogManagementService.StorefrontCatalogManagementServiceClient catalogClient,
         [Description("Storefront ID (UUID)")] string storefrontId,
         CancellationToken cancellationToken = default)
     {

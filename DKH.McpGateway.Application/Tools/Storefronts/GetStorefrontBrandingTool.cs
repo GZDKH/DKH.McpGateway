@@ -1,4 +1,4 @@
-using DKH.StorefrontService.Contracts.V1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -7,7 +7,7 @@ public static class GetStorefrontBrandingTool
 {
     [McpServerTool(Name = "get_storefront_branding"), Description("Get storefront branding: logo, colors, typography, and layout.")]
     public static async Task<string> ExecuteAsync(
-        StorefrontBrandingService.StorefrontBrandingServiceClient client,
+        StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient client,
         [Description("Storefront ID (UUID)")] string storefrontId,
         CancellationToken cancellationToken = default)
     {

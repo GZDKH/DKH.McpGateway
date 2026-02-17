@@ -1,4 +1,4 @@
-using DKH.TelegramBotService.Contracts.Management.V1;
+using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotCrud.v1;
 
 namespace DKH.McpGateway.Application.Tools.Telegram;
 
@@ -11,7 +11,7 @@ public static class ManageTelegramChannelsTool
         "'remove' to unlink, 'update_stats' to sync subscriber count, 'broadcast' to send a message.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        TelegramBotManagement.TelegramBotManagementClient client,
+        BotsCrudService.BotsCrudServiceClient client,
         [Description("Bot ID (required for all actions)")] string botId,
         [Description("Action: list, add, remove, update_stats, or broadcast")] string action,
         [Description("Telegram channel ID (numeric or @handle, for add)")] string? telegramChannelId = null,
