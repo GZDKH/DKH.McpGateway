@@ -17,6 +17,7 @@ await Platform
         }
 
         builder.Services.AddApplication();
+        builder.Services.AddHealthChecks();
     })
     .ConfigurePlatformWebApplication(app =>
     {
@@ -25,6 +26,9 @@ await Platform
             app.UseApiKeyAuth();
             app.MapMcp();
         }
+
+        app.MapHealthChecks("/health/ready");
+        app.MapHealthChecks("/health/live");
     })
     .AddPlatformLogging()
     .AddPlatformGrpcEndpoints((_, grpc) => grpc.AddMcpGatewayEndpoints())
