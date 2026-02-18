@@ -8,6 +8,8 @@ services:
       secrets:
         - github_nuget_username
         - github_nuget_token
+        - gitlab_nuget_username
+        - gitlab_nuget_token
     volumes:
       - dkh-mcp-gateway-api-logs:/app/logs
     networks:
@@ -27,3 +29,7 @@ secrets:
     environment: GITHUB_NUGET_USERNAME
   github_nuget_token:
     environment: GITHUB_NUGET_TOKEN
+  gitlab_nuget_username:
+    environment: GITLAB_NUGET_USERNAME
+  gitlab_nuget_token:
+    environment: GITLAB_NUGET_TOKEN
