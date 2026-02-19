@@ -41,14 +41,14 @@ using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotAuth.v1;
 using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotCrud.v1;
 using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotNotification.v1;
 using DKH.TelegramBotService.Contracts.TelegramBot.Api.BroadcastManagement.v1;
+using CustomerDataExchangeClient =
+    DKH.CustomerService.Contracts.Customer.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
+using OrderDataExchangeClient =
+    DKH.OrderService.Contracts.Order.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ProductCatalogDataExchangeClient =
     DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ReferenceDataExchangeClient =
     DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
-using OrderDataExchangeClient =
-    DKH.OrderService.Contracts.Order.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
-using CustomerDataExchangeClient =
-    DKH.CustomerService.Contracts.Customer.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ReviewDataExchangeClient =
     DKH.ReviewService.Contracts.Review.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 
