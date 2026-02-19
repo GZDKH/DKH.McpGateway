@@ -45,6 +45,12 @@ using ProductCatalogDataExchangeClient =
     DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ReferenceDataExchangeClient =
     DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
+using OrderDataExchangeClient =
+    DKH.OrderService.Contracts.Order.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
+using CustomerDataExchangeClient =
+    DKH.CustomerService.Contracts.Customer.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
+using ReviewDataExchangeClient =
+    DKH.ReviewService.Contracts.Review.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 
 namespace DKH.McpGateway.Application;
 
@@ -93,6 +99,10 @@ public static class GrpcEndpointsRegistration
 
         // OrderService (5007)
         grpc.AddEndpointFromConfiguration<OrderCrudService.OrderCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<OrderDataExchangeClient>("OrderDataExchangeServiceClient");
+
+        // CustomerService (5010)
+        grpc.AddEndpointFromConfiguration<CustomerDataExchangeClient>("CustomerDataExchangeServiceClient");
 
         // StorefrontService (5009)
         grpc.AddEndpointFromConfiguration<StorefrontsCrudService.StorefrontsCrudServiceClient>();
@@ -105,6 +115,7 @@ public static class GrpcEndpointsRegistration
         // ReviewService (5011)
         grpc.AddEndpointFromConfiguration<ReviewsCrudService.ReviewsCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<ReviewQueryService.ReviewQueryServiceClient>();
+        grpc.AddEndpointFromConfiguration<ReviewDataExchangeClient>("ReviewDataExchangeServiceClient");
 
         // TelegramBotService (5001)
         grpc.AddEndpointFromConfiguration<BotsCrudService.BotsCrudServiceClient>();
