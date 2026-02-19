@@ -49,7 +49,7 @@ RUN --mount=type=secret,id=github_nuget_username \
 
 COPY ["DKH.McpGateway.Api/DKH.McpGateway.Api.csproj", "DKH.McpGateway.Api/"]
 COPY ["DKH.McpGateway.Application/DKH.McpGateway.Application.csproj", "DKH.McpGateway.Application/"]
-RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=shared \
     RUNTIME_ID=$(if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then echo "linux-arm64"; else echo "linux-x64"; fi) && \
     if [ -f /usr/bin/protoc ]; then export PROTOBUF_PROTOC=/usr/bin/protoc; fi && \
     dotnet restore "./DKH.McpGateway.Api/DKH.McpGateway.Api.csproj" -r $RUNTIME_ID /p:PublishReadyToRun=true
@@ -62,7 +62,7 @@ RUN cp /tmp/nuget.config.auth nuget.config
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 WORKDIR "/src/DKH.McpGateway.Api"
-RUN --mount=type=cache,target=/root/.nuget/packages,sharing=locked \
+RUN --mount=type=cache,target=/root/.nuget/packages,sharing=shared \
     RUNTIME_ID=$(if [ "$(uname -m)" = "aarch64" ] || [ "$(uname -m)" = "arm64" ]; then echo "linux-arm64"; else echo "linux-x64"; fi) && \
     if [ -f /usr/bin/protoc ]; then export PROTOBUF_PROTOC=/usr/bin/protoc; fi && \
     dotnet restore "./DKH.McpGateway.Api.csproj" -r $RUNTIME_ID /p:PublishReadyToRun=true && \
