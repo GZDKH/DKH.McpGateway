@@ -12,6 +12,7 @@
     <PackageReference Include="DKH.ProductCatalogService.Contracts"/>
     <PackageReference Include="DKH.ReferenceService.Contracts"/>
     <PackageReference Include="DKH.OrderService.Contracts"/>
+    <PackageReference Include="DKH.CustomerService.Contracts"/>
     <PackageReference Include="DKH.StorefrontService.Contracts"/>
     <PackageReference Include="DKH.ReviewService.Contracts"/>
     <PackageReference Include="DKH.TelegramBotService.Contracts"/>

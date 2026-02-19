@@ -25,6 +25,7 @@
     <PackageVersion Include="DKH.ReferenceService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.OrderService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.StorefrontService.Contracts" Version="1.0.0"/>
+    <PackageVersion Include="DKH.CustomerService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.ReviewService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.TelegramBotService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.ApiManagementService.Contracts" Version="1.0.0"/>
