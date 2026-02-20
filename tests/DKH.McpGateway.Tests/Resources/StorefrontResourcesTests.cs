@@ -1,5 +1,6 @@
 using DKH.McpGateway.Application.Resources;
 using DKH.Platform.Grpc.Common.Types;
+using Microsoft.Extensions.Caching.Memory;
 using SfBranding = DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
 using SfCrud = DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using SfFeatures = DKH.StorefrontService.Contracts.Storefront.Api.StorefrontFeaturesManagement.v1;
@@ -7,8 +8,16 @@ using SfModels = DKH.StorefrontService.Contracts.Storefront.Models.Storefront.v1
 
 namespace DKH.McpGateway.Tests.Resources;
 
-public class StorefrontResourcesTests
+public class StorefrontResourcesTests : IDisposable
 {
+    private readonly MemoryCache _cache = new(new MemoryCacheOptions());
+
+    public void Dispose()
+    {
+        _cache.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
     [Fact]
     public async Task GetStorefronts_Success_ReturnsJsonWithStorefrontsAsync()
     {
@@ -22,7 +31,7 @@ public class StorefrontResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
 
-        var result = await StorefrontResources.GetStorefrontsAsync(client);
+        var result = await StorefrontResources.GetStorefrontsAsync(client, _cache);
 
         var json = JsonDocument.Parse(result).RootElement;
         json.TryGetProperty("storefronts", out _).Should().BeTrue();
@@ -41,7 +50,7 @@ public class StorefrontResourcesTests
                 Pagination = new() { TotalCount = 0 },
             }));
 
-        await StorefrontResources.GetStorefrontsAsync(client);
+        await StorefrontResources.GetStorefrontsAsync(client, _cache);
 
         _ = client.Received(1).GetAllAsync(
             Arg.Is<SfCrud.GetAllStorefrontsRequest>(r =>
@@ -82,7 +91,7 @@ public class StorefrontResourcesTests
                 new SfFeatures.GetFeaturesResponse()));
 
         var result = await StorefrontResources.GetStorefrontConfigAsync(
-            crudClient, brandingClient, featuresClient, storefrontCode: "main");
+            crudClient, brandingClient, featuresClient, _cache, storefrontCode: "main");
 
         var json = JsonDocument.Parse(result).RootElement;
         json.GetProperty("code").GetString().Should().Be("main");
@@ -99,7 +108,7 @@ public class StorefrontResourcesTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<SfCrud.GetAllStorefrontsResponse>(
                 StatusCode.Unavailable));
 
-        var act = () => StorefrontResources.GetStorefrontsAsync(client);
+        var act = () => StorefrontResources.GetStorefrontsAsync(client, _cache);
 
         await act.Should().ThrowAsync<RpcException>();
     }

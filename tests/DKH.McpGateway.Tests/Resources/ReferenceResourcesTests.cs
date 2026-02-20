@@ -1,12 +1,21 @@
 using DKH.McpGateway.Application.Resources;
+using Microsoft.Extensions.Caching.Memory;
 using CountryMgmt = DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
 using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
 using LanguageMgmt = DKH.ReferenceService.Contracts.Reference.Api.LanguageManagement.v1;
 
 namespace DKH.McpGateway.Tests.Resources;
 
-public class ReferenceResourcesTests
+public class ReferenceResourcesTests : IDisposable
 {
+    private readonly MemoryCache _cache = new(new MemoryCacheOptions());
+
+    public void Dispose()
+    {
+        _cache.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
     [Fact]
     public async Task GetCountries_Success_ReturnsJsonWithCountriesAsync()
     {
@@ -17,7 +26,7 @@ public class ReferenceResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
 
-        var result = await ReferenceResources.GetCountriesAsync(client);
+        var result = await ReferenceResources.GetCountriesAsync(client, _cache);
 
         var json = JsonDocument.Parse(result).RootElement;
         json.TryGetProperty("countries", out _).Should().BeTrue();
@@ -32,7 +41,7 @@ public class ReferenceResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CountryMgmt.ListCountriesResponse()));
 
-        await ReferenceResources.GetCountriesAsync(client, languageCode: "en-US");
+        await ReferenceResources.GetCountriesAsync(client, _cache, languageCode: "en-US");
 
         _ = client.Received(1).ListAsync(
             Arg.Is<CountryMgmt.ListCountriesRequest>(r =>
@@ -55,7 +64,7 @@ public class ReferenceResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(country));
 
-        var result = await ReferenceResources.GetCountryByCodeAsync(client, countryCode: "US");
+        var result = await ReferenceResources.GetCountryByCodeAsync(client, _cache, countryCode: "US");
 
         var json = JsonDocument.Parse(result).RootElement;
         json.GetProperty("code").GetString().Should().Be("US");
@@ -71,7 +80,7 @@ public class ReferenceResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CurrencyMgmt.ListCurrenciesResponse()));
 
-        var result = await ReferenceResources.GetCurrenciesAsync(client);
+        var result = await ReferenceResources.GetCurrenciesAsync(client, _cache);
 
         JsonDocument.Parse(result).RootElement
             .TryGetProperty("currencies", out _).Should().BeTrue();
@@ -86,7 +95,7 @@ public class ReferenceResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new LanguageMgmt.ListLanguagesResponse()));
 
-        var result = await ReferenceResources.GetLanguagesAsync(client);
+        var result = await ReferenceResources.GetLanguagesAsync(client, _cache);
 
         JsonDocument.Parse(result).RootElement
             .TryGetProperty("languages", out _).Should().BeTrue();
@@ -102,7 +111,7 @@ public class ReferenceResourcesTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<CountryMgmt.ListCountriesResponse>(
                 StatusCode.Unavailable));
 
-        var act = () => ReferenceResources.GetCountriesAsync(client);
+        var act = () => ReferenceResources.GetCountriesAsync(client, _cache);
 
         await act.Should().ThrowAsync<RpcException>();
     }

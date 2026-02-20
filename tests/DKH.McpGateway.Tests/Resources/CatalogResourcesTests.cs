@@ -1,12 +1,21 @@
 using DKH.McpGateway.Application.Resources;
+using Microsoft.Extensions.Caching.Memory;
 using CatalogMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
 using CategoryMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
 using ProductMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 
 namespace DKH.McpGateway.Tests.Resources;
 
-public class CatalogResourcesTests
+public class CatalogResourcesTests : IDisposable
 {
+    private readonly MemoryCache _cache = new(new MemoryCacheOptions());
+
+    public void Dispose()
+    {
+        _cache.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
     [Fact]
     public async Task GetCatalogs_Success_ReturnsJsonWithCatalogsAsync()
     {
@@ -17,7 +26,7 @@ public class CatalogResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
 
-        var result = await CatalogResources.GetCatalogsAsync(client);
+        var result = await CatalogResources.GetCatalogsAsync(client, _cache);
 
         var json = JsonDocument.Parse(result).RootElement;
         json.TryGetProperty("catalogs", out _).Should().BeTrue();
@@ -32,7 +41,7 @@ public class CatalogResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CatalogMgmt.GetStorefrontCatalogsResponse()));
 
-        await CatalogResources.GetCatalogsAsync(client);
+        await CatalogResources.GetCatalogsAsync(client, _cache);
 
         _ = client.Received(1).GetCatalogsAsync(
             Arg.Is<CatalogMgmt.GetStorefrontCatalogsRequest>(r => r.LanguageCode == "ru"),
@@ -48,7 +57,7 @@ public class CatalogResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CategoryMgmt.CategoryTree()));
 
-        var result = await CatalogResources.GetCategoriesAsync(client);
+        var result = await CatalogResources.GetCategoriesAsync(client, _cache);
 
         var json = JsonDocument.Parse(result).RootElement;
         json.GetProperty("catalog").GetString().Should().Be("main-catalog");
@@ -68,7 +77,7 @@ public class CatalogResourcesTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CategoryMgmt.CategoryTree()));
 
-        var result = await CatalogResources.GetCategoriesAsync(client, catalogSeoName: "electronics");
+        var result = await CatalogResources.GetCategoriesAsync(client, _cache, catalogSeoName: "electronics");
 
         JsonDocument.Parse(result).RootElement.GetProperty("catalog").GetString()
             .Should().Be("electronics");
@@ -93,7 +102,7 @@ public class CatalogResourcesTests
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(product));
 
         var result = await CatalogResources.GetProductAsync(
-            client, productSeoName: "widget");
+            client, _cache, productSeoName: "widget");
 
         var json = JsonDocument.Parse(result).RootElement;
         json.GetProperty("name").GetString().Should().Be("Widget");
@@ -111,7 +120,7 @@ public class CatalogResourcesTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<CatalogMgmt.GetStorefrontCatalogsResponse>(
                 StatusCode.Unavailable));
 
-        var act = () => CatalogResources.GetCatalogsAsync(client);
+        var act = () => CatalogResources.GetCatalogsAsync(client, _cache);
 
         await act.Should().ThrowAsync<RpcException>()
             .Where(e => e.StatusCode == StatusCode.Unavailable);
