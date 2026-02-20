@@ -3,6 +3,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App"/>
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="DKH.McpGateway.Tests"/>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="DKH.Platform"/>
     <PackageReference Include="DKH.Platform.Grpc.Client"/>
     <PackageReference Include="DKH.Platform.Logging"/>
