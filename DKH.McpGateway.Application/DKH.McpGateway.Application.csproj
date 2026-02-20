@@ -20,5 +20,6 @@
     <PackageReference Include="DKH.ReviewService.Contracts"/>
     <PackageReference Include="DKH.TelegramBotService.Contracts"/>
     <PackageReference Include="DKH.ApiManagementService.Contracts"/>
+    <PackageReference Include="DKH.InventoryService.Contracts"/>
   </ItemGroup>
 </Project>

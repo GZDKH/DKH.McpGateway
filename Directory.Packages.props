@@ -29,6 +29,7 @@
     <PackageVersion Include="DKH.ReviewService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.TelegramBotService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.ApiManagementService.Contracts" Version="1.0.0"/>
+    <PackageVersion Include="DKH.InventoryService.Contracts" Version="1.0.0"/>
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
