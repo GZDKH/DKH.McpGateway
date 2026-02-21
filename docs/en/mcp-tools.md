@@ -4,27 +4,31 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 
 ## Tools
 
-### Products (11 tools)
+### Products (9 tools)
 
 | Tool | File | Description |
 | ---- | ---- | ----------- |
 | `search_products` | SearchProductsTool.cs | Search products by query with pagination |
 | `get_product` | GetProductTool.cs | Get detailed product information by SEO name |
+| `manage_product` | ManageProductTool.cs | Create, update, delete, get, or list products (action parameter) |
 | `list_brands` | ListBrandsTool.cs | List all available brands |
 | `list_categories` | ListCategoriesTool.cs | List category tree for a catalog |
 | `list_catalogs` | ListCatalogsTool.cs | List all product catalogs |
 | `get_product_stats` | ProductStatsTool.cs | Product catalog statistics |
 | `get_category_distribution` | CategoryDistributionTool.cs | Category product distribution analysis |
 | `get_brand_analytics` | BrandAnalyticsTool.cs | Brand analytics and statistics |
-| `create_product` | CreateProductTool.cs | Create a new product |
-| `update_product` | UpdateProductTool.cs | Update an existing product |
-| `delete_product` | DeleteProductTool.cs | Delete a product by code |
 
 ### Brands (1 tool)
 
 | Tool | File | Description |
 | ---- | ---- | ----------- |
 | `manage_brand` | ManageBrandTool.cs | Create, update, or delete brands (action parameter) |
+
+### Catalogs (1 tool)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `manage_catalog` | ManageCatalogTool.cs | Create, update, delete, get, or list catalogs (action parameter) |
 
 ### Categories (1 tool)
 
@@ -38,7 +42,42 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | ---- | ---- | ----------- |
 | `manage_tags` | ManageTagsTool.cs | Create, update, or delete tags (action parameter) |
 
-### References (6 tools)
+### Manufacturers (1 tool)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `manage_manufacturer` | ManageManufacturerTool.cs | Create, update, delete, get, or list manufacturers (action parameter) |
+
+### Packages (1 tool)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `manage_package` | ManagePackageTool.cs | Create, update, delete, get, or list packages (action parameter) |
+
+### Specifications (3 tools)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `manage_spec_group` | ManageSpecGroupTool.cs | Create, update, delete, get, or list specification groups (action parameter) |
+| `manage_spec_attribute` | ManageSpecAttributeTool.cs | Create, update, delete, get, or list specification attributes (action parameter) |
+| `manage_spec_option` | ManageSpecOptionTool.cs | Create, update, delete, get, or list specification options (action parameter) |
+
+### Product attributes (3 tools)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `manage_product_attr_group` | ManageProductAttrGroupTool.cs | Create, update, delete, get, or list product attribute groups (action parameter) |
+| `manage_product_attr` | ManageProductAttrTool.cs | Create, update, delete, get, or list product attributes (action parameter) |
+| `manage_product_attr_option` | ManageProductAttrOptionTool.cs | Create, update, delete, get, or list product attribute options (action parameter) |
+
+### Variants (2 tools)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `manage_variant_attr` | ManageVariantAttrTool.cs | Create, update, delete, get, or list variant attributes (action parameter) |
+| `manage_variant_attr_value` | ManageVariantAttrValueTool.cs | Create, update, delete, get, or list variant attribute values (action parameter) |
+
+### References (13 tools)
 
 | Tool | File | Description |
 | ---- | ---- | ----------- |
@@ -48,6 +87,13 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `manage_currency` | ManageCurrencyTool.cs | Create, update, or delete currencies |
 | `manage_language` | ManageLanguageTool.cs | Create, update, or delete languages |
 | `manage_delivery_time` | ManageDeliveryTimeTool.cs | Create, update, or delete delivery times |
+| `manage_city` | ManageCityTool.cs | Create, update, delete, get, or list cities (action parameter) |
+| `manage_dimension` | ManageDimensionTool.cs | Create, update, delete, get, or list dimension units (action parameter) |
+| `manage_price_label` | ManagePriceLabelTool.cs | Create, update, delete, get, or list price labels (action parameter) |
+| `manage_quantity_unit` | ManageQuantityUnitTool.cs | Create, update, delete, get, or list quantity units (action parameter) |
+| `manage_state_province` | ManageStateProvinceTool.cs | Create, update, delete, get, or list states/provinces (action parameter) |
+| `manage_state_province_type` | ManageStateProvinceTypeTool.cs | Create, update, delete, get, or list state/province types (action parameter) |
+| `manage_weight` | ManageWeightTool.cs | Create, update, delete, get, or list weight units (action parameter) |
 
 ### Geography (2 tools)
 
@@ -73,7 +119,7 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `get_product_review_ranking` | ProductReviewRankingTool.cs | Products ranked by review score |
 | `get_review_summary` | ReviewSummaryTool.cs | Review sentiment summary |
 
-### Storefronts (12 tools)
+### Storefronts (11 tools)
 
 | Tool | File | Description |
 | ---- | ---- | ----------- |
@@ -98,12 +144,24 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `manage_telegram_manager_groups` | ManageTelegramManagerGroupsTool.cs | Manage Telegram manager groups |
 | `manage_telegram_scheduling` | ManageTelegramSchedulingTool.cs | Manage Telegram message scheduling |
 
-### Data exchange (2 tools)
+### Inventory (4 tools)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `query_stock` | QueryStockTool.cs | Query stock levels and check availability (action parameter) |
+| `manage_stock` | ManageStockTool.cs | Set, adjust, or get warehouse stock levels (action parameter) |
+| `manage_reservation` | ManageReservationTool.cs | Reserve, release, confirm, get, or list stock reservations (action parameter) |
+| `manage_stock_alert` | ManageStockAlertTool.cs | List, configure, or acknowledge low stock alerts (action parameter) |
+
+### Data exchange (5 tools)
 
 | Tool | File | Description |
 | ---- | ---- | ----------- |
 | `product_catalog_data` | ProductCatalogDataTool.cs | Import/export product catalog data |
 | `reference_data` | ReferenceDataTool.cs | Import/export reference data |
+| `order_data` | OrderDataTool.cs | Import/export order data |
+| `customer_data` | CustomerDataTool.cs | Import/export customer data |
+| `review_data` | ReviewDataTool.cs | Import/export review data |
 
 ## Resources
 
@@ -132,3 +190,5 @@ Analytics prompt templates that guide AI through multi-step analysis workflows.
 | `storefront_audit` | StorefrontAuditPrompt.cs | Storefront configuration audit |
 | `review_analysis` | ReviewAnalysisPrompt.cs | Review sentiment and trends analysis |
 | `data_quality_check` | DataQualityCheckPrompt.cs | Data completeness and quality check |
+
+*Last updated: February 2026*
