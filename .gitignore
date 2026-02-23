@@ -3,8 +3,8 @@ bin/
 obj/
 out/
 # Catch backslash-named build artifacts (created by MSBuild on macOS)
-bin\*
-obj\*
+bin\\*
+obj\\*
 
 # User-specific files
 *.user
