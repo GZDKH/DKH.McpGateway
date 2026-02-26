@@ -1,7 +1,7 @@
 using DKH.McpGateway.Application.Tools.Specifications;
 using Google.Protobuf.WellKnownTypes;
-using SpecGroup = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecGroupManagement.v1;
 using SpecAttr = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecAttributeManagement.v1;
+using SpecGroup = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecGroupManagement.v1;
 using SpecOpt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.SpecOptionManagement.v1;
 
 namespace DKH.McpGateway.Tests.Tools.Specifications;

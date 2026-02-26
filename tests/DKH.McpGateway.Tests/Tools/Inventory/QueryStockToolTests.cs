@@ -77,7 +77,7 @@ public class QueryStockToolTests
         SetupGetStockLevels(response);
 
         var result = await ExecuteToolAsync("get_levels",
-            json: /*lang=json,strict*/ "{\"items\":[{\"productId\":{\"value\":\"" + ProductId + "\"}}]}");
+            json: "{\"items\":[{\"productId\":{\"value\":\"" + ProductId + "\"}}]}");
 
         var parsed = Parse(result);
         parsed.GetProperty("count").GetInt32().Should().Be(1);
