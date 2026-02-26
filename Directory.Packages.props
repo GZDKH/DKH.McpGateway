@@ -11,8 +11,8 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="DKH.Platform" Version="1.0.1"/>
-    <PackageVersion Include="DKH.Platform.Logging" Version="1.0.0"/>
+    <PackageVersion Include="DKH.Platform" Version="1.0.3"/>
+    <PackageVersion Include="DKH.Platform.Logging" Version="1.2.0"/>
     <PackageVersion Include="DKH.Platform.Grpc.Client" Version="1.1.0"/>
     <PackageVersion Include="DKH.Platform.Http" Version="1.0.0"/>
   </ItemGroup>
