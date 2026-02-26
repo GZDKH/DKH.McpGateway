@@ -1,7 +1,7 @@
 using DKH.McpGateway.Application.Tools.ProductAttributes;
 using Google.Protobuf.WellKnownTypes;
-using PaGroup = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrGroupManagement.v1;
 using PaAttr = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrManagement.v1;
+using PaGroup = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrGroupManagement.v1;
 using PaOpt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrOptionManagement.v1;
 
 namespace DKH.McpGateway.Tests.Tools.ProductAttributes;
