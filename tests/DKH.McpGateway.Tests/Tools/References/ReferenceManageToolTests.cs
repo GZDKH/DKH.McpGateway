@@ -14,15 +14,14 @@ public class ManageCountryToolTests
         Substitute.For<CountryMgmt.CountryManagementService.CountryManagementServiceClient>();
 
     [Fact]
-    public async Task Create_HappyPath_ReturnsOkAsync()
+    public async Task Create_HappyPath_ReturnsModelAsync()
     {
         SetupCreate(new CountryMgmt.CountryModel { TwoLetterCode = "US" });
 
         var result = await ExecuteToolAsync("create",
             json: /*lang=json,strict*/ "{\"twoLetterCode\":\"US\",\"threeLetterCode\":\"USA\",\"numericCode\":840}");
 
-        var json = Parse(result);
-        json.GetProperty("success").GetBoolean().Should().BeTrue();
+        result.Should().Contain("US");
     }
 
     [Fact]
@@ -36,15 +35,14 @@ public class ManageCountryToolTests
     }
 
     [Fact]
-    public async Task Update_HappyPath_ReturnsOkAsync()
+    public async Task Update_HappyPath_ReturnsModelAsync()
     {
         SetupUpdate(new CountryMgmt.CountryModel { TwoLetterCode = "US" });
 
         var result = await ExecuteToolAsync("update",
             json: /*lang=json,strict*/ "{\"twoLetterCode\":\"US\",\"published\":true}");
 
-        var json = Parse(result);
-        json.GetProperty("success").GetBoolean().Should().BeTrue();
+        result.Should().Contain("US");
     }
 
     [Fact]
@@ -244,15 +242,14 @@ public class ManageCurrencyToolTests
         Substitute.For<CurrencyMgmt.CurrencyManagementService.CurrencyManagementServiceClient>();
 
     [Fact]
-    public async Task Create_HappyPath_ReturnsOkAsync()
+    public async Task Create_HappyPath_ReturnsModelAsync()
     {
         SetupCreate(new CurrencyMgmt.CurrencyModel { Code = "USD" });
 
         var result = await ExecuteToolAsync("create",
             json: /*lang=json,strict*/ "{\"code\":\"USD\",\"rate\":1.0,\"symbol\":\"$\"}");
 
-        var json = Parse(result);
-        json.GetProperty("success").GetBoolean().Should().BeTrue();
+        result.Should().Contain("USD");
     }
 
     [Fact]
