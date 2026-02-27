@@ -45,14 +45,14 @@ public static class ManageCurrencyTool
         var data = McpProtoHelper.Parser.Parse<CurrencyModel>(json);
         var request = new ManageCurrencyRequest { Data = data };
 
-        _ = action.ToLowerInvariant() switch
+        var result = action.ToLowerInvariant() switch
         {
             "create" => await client.CreateAsync(request, cancellationToken: ct),
             "update" => await client.UpdateAsync(request, cancellationToken: ct),
             _ => await client.UpdateAsync(request, cancellationToken: ct),
         };
 
-        return McpProtoHelper.FormatOk();
+        return McpProtoHelper.Formatter.Format(result);
     }
 
     private static async Task<string> DeleteAsync(

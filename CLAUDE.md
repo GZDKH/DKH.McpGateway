@@ -64,7 +64,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 
 **Key files:**
 - `ConfigureServices.cs` — `AddMcpGatewayServer()` registers tools, resources, prompts
-- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (~40 clients)
+- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (51 clients)
 - `Tools/Common/McpJsonDefaults.cs` — shared JSON serialization options
 
 ## MCP Capabilities
@@ -73,17 +73,24 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 
 | Folder | Tools | Service |
 |--------|-------|---------|
-| Products/ | search, get, list brands/catalogs/categories, create/update/delete, stats, analytics | ProductCatalogService |
-| Brands/ | manage brands | ProductCatalogService |
-| Categories/ | manage categories | ProductCatalogService |
-| Tags/ | manage tags | ProductCatalogService |
-| References/ | list/manage countries, currencies, languages, delivery times, measurements | ReferenceService |
-| Geography/ | country details, product origin | ReferenceService |
-| Orders/ | search orders | OrderService |
-| Reviews/ | search reviews, stats | ReviewService |
-| Storefronts/ | list/get/manage storefronts, branding, catalogs, channels, domains, features | StorefrontService |
-| Telegram/ | manage bots, channels, manager groups, scheduling | TelegramBotService |
-| DataExchange/ | product catalog and reference data import/export | ProductCatalog/Reference |
+| Products/ | search, get, list brands/catalogs/categories, create/update/delete, stats, analytics (9) | ProductCatalogService |
+| Brands/ | manage brands (1) | ProductCatalogService |
+| Catalogs/ | manage catalogs (1) | ProductCatalogService |
+| Categories/ | manage categories (1) | ProductCatalogService |
+| Tags/ | manage tags (1) | ProductCatalogService |
+| Manufacturers/ | manage manufacturers (1) | ProductCatalogService |
+| PackageTypes/ | manage package types (1) | ProductCatalogService |
+| Specifications/ | manage spec groups, attributes, options (3) | ProductCatalogService |
+| ProductAttributes/ | manage product attr groups, attributes, options (3) | ProductCatalogService |
+| Variants/ | manage variant attributes, values (2) | ProductCatalogService |
+| References/ | list/manage countries, currencies, languages, delivery times, measurements (13) | ReferenceService |
+| Geography/ | country details, product origin (2) | ReferenceService |
+| Orders/ | order summary, status distribution, trends, top sellers (4) | OrderService |
+| Reviews/ | review stats, summary, product ranking (3) | ReviewService |
+| Storefronts/ | list/get/manage storefronts, branding, catalogs, channels, domains, features (11) | StorefrontService |
+| Telegram/ | manage bots, channels, manager groups, scheduling (4) | TelegramBotService |
+| DataExchange/ | product catalog, reference, customer, order, review import/export (5) | Multiple |
+| Inventory/ | manage stock, query stock, reservations, alerts (4) | InventoryService |
 
 ### Resources (read-only data)
 
@@ -113,12 +120,15 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 
 | Service | Port | Clients |
 |---------|------|---------|
-| ProductCatalogService | 5003 | 14 clients (query, CRUD, data exchange) |
+| ProductCatalogService | 5003 | 17 clients (query, CRUD, specs, attrs, variants, data exchange) |
 | ReferenceService | 5004 | 12 clients (query, CRUD, data exchange) |
-| OrderService | 5007 | 1 client |
-| StorefrontService | 5009 | 6 clients (CRUD, branding, catalogs, channels, domains, features) |
-| ReviewService | 5011 | 2 clients (query, service) |
 | TelegramBotService | 5001 | 4 clients (management, scheduling, notifications, auth) |
+| OrderService | 5007 | 2 clients (CRUD, data exchange) |
+| StorefrontService | 5009 | 6 clients (CRUD, branding, catalogs, channels, domains, features) |
+| CustomerService | 5010 | 1 client (data exchange) |
+| ReviewService | 5011 | 3 clients (CRUD, query, data exchange) |
+| ApiManagementService | 5012 | 2 clients (key validation, usage recording) |
+| InventoryService | 5014 | 4 clients (stock query, management, reservations, alerts) |
 
 ## Tool Development Rules
 
