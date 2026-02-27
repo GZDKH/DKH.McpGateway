@@ -10,6 +10,7 @@ public static class StorefrontOverviewTool
 {
     [McpServerTool(Name = "storefront_overview"), Description("Get a comprehensive storefront overview: domains, channels, catalogs, and features in one call.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
         StorefrontDomainManagementService.StorefrontDomainManagementServiceClient domainClient,
         StorefrontChannelManagementService.StorefrontChannelManagementServiceClient channelClient,
@@ -17,6 +18,7 @@ public static class StorefrontOverviewTool
         [Description("Storefront ID (UUID)")] string storefrontId,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var storefrontTask = crudClient.GetAsync(
             new GetStorefrontRequest { Id = new GuidValue(storefrontId) },
             cancellationToken: cancellationToken).ResponseAsync;

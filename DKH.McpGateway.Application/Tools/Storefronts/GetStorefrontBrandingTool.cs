@@ -7,10 +7,12 @@ public static class GetStorefrontBrandingTool
 {
     [McpServerTool(Name = "get_storefront_branding"), Description("Get storefront branding: logo, colors, typography, and layout.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient client,
         [Description("Storefront ID (UUID)")] string storefrontId,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var response = await client.GetBrandingAsync(
             new GetBrandingRequest { StorefrontId = new GuidValue(storefrontId) },
             cancellationToken: cancellationToken);

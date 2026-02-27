@@ -8,12 +8,14 @@ public static class CountryDetailsTool
 {
     [McpServerTool(Name = "get_country_details"), Description("Get country details with its provinces/regions. Useful for understanding product origins and regional structure.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         CountryManagementService.CountryManagementServiceClient countryClient,
         StateProvinceManagementService.StateProvinceManagementServiceClient provinceClient,
         [Description("ISO 2-letter country code (e.g. 'CN', 'US', 'DE')")] string countryCode,
         [Description("Language code for translations (e.g. 'ru-RU', 'en-US')")] string languageCode = "ru-RU",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var countryTask = countryClient.GetAsync(
             new GetCountryRequest { Code = countryCode, Language = languageCode },
             cancellationToken: cancellationToken).ResponseAsync;

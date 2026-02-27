@@ -7,6 +7,7 @@ public static class TopSellingProductsTool
 {
     [McpServerTool(Name = "top_selling_products"), Description("Get best-selling products by quantity and revenue (aggregated, no customer data).")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         OrderCrudService.OrderCrudServiceClient client,
         [Description("Start of period (ISO 8601)")] string? periodStart = null,
         [Description("End of period (ISO 8601)")] string? periodEnd = null,
@@ -14,6 +15,7 @@ public static class TopSellingProductsTool
         [Description("Storefront ID (UUID) to scope the analysis")] string? storefrontId = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         limit = Math.Clamp(limit, 1, 50);
 
         var (orders, totalCount, error) = await OrderQueryHelper.FetchOrdersAsync(

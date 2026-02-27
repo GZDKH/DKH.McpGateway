@@ -10,11 +10,13 @@ public static class ListBrandsTool
 {
     [McpServerTool(Name = "list_brands"), Description("List all brands in the catalog with product counts.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         BrandManagementService.BrandManagementServiceClient client,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var response = await client.GetBrandsAsync(
             new GetCatalogBrandsRequest
             {

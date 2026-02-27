@@ -19,6 +19,7 @@ namespace DKH.McpGateway.Tests.Tools.Storefronts;
 
 public class GetStorefrontToolTests
 {
+    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
     private readonly StorefrontsCrudService.StorefrontsCrudServiceClient _client =
         Substitute.For<StorefrontsCrudService.StorefrontsCrudServiceClient>();
 
@@ -40,7 +41,7 @@ public class GetStorefrontToolTests
                 },
             }));
 
-        var result = await GetStorefrontTool.ExecuteAsync(_client, storefrontCode: "my-store");
+        var result = await GetStorefrontTool.ExecuteAsync(_auth, _client, storefrontCode: "my-store");
 
         var json = Parse(result);
         json.GetProperty("code").GetString().Should().Be("my-store");
@@ -64,7 +65,7 @@ public class GetStorefrontToolTests
                 },
             }));
 
-        var result = await GetStorefrontTool.ExecuteAsync(_client, storefrontId: id);
+        var result = await GetStorefrontTool.ExecuteAsync(_auth, _client, storefrontId: id);
 
         var json = Parse(result);
         json.GetProperty("code").GetString().Should().Be("my-store");
@@ -73,7 +74,7 @@ public class GetStorefrontToolTests
     [Fact]
     public async Task Get_NoParams_ReturnsErrorAsync()
     {
-        var result = await GetStorefrontTool.ExecuteAsync(_client);
+        var result = await GetStorefrontTool.ExecuteAsync(_auth, _client);
 
         Parse(result).GetProperty("error").GetString().Should().Contain("storefrontId or storefrontCode");
     }

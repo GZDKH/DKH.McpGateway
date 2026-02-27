@@ -10,6 +10,7 @@ public static class OrderTrendsTool
 
     [McpServerTool(Name = "order_trends"), Description("Analyze order trends over time with configurable granularity (day, week, month).")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         OrderCrudService.OrderCrudServiceClient client,
         [Description("Start of period (ISO 8601, required)")] string periodStart,
         [Description("End of period (ISO 8601, required)")] string periodEnd,
@@ -17,6 +18,7 @@ public static class OrderTrendsTool
         [Description("Storefront ID (UUID) to scope the analysis")] string? storefrontId = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         if (!ValidGranularities.Contains(granularity))
         {
             return JsonSerializer.Serialize(new { error = "granularity must be 'day', 'week', or 'month'" }, McpJsonDefaults.Options);

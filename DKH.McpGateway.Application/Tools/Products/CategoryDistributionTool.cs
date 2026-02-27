@@ -7,12 +7,14 @@ public static class CategoryDistributionTool
 {
     [McpServerTool(Name = "category_distribution"), Description("Analyze product distribution across categories with counts and percentages.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         CategoryManagementService.CategoryManagementServiceClient client,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
         [Description("Maximum tree depth (0 = unlimited)")] int maxDepth = 0,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var request = new GetCategoryTreeRequest
         {
             CatalogSeoName = catalogSeoName,

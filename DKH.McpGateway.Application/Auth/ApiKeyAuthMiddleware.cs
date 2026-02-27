@@ -1,4 +1,5 @@
 using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyQuery.v1;
+using DKH.ApiManagementService.Contracts.ApiManagement.Models.ApiKey.v1;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -60,7 +61,15 @@ public sealed class ApiKeyAuthMiddleware(
             return;
         }
 
-        context.Items["ApiKeyId"] = cached.ApiKeyId;
+        if (cached.Scope != ApiKeyScope.Mcp)
+        {
+            logger.LogWarning("MCP request rejected: invalid scope '{Scope}'. Expected 'mcp'.", cached.Scope);
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsJsonAsync(new { error = "Invalid API key scope for MCP access" });
+            return;
+        }
+
+        context.Items["ApiKeyId"] = cached.ApiKeyId.Value;
         context.Items["ApiKeyScope"] = cached.Scope;
         context.Items["ApiKeyPermissions"] = cached.Permissions.ToList();
 

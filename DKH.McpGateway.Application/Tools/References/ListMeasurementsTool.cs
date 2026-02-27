@@ -11,11 +11,13 @@ public static class ListMeasurementsTool
 {
     [McpServerTool(Name = "list_measurements"), Description("List measurement units: weights and dimensions with their conversion ratios.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         WeightManagementService.WeightManagementServiceClient weightClient,
         DimensionManagementService.DimensionManagementServiceClient dimensionClient,
         [Description("Language code for translations (e.g. 'ru-RU', 'en-US')")] string languageCode = "ru-RU",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var weightsTask = weightClient.ListAsync(
             new ListWeightsRequest { Language = languageCode, PageSize = 1000 },
             cancellationToken: cancellationToken).ResponseAsync;

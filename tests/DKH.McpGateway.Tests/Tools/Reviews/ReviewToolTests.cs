@@ -12,6 +12,7 @@ namespace DKH.McpGateway.Tests.Tools.Reviews;
 
 public class ReviewStatsToolTests
 {
+    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
     private readonly ReviewQueryService.ReviewQueryServiceClient _client =
         Substitute.For<ReviewQueryService.ReviewQueryServiceClient>();
 
@@ -35,7 +36,7 @@ public class ReviewStatsToolTests
             LastUpdatedAt = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow),
         });
 
-        var result = await ReviewStatsTool.ExecuteAsync(_client, ProductId, StorefrontId);
+        var result = await ReviewStatsTool.ExecuteAsync(_auth, _client, ProductId, StorefrontId);
 
         var json = Parse(result);
         json.GetProperty("productId").GetString().Should().Be(ProductId);
@@ -60,7 +61,7 @@ public class ReviewStatsToolTests
             Count5 = 2,
         });
 
-        var result = await ReviewStatsTool.ExecuteAsync(_client, ProductId, StorefrontId);
+        var result = await ReviewStatsTool.ExecuteAsync(_auth, _client, ProductId, StorefrontId);
 
         var dist = Parse(result).GetProperty("ratingDistribution");
         dist.GetProperty("stars5").GetProperty("count").GetInt32().Should().Be(2);
@@ -84,7 +85,7 @@ public class ReviewStatsToolTests
             Count5 = 3,
         });
 
-        var result = await ReviewStatsTool.ExecuteAsync(_client, ProductId, StorefrontId);
+        var result = await ReviewStatsTool.ExecuteAsync(_auth, _client, ProductId, StorefrontId);
 
         var sentiment = Parse(result).GetProperty("sentiment");
         sentiment.GetProperty("positive").GetInt32().Should().Be(6);
@@ -102,7 +103,7 @@ public class ReviewStatsToolTests
             TotalCount = 0,
         });
 
-        var result = await ReviewStatsTool.ExecuteAsync(_client, ProductId, StorefrontId);
+        var result = await ReviewStatsTool.ExecuteAsync(_auth, _client, ProductId, StorefrontId);
 
         var json = Parse(result);
         json.GetProperty("totalReviews").GetInt32().Should().Be(0);
@@ -120,7 +121,7 @@ public class ReviewStatsToolTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<ReviewAggregateModel>(
                 StatusCode.Unavailable, "Service unavailable"));
 
-        var act = () => ReviewStatsTool.ExecuteAsync(_client, ProductId, StorefrontId);
+        var act = () => ReviewStatsTool.ExecuteAsync(_auth, _client, ProductId, StorefrontId);
 
         await act.Should().ThrowAsync<RpcException>()
             .Where(e => e.StatusCode == StatusCode.Unavailable);
@@ -137,6 +138,7 @@ public class ReviewStatsToolTests
 
 public class ReviewSummaryToolTests
 {
+    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
     private readonly ReviewQueryService.ReviewQueryServiceClient _client =
         Substitute.For<ReviewQueryService.ReviewQueryServiceClient>();
 
@@ -155,7 +157,7 @@ public class ReviewSummaryToolTests
         SetupGetProductReviews(response);
 
         var result = await ReviewSummaryTool.ExecuteAsync(
-            _client, ProductId, StorefrontId);
+            _auth, _client, ProductId, StorefrontId);
 
         var json = Parse(result);
         json.GetProperty("productId").GetString().Should().Be(ProductId);
@@ -179,7 +181,7 @@ public class ReviewSummaryToolTests
         SetupGetProductReviews(response);
 
         var result = await ReviewSummaryTool.ExecuteAsync(
-            _client, ProductId, StorefrontId);
+            _auth, _client, ProductId, StorefrontId);
 
         var positive = Parse(result).GetProperty("sentiment").GetProperty("positive");
         positive.GetProperty("count").GetInt32().Should().Be(10);
@@ -195,7 +197,7 @@ public class ReviewSummaryToolTests
         SetupGetProductReviews(response);
 
         var result = await ReviewSummaryTool.ExecuteAsync(
-            _client, ProductId, StorefrontId);
+            _auth, _client, ProductId, StorefrontId);
 
         var sample = Parse(result).GetProperty("sentiment").GetProperty("positive")
             .GetProperty("samples")[0];
@@ -212,7 +214,7 @@ public class ReviewSummaryToolTests
         SetupGetProductReviews(response);
 
         var result = await ReviewSummaryTool.ExecuteAsync(
-            _client, ProductId, StorefrontId);
+            _auth, _client, ProductId, StorefrontId);
 
         var sample = Parse(result).GetProperty("sentiment").GetProperty("positive")
             .GetProperty("samples")[0];
@@ -235,7 +237,7 @@ public class ReviewSummaryToolTests
         SetupGetProductReviews(response);
 
         var result = await ReviewSummaryTool.ExecuteAsync(
-            _client, ProductId, StorefrontId);
+            _auth, _client, ProductId, StorefrontId);
 
         Parse(result).GetProperty("hasStoreReplies").GetBoolean().Should().BeTrue();
     }
@@ -248,7 +250,7 @@ public class ReviewSummaryToolTests
         SetupGetProductReviews(response);
 
         var result = await ReviewSummaryTool.ExecuteAsync(
-            _client, ProductId, StorefrontId);
+            _auth, _client, ProductId, StorefrontId);
 
         Parse(result).GetProperty("hasStoreReplies").GetBoolean().Should().BeFalse();
     }
@@ -259,7 +261,7 @@ public class ReviewSummaryToolTests
         SetupGetProductReviews(new GetProductReviewsResponse());
 
         await ReviewSummaryTool.ExecuteAsync(
-            _client, ProductId, StorefrontId, limit: 200);
+            _auth, _client, ProductId, StorefrontId, limit: 200);
 
         _ = _client.Received(1).GetProductReviewsAsync(
             Arg.Is<GetProductReviewsRequest>(r =>
@@ -273,7 +275,7 @@ public class ReviewSummaryToolTests
         SetupGetProductReviews(new GetProductReviewsResponse());
 
         await ReviewSummaryTool.ExecuteAsync(
-            _client, ProductId, StorefrontId, limit: 0);
+            _auth, _client, ProductId, StorefrontId, limit: 0);
 
         _ = _client.Received(1).GetProductReviewsAsync(
             Arg.Is<GetProductReviewsRequest>(r =>
@@ -291,7 +293,7 @@ public class ReviewSummaryToolTests
                 StatusCode.Unavailable, "Service unavailable"));
 
         var act = () => ReviewSummaryTool.ExecuteAsync(
-            _client, ProductId, StorefrontId);
+            _auth, _client, ProductId, StorefrontId);
 
         await act.Should().ThrowAsync<RpcException>()
             .Where(e => e.StatusCode == StatusCode.Unavailable);
@@ -323,6 +325,7 @@ public class ReviewSummaryToolTests
 
 public class ProductReviewRankingToolTests
 {
+    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
     private readonly ProductManagementService.ProductManagementServiceClient _searchClient =
         Substitute.For<ProductManagementService.ProductManagementServiceClient>();
 
@@ -558,7 +561,7 @@ public class ProductReviewRankingToolTests
         int limit = 10,
         int minReviews = 3)
         => ProductReviewRankingTool.ExecuteAsync(
-            _searchClient, _reviewClient,
+            _auth, _searchClient, _reviewClient,
             storefrontId: StorefrontId,
             catalogSeoName: catalogSeoName,
             languageCode: languageCode,

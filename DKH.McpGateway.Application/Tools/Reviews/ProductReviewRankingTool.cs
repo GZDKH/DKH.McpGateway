@@ -8,6 +8,7 @@ public static class ProductReviewRankingTool
 {
     [McpServerTool(Name = "product_review_ranking"), Description("Rank products by review metrics: average rating or review count. Cross-references product catalog with review aggregates.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductManagementService.ProductManagementServiceClient searchClient,
         ReviewQueryService.ReviewQueryServiceClient reviewClient,
         [Description("Storefront ID (UUID)")] string storefrontId,
@@ -18,6 +19,7 @@ public static class ProductReviewRankingTool
         [Description("Minimum number of reviews to include (default 3)")] int minReviews = 3,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         limit = Math.Clamp(limit, 1, 30);
         minReviews = Math.Max(minReviews, 1);
 

@@ -7,11 +7,13 @@ public static class ReviewStatsTool
 {
     [McpServerTool(Name = "review_stats"), Description("Get review statistics for a product: average score, total count, and 1-5 star rating distribution.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ReviewQueryService.ReviewQueryServiceClient client,
         [Description("Product ID (UUID)")] string productId,
         [Description("Storefront ID (UUID)")] string storefrontId,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var agg = await client.GetProductReviewAggregateAsync(
             new GetProductReviewAggregateRequest
             {

@@ -7,10 +7,12 @@ public static class GetStorefrontFeaturesTool
 {
     [McpServerTool(Name = "get_storefront_features"), Description("Get storefront feature flags: cart, orders, payments, reviews, wishlist.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         StorefrontFeaturesManagementService.StorefrontFeaturesManagementServiceClient client,
         [Description("Storefront ID (UUID)")] string storefrontId,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var response = await client.GetFeaturesAsync(
             new GetFeaturesRequest { StorefrontId = new GuidValue(storefrontId) },
             cancellationToken: cancellationToken);

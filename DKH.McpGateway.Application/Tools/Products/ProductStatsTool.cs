@@ -9,6 +9,7 @@ public static class ProductStatsTool
 {
     [McpServerTool(Name = "product_stats"), Description("Get product catalog statistics: total count, brand distribution, and top categories.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductManagementService.ProductManagementServiceClient searchClient,
         BrandManagementService.BrandManagementServiceClient brandClient,
         CategoryManagementService.CategoryManagementServiceClient categoryClient,
@@ -16,6 +17,7 @@ public static class ProductStatsTool
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var productsTask = searchClient.SearchProductsAsync(
             new SearchProductsRequest
             {

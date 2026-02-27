@@ -8,6 +8,7 @@ namespace DKH.McpGateway.Tests.Tools.Storefronts;
 
 public class ListStorefrontsToolTests
 {
+    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
     private readonly StorefrontsCrudService.StorefrontsCrudServiceClient _client =
         Substitute.For<StorefrontsCrudService.StorefrontsCrudServiceClient>();
 
@@ -33,7 +34,7 @@ public class ListStorefrontsToolTests
         });
         SetupGetAll(response);
 
-        var result = await ListStorefrontsTool.ExecuteAsync(_client);
+        var result = await ListStorefrontsTool.ExecuteAsync(_auth, _client);
 
         var json = Parse(result);
         json.GetProperty("totalCount").GetInt32().Should().Be(1);
@@ -54,7 +55,7 @@ public class ListStorefrontsToolTests
             },
         });
 
-        var result = await ListStorefrontsTool.ExecuteAsync(_client);
+        var result = await ListStorefrontsTool.ExecuteAsync(_auth, _client);
 
         var json = Parse(result);
         json.GetProperty("totalCount").GetInt32().Should().Be(0);
@@ -74,7 +75,7 @@ public class ListStorefrontsToolTests
             },
         });
 
-        await ListStorefrontsTool.ExecuteAsync(_client, pageSize: 999);
+        await ListStorefrontsTool.ExecuteAsync(_auth, _client, pageSize: 999);
 
         _ = _client.Received(1).GetAllAsync(
             Arg.Is<GetAllStorefrontsRequest>(r => r.Pagination.PageSize == 50),
@@ -90,7 +91,7 @@ public class ListStorefrontsToolTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<GetAllStorefrontsResponse>(
                 StatusCode.Unavailable, "Service unavailable"));
 
-        var act = () => ListStorefrontsTool.ExecuteAsync(_client);
+        var act = () => ListStorefrontsTool.ExecuteAsync(_auth, _client);
 
         await act.Should().ThrowAsync<RpcException>()
             .Where(e => e.StatusCode == StatusCode.Unavailable);

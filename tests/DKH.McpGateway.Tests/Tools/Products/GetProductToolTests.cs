@@ -6,6 +6,7 @@ namespace DKH.McpGateway.Tests.Tools.Products;
 
 public class GetProductToolTests
 {
+    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
     private readonly ProductManagementService.ProductManagementServiceClient _client =
         Substitute.For<ProductManagementService.ProductManagementServiceClient>();
 
@@ -238,6 +239,7 @@ public class GetProductToolTests
         string catalogSeoName = "main-catalog",
         string languageCode = "ru")
         => GetProductTool.ExecuteAsync(
+            _auth,
             _client,
             productSeoName: productSeoName,
             catalogSeoName: catalogSeoName,

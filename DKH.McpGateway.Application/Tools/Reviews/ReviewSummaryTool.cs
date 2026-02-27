@@ -7,6 +7,7 @@ public static class ReviewSummaryTool
 {
     [McpServerTool(Name = "review_summary"), Description("Get product reviews grouped by sentiment (positive/neutral/negative) with sample review texts. No reviewer PII included.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ReviewQueryService.ReviewQueryServiceClient client,
         [Description("Product ID (UUID)")] string productId,
         [Description("Storefront ID (UUID)")] string storefrontId,
@@ -14,6 +15,7 @@ public static class ReviewSummaryTool
         [Description("Sort: recent, rating, or helpful")] string sortBy = "recent",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         limit = Math.Clamp(limit, 1, 100);
 
         var response = await client.GetProductReviewsAsync(

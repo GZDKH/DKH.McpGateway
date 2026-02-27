@@ -8,12 +8,14 @@ public static class OrderStatusDistributionTool
 {
     [McpServerTool(Name = "order_status_distribution"), Description("Get order status breakdown with counts, percentages, and conversion rate.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         OrderCrudService.OrderCrudServiceClient client,
         [Description("Start of period (ISO 8601, e.g. 2024-01-01)")] string? periodStart = null,
         [Description("End of period (ISO 8601, e.g. 2024-12-31)")] string? periodEnd = null,
         [Description("Storefront ID (UUID) to scope the analysis")] string? storefrontId = null,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var (orders, totalCount, error) = await OrderQueryHelper.FetchOrdersAsync(
             client, storefrontId, periodStart, periodEnd, cancellationToken);
 

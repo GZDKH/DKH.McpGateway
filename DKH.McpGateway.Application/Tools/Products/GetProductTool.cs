@@ -10,12 +10,14 @@ public static class GetProductTool
 {
     [McpServerTool(Name = "get_product"), Description("Get detailed product information including variants, specifications, and media.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductManagementService.ProductManagementServiceClient client,
         [Description("Product SEO name or slug")] string productSeoName,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var product = await client.GetProductDetailAsync(
             new GetProductDetailRequest
             {
