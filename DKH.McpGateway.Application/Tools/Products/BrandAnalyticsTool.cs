@@ -7,12 +7,14 @@ public static class BrandAnalyticsTool
 {
     [McpServerTool(Name = "brand_analytics"), Description("Get brand analytics: product counts and sorting by popularity or name.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         BrandManagementService.BrandManagementServiceClient client,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
         [Description("Sort by: productCount (default) or name")] string sortBy = "productCount",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var response = await client.GetBrandsAsync(
             new GetCatalogBrandsRequest { CatalogSeoName = catalogSeoName, LanguageCode = languageCode },
             cancellationToken: cancellationToken);

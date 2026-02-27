@@ -7,6 +7,7 @@ namespace DKH.McpGateway.Tests.Tools.Products;
 
 public class SearchProductsToolTests
 {
+    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
     private readonly ProductManagementService.ProductManagementServiceClient _client =
         Substitute.For<ProductManagementService.ProductManagementServiceClient>();
 
@@ -175,6 +176,7 @@ public class SearchProductsToolTests
         int page = 1,
         int pageSize = 20)
         => SearchProductsTool.ExecuteAsync(
+            _auth,
             _client,
             query: query,
             catalogSeoName: catalogSeoName,

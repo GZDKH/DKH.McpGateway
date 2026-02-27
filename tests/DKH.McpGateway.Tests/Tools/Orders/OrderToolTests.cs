@@ -8,6 +8,7 @@ namespace DKH.McpGateway.Tests.Tools.Orders;
 
 public class OrderToolTests
 {
+    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
     private readonly OrderCrudService.OrderCrudServiceClient _client =
         Substitute.For<OrderCrudService.OrderCrudServiceClient>();
 
@@ -25,7 +26,7 @@ public class OrderToolTests
             (OrderStatus.Pending, 200.0, 3),
         ]));
 
-        var result = await OrderSummaryTool.ExecuteAsync(_client,
+        var result = await OrderSummaryTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -40,7 +41,7 @@ public class OrderToolTests
     {
         SetupListOrders(CreateEmptyResponse());
 
-        var result = await OrderSummaryTool.ExecuteAsync(_client,
+        var result = await OrderSummaryTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -51,7 +52,7 @@ public class OrderToolTests
     [Fact]
     public async Task Summary_InvalidPeriodStart_ReturnsErrorAsync()
     {
-        var result = await OrderSummaryTool.ExecuteAsync(_client,
+        var result = await OrderSummaryTool.ExecuteAsync(_auth, _client,
             periodStart: "not-a-date", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -61,7 +62,7 @@ public class OrderToolTests
     [Fact]
     public async Task Summary_EndBeforeStart_ReturnsErrorAsync()
     {
-        var result = await OrderSummaryTool.ExecuteAsync(_client,
+        var result = await OrderSummaryTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-12-31", periodEnd: "2024-01-01");
 
         var json = Parse(result);
@@ -71,7 +72,7 @@ public class OrderToolTests
     [Fact]
     public async Task Summary_ExceedsOneYear_ReturnsErrorAsync()
     {
-        var result = await OrderSummaryTool.ExecuteAsync(_client,
+        var result = await OrderSummaryTool.ExecuteAsync(_auth, _client,
             periodStart: "2023-01-01", periodEnd: "2024-06-01");
 
         var json = Parse(result);
@@ -83,7 +84,7 @@ public class OrderToolTests
     {
         SetupListOrders(CreateEmptyResponse());
 
-        await OrderSummaryTool.ExecuteAsync(_client,
+        await OrderSummaryTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31", storefrontId: StorefrontId);
 
         _ = _client.Received().ListOrdersAsync(
@@ -100,7 +101,7 @@ public class OrderToolTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<ListOrdersResponse>(
                 StatusCode.Unavailable, "Service unavailable"));
 
-        var act = () => OrderSummaryTool.ExecuteAsync(_client,
+        var act = () => OrderSummaryTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         await act.Should().ThrowAsync<RpcException>()
@@ -128,7 +129,7 @@ public class OrderToolTests
             ("2024-02-10", OrderStatus.Pending, 190.0, 1),
         ]));
 
-        var result = await OrderTrendsTool.ExecuteAsync(_client,
+        var result = await OrderTrendsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-03-01", granularity: "month");
 
         var json = Parse(result);
@@ -139,7 +140,7 @@ public class OrderToolTests
     [Fact]
     public async Task Trends_InvalidGranularity_ReturnsErrorAsync()
     {
-        var result = await OrderTrendsTool.ExecuteAsync(_client,
+        var result = await OrderTrendsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31", granularity: "hour");
 
         var json = Parse(result);
@@ -151,7 +152,7 @@ public class OrderToolTests
     {
         SetupListOrders(CreateEmptyResponse());
 
-        var result = await OrderTrendsTool.ExecuteAsync(_client,
+        var result = await OrderTrendsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -162,7 +163,7 @@ public class OrderToolTests
     [Fact]
     public async Task Trends_InvalidPeriod_ReturnsErrorAsync()
     {
-        var result = await OrderTrendsTool.ExecuteAsync(_client,
+        var result = await OrderTrendsTool.ExecuteAsync(_auth, _client,
             periodStart: "bad-date", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -181,7 +182,7 @@ public class OrderToolTests
             ("2024-01-15", OrderStatus.Completed, 80.0, 1),
         ]));
 
-        var result = await OrderTrendsTool.ExecuteAsync(_client,
+        var result = await OrderTrendsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-01-31");
 
         var json = Parse(result);
@@ -197,7 +198,7 @@ public class OrderToolTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<ListOrdersResponse>(
                 StatusCode.Unavailable, "Service unavailable"));
 
-        var act = () => OrderTrendsTool.ExecuteAsync(_client,
+        var act = () => OrderTrendsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         await act.Should().ThrowAsync<RpcException>()
@@ -220,7 +221,7 @@ public class OrderToolTests
             (OrderStatus.Cancelled, 75.0, 1),
         ]));
 
-        var result = await OrderStatusDistributionTool.ExecuteAsync(_client,
+        var result = await OrderStatusDistributionTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -235,7 +236,7 @@ public class OrderToolTests
     {
         SetupListOrders(CreateEmptyResponse());
 
-        var result = await OrderStatusDistributionTool.ExecuteAsync(_client,
+        var result = await OrderStatusDistributionTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -246,7 +247,7 @@ public class OrderToolTests
     [Fact]
     public async Task StatusDistribution_InvalidPeriod_ReturnsErrorAsync()
     {
-        var result = await OrderStatusDistributionTool.ExecuteAsync(_client,
+        var result = await OrderStatusDistributionTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-12-31", periodEnd: "2024-01-01");
 
         var json = Parse(result);
@@ -262,7 +263,7 @@ public class OrderToolTests
             (OrderStatus.Completed, 200.0, 2),
         ]));
 
-        var result = await OrderStatusDistributionTool.ExecuteAsync(_client);
+        var result = await OrderStatusDistributionTool.ExecuteAsync(_auth, _client);
 
         var json = Parse(result);
         json.GetProperty("conversionRate").GetDouble().Should().Be(100.0);
@@ -278,7 +279,7 @@ public class OrderToolTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<ListOrdersResponse>(
                 StatusCode.Unavailable, "Service unavailable"));
 
-        var act = () => OrderStatusDistributionTool.ExecuteAsync(_client,
+        var act = () => OrderStatusDistributionTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         await act.Should().ThrowAsync<RpcException>()
@@ -295,7 +296,7 @@ public class OrderToolTests
         var productId = Guid.NewGuid().ToString();
         SetupListOrders(CreateOrderListWithProducts(productId, orderCount: 6));
 
-        var result = await TopSellingProductsTool.ExecuteAsync(_client,
+        var result = await TopSellingProductsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -307,7 +308,7 @@ public class OrderToolTests
     {
         SetupListOrders(CreateEmptyResponse());
 
-        var result = await TopSellingProductsTool.ExecuteAsync(_client,
+        var result = await TopSellingProductsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -321,7 +322,7 @@ public class OrderToolTests
         var productId = Guid.NewGuid().ToString();
         SetupListOrders(CreateOrderListWithProducts(productId, orderCount: 3));
 
-        var result = await TopSellingProductsTool.ExecuteAsync(_client,
+        var result = await TopSellingProductsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -335,7 +336,7 @@ public class OrderToolTests
         var productId = Guid.NewGuid().ToString();
         SetupListOrders(CreateOrderListWithProducts(productId, orderCount: 6));
 
-        var result = await TopSellingProductsTool.ExecuteAsync(_client,
+        var result = await TopSellingProductsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31", limit: 100);
 
         var json = Parse(result);
@@ -345,7 +346,7 @@ public class OrderToolTests
     [Fact]
     public async Task TopSelling_InvalidPeriod_ReturnsErrorAsync()
     {
-        var result = await TopSellingProductsTool.ExecuteAsync(_client,
+        var result = await TopSellingProductsTool.ExecuteAsync(_auth, _client,
             periodStart: "not-a-date", periodEnd: "2024-12-31");
 
         var json = Parse(result);
@@ -361,7 +362,7 @@ public class OrderToolTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<ListOrdersResponse>(
                 StatusCode.Unavailable, "Service unavailable"));
 
-        var act = () => TopSellingProductsTool.ExecuteAsync(_client,
+        var act = () => TopSellingProductsTool.ExecuteAsync(_auth, _client,
             periodStart: "2024-01-01", periodEnd: "2024-12-31");
 
         await act.Should().ThrowAsync<RpcException>()

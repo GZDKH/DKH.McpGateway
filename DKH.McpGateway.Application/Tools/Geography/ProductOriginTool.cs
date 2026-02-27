@@ -10,6 +10,7 @@ public static class ProductOriginTool
 {
     [McpServerTool(Name = "get_product_origin"), Description("Get product manufacturing/sourcing origin with resolved country, province, and city names.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductManagementService.ProductManagementServiceClient productClient,
         CountryManagementService.CountryManagementServiceClient countryClient,
         StateProvinceManagementService.StateProvinceManagementServiceClient provinceClient,
@@ -19,6 +20,7 @@ public static class ProductOriginTool
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var product = await productClient.GetProductDetailAsync(
             new GetProductDetailRequest
             {

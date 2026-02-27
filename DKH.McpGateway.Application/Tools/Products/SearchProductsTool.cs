@@ -10,6 +10,7 @@ public static class SearchProductsTool
 {
     [McpServerTool(Name = "search_products"), Description("Search products in the catalog with optional filters for category, brand, and price range.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         ProductManagementService.ProductManagementServiceClient client,
         [Description("Search query text")] string query,
         [Description("Catalog SEO name (e.g. 'main-catalog')")] string catalogSeoName = "main-catalog",
@@ -21,6 +22,7 @@ public static class SearchProductsTool
         [Description("Page size (max 100)")] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
         var request = new SearchProductsRequest

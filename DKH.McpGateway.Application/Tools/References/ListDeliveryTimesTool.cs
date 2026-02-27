@@ -10,10 +10,12 @@ public static class ListDeliveryTimesTool
 {
     [McpServerTool(Name = "list_delivery_times"), Description("List available delivery time options with estimated day ranges.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         DeliveryTimeManagementService.DeliveryTimeManagementServiceClient client,
         [Description("Language code for translations (e.g. 'ru-RU', 'en-US')")] string languageCode = "ru-RU",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var response = await client.ListAsync(
             new ListDeliveryTimesRequest { Language = languageCode, PageSize = 1000 },
             cancellationToken: cancellationToken);

@@ -10,10 +10,12 @@ public static class ListCatalogsTool
 {
     [McpServerTool(Name = "list_catalogs"), Description("List all available product catalogs.")]
     public static async Task<string> ExecuteAsync(
+        IApiKeyContext apiKeyContext,
         CatalogManagementService.CatalogManagementServiceClient client,
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
     {
+        apiKeyContext.EnsurePermission(McpPermissions.Read);
         var response = await client.GetCatalogsAsync(
             new GetStorefrontCatalogsRequest { LanguageCode = languageCode },
             cancellationToken: cancellationToken);
