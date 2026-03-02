@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+<!-- BEGIN REQUIRED-READING -->
+
 ## Required Reading (MUST read before working)
 
 Before starting any task in this repository, you MUST read these files from DKH.Architecture:
@@ -8,24 +10,29 @@ Before starting any task in this repository, you MUST read these files from DKH.
 2. **[agents-dotnet.md](https://github.com/GZDKH/DKH.Architecture/blob/main/docs/agents-dotnet.md)** — .NET specific rules
 3. **[github-workflow.md](https://github.com/GZDKH/DKH.Architecture/blob/main/docs/github-workflow.md)** — GitHub Issues & Project Board
 
+These files are located in the DKH.Architecture repository (located in the sibling `libraries/DKH.Architecture` folder relative to your workspace).
+
 ---
 
-<!-- BEGIN LOCAL-CLAUDE-RULES -->
+<!-- END REQUIRED-READING -->
 
-## Additional Local Rules (.claude/rules)
+<!-- BEGIN LOCAL-CODEX-RULES -->
+
+## Additional Local Rules (.codex/rules)
 
 Before starting implementation, you MUST also read and follow these local rule files in this repository:
 
-- `.claude/rules/build-before-commit.md`
-- `.claude/rules/commits.md`
-- `.claude/rules/github-tasks.md`
-- `.claude/rules/gitlab-workflow.md`
-- `.claude/rules/no-duplication.md`
-- `.claude/rules/security.md`
+- `.codex/rules/build-before-commit.md`
+- `.codex/rules/commits.md`
+- `.codex/rules/contracts.md`
+- `.codex/rules/github-tasks.md`
+- `.codex/rules/gitlab-workflow.md`
+- `.codex/rules/no-duplication.md`
+- `.codex/rules/security.md`
 
 These rules are mandatory and complement the baseline `AGENTS.md` and `DKH.Architecture` guidance.
 
-<!-- END LOCAL-CLAUDE-RULES -->
+<!-- END LOCAL-CODEX-RULES -->
 
 This file provides guidance to Claude Code when working in this repository.
 
