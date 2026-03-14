@@ -136,3 +136,6 @@ _ReSharper.Caches/
 
 # Ralph Loop task file (local only)
 PROMPT.md
+
+# Agent workflow (plans)
+plans/
