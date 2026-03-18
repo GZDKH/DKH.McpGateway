@@ -31,6 +31,7 @@ await Platform
         app.MapHealthChecks("/health/live");
     })
     .AddPlatformLogging()
+    .AddPlatformTelemetry()
     .AddPlatformGrpcEndpoints((_, grpc) => grpc.AddMcpGatewayEndpoints())
     .Build()
     .RunAsync();
