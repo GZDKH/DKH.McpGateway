@@ -1,3 +1,5 @@
+using DKH.Platform.Telemetry;
+
 var useStdio = args.Contains("--stdio") ||
                Environment.GetEnvironmentVariable("MCP_TRANSPORT")?.Equals("stdio", StringComparison.OrdinalIgnoreCase) == true;
 
