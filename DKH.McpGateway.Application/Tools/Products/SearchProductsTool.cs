@@ -1,23 +1,26 @@
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
+using DKH.SearchService.Contracts.Filters;
+using DKH.SearchService.Contracts.Search.Api.ProductSearch.v1;
 
 namespace DKH.McpGateway.Application.Tools.Products;
 
 /// <summary>
-/// MCP tool for searching products with filters and pagination.
+/// MCP tool for searching products with filters, pagination, and optional semantic search.
+/// Uses SearchService (Typesense) for hybrid keyword + vector search.
 /// </summary>
 [McpServerToolType]
 public static class SearchProductsTool
 {
-    [McpServerTool(Name = "search_products"), Description("Search products in the catalog with optional filters for category, brand, and price range.")]
+    [McpServerTool(Name = "search_products"), Description("Search products in the catalog with optional filters for category, brand, and price range. Supports semantic search for natural language queries.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        ProductManagementService.ProductManagementServiceClient client,
+        ProductSearchService.ProductSearchServiceClient client,
         [Description("Search query text")] string query,
-        [Description("Catalog SEO name (e.g. 'main-catalog')")] string catalogSeoName = "main-catalog",
-        [Description("Language code (e.g. 'en', 'ru')")] string languageCode = "ru",
+        [Description("Catalog SEO name (e.g. 'main-catalog')")] string? catalogSeoName = null,
+        [Description("Language code (e.g. 'en', 'ru')")] string? languageCode = null,
         [Description("Filter by brand SEO names (comma-separated)")] string? brandFilter = null,
         [Description("Minimum price filter")] double? priceMin = null,
         [Description("Maximum price filter")] double? priceMax = null,
+        [Description("Enable semantic search (vector-based natural language matching)")] bool semanticSearch = false,
         [Description("Page number (1-based)")] int page = 1,
         [Description("Page size (max 100)")] int pageSize = 20,
         CancellationToken cancellationToken = default)
@@ -25,48 +28,44 @@ public static class SearchProductsTool
         apiKeyContext.EnsurePermission(McpPermissions.Read);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
+        var filterBy = TypesenseFilterBuilder.Create()
+            .CatalogSeo(catalogSeoName)
+            .LanguageCode(languageCode)
+            .Brands(brandFilter?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .PriceRange(priceMin, priceMax)
+            .Build();
+
         var request = new SearchProductsRequest
         {
-            SearchTerm = query,
-            CatalogSeoName = catalogSeoName,
-            LanguageCode = languageCode,
+            Query = query,
+            FilterBy = filterBy,
             Page = page,
-            PageSize = pageSize,
+            PerPage = pageSize,
         };
 
-        if (priceMin.HasValue)
+        if (semanticSearch)
         {
-            request.MinPrice = priceMin.Value;
-        }
-
-        if (priceMax.HasValue)
-        {
-            request.MaxPrice = priceMax.Value;
-        }
-
-        if (!string.IsNullOrEmpty(brandFilter))
-        {
-            request.BrandSeoNames.AddRange(
-                brandFilter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+            request.VectorQuery = $"embedding:([], k:{pageSize})";
         }
 
         var response = await client.SearchProductsAsync(request, cancellationToken: cancellationToken);
 
         var result = new
         {
-            totalCount = response.TotalCount,
+            totalCount = response.Found,
             page,
             pageSize,
-            products = response.Items.Select(static p => new
+            searchTimeMs = response.SearchTimeMs,
+            products = response.Hits.Select(static h => new
             {
-                id = p.Id,
-                code = p.Code,
-                name = p.Name,
-                seoName = p.SeoName,
-                price = p.CallForPrice ? (double?)null : p.Price,
-                currency = p.CurrencyCode,
-                brand = p.BrandName,
-                inStock = p.InStock,
+                id = h.Document.Id,
+                code = h.Document.Code,
+                name = h.Document.Name,
+                seoName = string.IsNullOrEmpty(h.Document.SeoName) ? h.Document.Code : h.Document.SeoName,
+                price = h.Document.CallForPrice ? (double?)null : (double)h.Document.Price,
+                currency = string.IsNullOrEmpty(h.Document.Currency) ? null : h.Document.Currency,
+                brand = string.IsNullOrEmpty(h.Document.Brand) ? null : h.Document.Brand,
+                inStock = h.Document.InStock,
             }),
         };
 

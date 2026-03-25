@@ -136,5 +136,8 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<StockManagementService.StockManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<StockReservationService.StockReservationServiceClient>();
         grpc.AddEndpointFromConfiguration<LowStockAlertService.LowStockAlertServiceClient>();
+
+        // SearchService (5017)
+        grpc.AddEndpointFromConfiguration<SearchService.Contracts.Search.Api.ProductSearch.v1.ProductSearchService.ProductSearchServiceClient>();
     }
 }

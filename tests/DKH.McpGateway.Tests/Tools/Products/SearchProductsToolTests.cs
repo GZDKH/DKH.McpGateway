@@ -1,35 +1,36 @@
 using DKH.McpGateway.Application.Tools.Products;
-using DKH.Platform.Grpc.Common.Types;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.QueryCommon.v1;
+using DKH.SearchService.Contracts.Search.Api.ProductSearch.v1;
+using DKH.SearchService.Contracts.Search.Models.ProductSearch.v1;
 
 namespace DKH.McpGateway.Tests.Tools.Products;
 
 public class SearchProductsToolTests
 {
     private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
-    private readonly ProductManagementService.ProductManagementServiceClient _client =
-        Substitute.For<ProductManagementService.ProductManagementServiceClient>();
+    private readonly ProductSearchService.ProductSearchServiceClient _client =
+        Substitute.For<ProductSearchService.ProductSearchServiceClient>();
 
     [Fact]
     public async Task SearchProducts_HappyPath_ReturnsResultsAsync()
     {
         var response = new SearchProductsResponse
         {
-            TotalCount = 1,
+            Found = 1,
             Page = 1,
-            PageSize = 20,
         };
-        response.Items.Add(new ProductListItem
+        response.Hits.Add(new SearchHitModel
         {
-            Id = new GuidValue(Guid.NewGuid().ToString()),
-            Code = "PROD-001",
-            Name = "Test Product",
-            SeoName = "test-product",
-            Price = 29.99,
-            CurrencyCode = "USD",
-            BrandName = "TestBrand",
-            InStock = true,
+            Document = new ProductSearchModel
+            {
+                Id = Guid.NewGuid().ToString(),
+                Code = "PROD-001",
+                Name = "Test Product",
+                SeoName = "test-product",
+                Price = 29.99f,
+                Currency = "USD",
+                Brand = "TestBrand",
+                InStock = true,
+            },
         });
         SetupSearch(response);
 
@@ -52,7 +53,7 @@ public class SearchProductsToolTests
     [Fact]
     public async Task SearchProducts_EmptyResults_ReturnsEmptyListAsync()
     {
-        SetupSearch(new SearchProductsResponse { TotalCount = 0, Page = 1, PageSize = 20 });
+        SetupSearch(new SearchProductsResponse { Found = 0, Page = 1 });
 
         var result = await ExecuteToolAsync("nonexistent");
 
@@ -62,86 +63,96 @@ public class SearchProductsToolTests
     }
 
     [Fact]
-    public async Task SearchProducts_WithBrandFilter_SetsBrandSeoNamesAsync()
+    public async Task SearchProducts_WithBrandFilter_SetsFilterByAsync()
     {
-        SetupSearch(new SearchProductsResponse { TotalCount = 0 });
+        SetupSearch(new SearchProductsResponse { Found = 0 });
 
         await ExecuteToolAsync("test", brandFilter: "brand-a,brand-b");
 
         _ = _client.Received(1).SearchProductsAsync(
             Arg.Is<SearchProductsRequest>(r =>
-                r.BrandSeoNames.Count == 2 &&
-                r.BrandSeoNames[0] == "brand-a" &&
-                r.BrandSeoNames[1] == "brand-b"),
+                r.FilterBy.Contains("brand:=[`brand-a`,`brand-b`]")),
             Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task SearchProducts_WithPriceRange_SetsPriceFiltersAsync()
+    public async Task SearchProducts_WithPriceRange_SetsFilterByAsync()
     {
-        SetupSearch(new SearchProductsResponse { TotalCount = 0 });
+        SetupSearch(new SearchProductsResponse { Found = 0 });
 
         await ExecuteToolAsync("test", priceMin: 10.0, priceMax: 100.0);
 
         _ = _client.Received(1).SearchProductsAsync(
             Arg.Is<SearchProductsRequest>(r =>
-                r.MinPrice == 10.0 &&
-                r.MaxPrice == 100.0),
+                r.FilterBy.Contains("price:[10..100]")),
             Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task SearchProducts_PageSizeClamped_To100Async()
     {
-        SetupSearch(new SearchProductsResponse { TotalCount = 0 });
+        SetupSearch(new SearchProductsResponse { Found = 0 });
 
         await ExecuteToolAsync("test", pageSize: 200);
 
         _ = _client.Received(1).SearchProductsAsync(
-            Arg.Is<SearchProductsRequest>(r => r.PageSize == 100),
+            Arg.Is<SearchProductsRequest>(r => r.PerPage == 100),
             Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task SearchProducts_PageSizeClamped_To1Async()
     {
-        SetupSearch(new SearchProductsResponse { TotalCount = 0 });
+        SetupSearch(new SearchProductsResponse { Found = 0 });
 
         await ExecuteToolAsync("test", pageSize: 0);
 
         _ = _client.Received(1).SearchProductsAsync(
-            Arg.Is<SearchProductsRequest>(r => r.PageSize == 1),
+            Arg.Is<SearchProductsRequest>(r => r.PerPage == 1),
             Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task SearchProducts_DefaultParameters_UsesDefaultsAsync()
+    public async Task SearchProducts_WithSemanticSearch_SetsVectorQueryAsync()
     {
-        SetupSearch(new SearchProductsResponse { TotalCount = 0 });
+        SetupSearch(new SearchProductsResponse { Found = 0 });
 
-        await ExecuteToolAsync("test");
+        await ExecuteToolAsync("natural language query", semanticSearch: true);
 
         _ = _client.Received(1).SearchProductsAsync(
             Arg.Is<SearchProductsRequest>(r =>
-                r.CatalogSeoName == "main-catalog" &&
-                r.LanguageCode == "ru" &&
-                r.Page == 1 &&
-                r.PageSize == 20),
+                r.VectorQuery.Contains("embedding:([]")),
+            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SearchProducts_WithoutSemanticSearch_NoVectorQueryAsync()
+    {
+        SetupSearch(new SearchProductsResponse { Found = 0 });
+
+        await ExecuteToolAsync("keyword query");
+
+        _ = _client.Received(1).SearchProductsAsync(
+            Arg.Is<SearchProductsRequest>(r =>
+                string.IsNullOrEmpty(r.VectorQuery)),
             Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
     public async Task SearchProducts_CallForPrice_ReturnsNullPriceAsync()
     {
-        var response = new SearchProductsResponse { TotalCount = 1 };
-        response.Items.Add(new ProductListItem
+        var response = new SearchProductsResponse { Found = 1 };
+        response.Hits.Add(new SearchHitModel
         {
-            Id = new GuidValue(Guid.NewGuid().ToString()),
-            Code = "CALL",
-            Name = "Call For Price Product",
-            SeoName = "call-product",
-            CallForPrice = true,
-            Price = 99.99,
+            Document = new ProductSearchModel
+            {
+                Id = Guid.NewGuid().ToString(),
+                Code = "CALL",
+                Name = "Call For Price Product",
+                SeoName = "call-product",
+                CallForPrice = true,
+                Price = 99.99f,
+            },
         });
         SetupSearch(response);
 
@@ -168,11 +179,12 @@ public class SearchProductsToolTests
 
     private Task<string> ExecuteToolAsync(
         string query,
-        string catalogSeoName = "main-catalog",
-        string languageCode = "ru",
+        string? catalogSeoName = null,
+        string? languageCode = null,
         string? brandFilter = null,
         double? priceMin = null,
         double? priceMax = null,
+        bool semanticSearch = false,
         int page = 1,
         int pageSize = 20)
         => SearchProductsTool.ExecuteAsync(
@@ -184,6 +196,7 @@ public class SearchProductsToolTests
             brandFilter: brandFilter,
             priceMin: priceMin,
             priceMax: priceMax,
+            semanticSearch: semanticSearch,
             page: page,
             pageSize: pageSize);
 
