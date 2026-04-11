@@ -15,10 +15,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DKH.Platform"/>
+    <PackageReference Include="DKH.Platform.Core"/>
     <PackageReference Include="DKH.Platform.Logging"/>
     <PackageReference Include="DKH.Platform.Http"/>
     <PackageReference Include="DKH.Platform.Grpc.Client"/>
     <PackageReference Include="DKH.Platform.Telemetry" />
+    <PackageReference Include="DKH.Platform.Authentication.Keycloak"/>
+    <PackageReference Include="DKH.Platform.Authorization"/>
+    <PackageReference Include="DKH.Platform.Identity"/>
     <PackageReference Include="ModelContextProtocol"/>
     <PackageReference Include="ModelContextProtocol.AspNetCore"/>
   </ItemGroup>
