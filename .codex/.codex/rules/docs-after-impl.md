@@ -1,0 +1,1 @@
+../../../../agents/DKH.AgentRules/.codex/shared-rules/docs-after-impl.md
