@@ -1,16 +1,15 @@
-# CLAUDE.md
-
+# AGENTS.md
 <!-- BEGIN REQUIRED-READING -->
 
 ## Required Reading (MUST read before working)
 
-Before starting any task in this repository, you MUST read these files from DKH.Architecture:
+Before starting any task in this repository, you MUST read these files from the shared DKH.AgentRules repository:
 
-1. **[AGENTS.md](https://github.com/GZDKH/DKH.Architecture/blob/main/AGENTS.md)** — baseline rules for all repos
-2. **[agents-dotnet.md](https://github.com/GZDKH/DKH.Architecture/blob/main/docs/agents-dotnet.md)** — .NET specific rules
-3. **[github-workflow.md](https://github.com/GZDKH/DKH.Architecture/blob/main/docs/github-workflow.md)** — GitHub Issues & Project Board
+1. **[AGENTS.md](../../agents/DKH.AgentRules/AGENTS.md)** — baseline Codex rules for all repos
+2. **[agents-dotnet.md](../../agents/DKH.AgentRules/profiles/agents-dotnet.md)** — .NET specific rules
+3. **[github-tasks.md](../../agents/DKH.AgentRules/rules/universal/github-tasks.md)** — GitHub tasks and issue workflow
 
-These files are located in the DKH.Architecture repository (located in the sibling `libraries/DKH.Architecture` folder relative to your workspace).
+These files are available in this monorepo under `agents/DKH.AgentRules/`.
 
 ---
 
@@ -36,11 +35,11 @@ Before starting implementation, you MUST also read and follow these local rule f
 - `.codex/rules/ralph-loop.md`
 - `.codex/rules/security.md`
 
-These rules are mandatory and complement the baseline `AGENTS.md` and `DKH.Architecture` guidance.
+These rules are mandatory and complement the baseline `AGENTS.md` and shared `DKH.AgentRules` guidance.
 
 <!-- END LOCAL-CODEX-RULES -->
 
-This file provides guidance to Claude Code when working in this repository.
+This file provides guidance to Codex when working in this repository.
 
 > **Baseline rules**: See `AGENTS.md` for unified GZDKH rules (SOLID, DDD, commits, code style, quality guardrails). This file adds service-specific context only.
 
