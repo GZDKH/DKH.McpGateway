@@ -1,1 +1,0 @@
-../../../../agents/DKH.AgentRules/.codex/shared-rules/ralph-loop.md
