@@ -1,1 +1,0 @@
-../../../../agents/DKH.AgentRules/.codex/shared-rules/prod-config.md

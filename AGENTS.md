@@ -3,41 +3,17 @@
 
 ## Required Reading (MUST read before working)
 
-Before starting any task in this repository, you MUST read these files from the shared DKH.AgentRules repository:
+Before starting any task in this repository, read the shared DKH.AgentRules entrypoint:
 
-1. **[AGENTS.md](../../agents/DKH.AgentRules/AGENTS.md)** — baseline Codex rules for all repos
-2. **[agents-dotnet.md](../../agents/DKH.AgentRules/profiles/agents-dotnet.md)** — .NET specific rules
-3. **[github-tasks.md](../../agents/DKH.AgentRules/rules/universal/github-tasks.md)** — GitHub tasks and issue workflow
+1. **[AGENTS.md](../../agents/DKH.AgentRules/AGENTS.md)** — shared Codex entrypoint and on-demand trigger index
 
-These files are available in this monorepo under `agents/DKH.AgentRules/`.
+Profiles, skills, build gates, contracts, releases, and docs rules are lazy-loaded from `agents/DKH.AgentRules`. Use `agents/DKH.AgentRules/rules/codex/triggers.md` to decide what else to open for the current task.
 
 ---
 
 <!-- END REQUIRED-READING -->
 
-<!-- BEGIN LOCAL-CODEX-RULES -->
 
-## Additional Local Rules (.codex/rules)
-
-Before starting implementation, you MUST also read and follow these local rule files in this repository:
-
-- `.codex/rules/build-before-commit.md`
-- `.codex/rules/commits.md`
-- `.codex/rules/contracts.md`
-- `.codex/rules/docs-after-impl.md`
-- `.codex/rules/github-tasks.md`
-- `.codex/rules/gitlab-workflow.md`
-- `.codex/rules/no-duplication.md`
-- `.codex/rules/plan-execution.md`
-- `.codex/rules/platform-release.md`
-- `.codex/rules/prod-config.md`
-- `.codex/rules/prod-debugging.md`
-- `.codex/rules/ralph-loop.md`
-- `.codex/rules/security.md`
-
-These rules are mandatory and complement the baseline `AGENTS.md` and shared `DKH.AgentRules` guidance.
-
-<!-- END LOCAL-CODEX-RULES -->
 
 This file provides guidance to Codex when working in this repository.
 
