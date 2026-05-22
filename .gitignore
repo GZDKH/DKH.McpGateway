@@ -141,3 +141,4 @@ PROMPT.md
 plans/
 .claude/skills
 .claude/agents
+.claude/*.bak.*
