@@ -39,17 +39,23 @@ public static class GlossaryLookupTool
         var normalizedType = type.ToLowerInvariant();
         var includeAll = normalizedType is "all" or "";
 
-        var tags = includeAll || normalizedType == "tag"
-            ? await LookupTagsAsync(tagClient, term, lang, limit, cancellationToken)
-            : new List<GlossaryMatch>();
+        var tags = new List<GlossaryMatch>();
+        if (includeAll || normalizedType == "tag")
+        {
+            tags = await LookupTagsAsync(tagClient, term, lang, limit, cancellationToken);
+        }
 
-        var specifications = includeAll || normalizedType == "specification"
-            ? await LookupSpecificationsAsync(specClient, term, lang, limit, cancellationToken)
-            : new List<GlossaryMatch>();
+        var specifications = new List<GlossaryMatch>();
+        if (includeAll || normalizedType == "specification")
+        {
+            specifications = await LookupSpecificationsAsync(specClient, term, lang, limit, cancellationToken);
+        }
 
-        var categories = includeAll || normalizedType == "category"
-            ? await LookupCategoriesAsync(categoryClient, term, lang, catalogSeoName, limit, cancellationToken)
-            : new List<GlossaryMatch>();
+        var categories = new List<GlossaryMatch>();
+        if (includeAll || normalizedType == "category")
+        {
+            categories = await LookupCategoriesAsync(categoryClient, term, lang, catalogSeoName, limit, cancellationToken);
+        }
 
         var canonical = ResolveCanonical(term, tags, specifications, categories);
 
