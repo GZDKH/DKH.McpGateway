@@ -18,7 +18,9 @@ var platform = Platform
         }
         else
         {
-            mcp.WithHttpTransport();
+            // MCP SDK 1.2+ disables the legacy SSE endpoints (/sse, /message) by default.
+            // Keep them enabled to preserve the documented SSE transport alongside Streamable HTTP.
+            mcp.WithHttpTransport(static options => options.EnableLegacySse = true);
         }
 
         builder.Services.AddApplication();
