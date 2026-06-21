@@ -64,6 +64,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | Telegram/ | manage bots, channels, manager groups, scheduling (4) | TelegramBotService |
 | DataExchange/ | product catalog, reference, customer, order, review import/export (5) | Multiple |
 | Inventory/ | manage stock, query stock, reservations, alerts (4) | InventoryService |
+| Cart/ | list/get carts, issue claim code, claim cart (4) | CartService |
 
 ### Resources (read-only data)
 
@@ -102,6 +103,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | ReviewService | 5011 | 3 clients (CRUD, query, data exchange) |
 | ApiManagementService | 5012 | 2 clients (key validation, usage recording) |
 | InventoryService | 5014 | 4 clients (stock query, management, reservations, alerts) |
+| CartService | 5008 | 2 clients (cart CRUD/query, claim) |
 
 ## Tool Development Rules
 
