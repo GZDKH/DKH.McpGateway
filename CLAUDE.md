@@ -122,5 +122,5 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 ## External Dependencies
 
 - DKH.Platform.* (Logging, Grpc.Client, Http)
-- ModelContextProtocol C# SDK (0.8.0-preview.1)
+- ModelContextProtocol C# SDK (1.4.0)
 - gRPC contracts from downstream services (via NuGet)
