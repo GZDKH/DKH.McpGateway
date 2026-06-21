@@ -234,16 +234,31 @@ public class GetProductToolTests
         Published = true,
     };
 
+    [Fact]
+    public async Task GetProduct_NonCommercial_HidesPriceAndCurrencyAsync()
+    {
+        var detail = CreateProductDetail();
+        SetupGetProductDetail(detail);
+
+        var result = await ExecuteToolAsync("test-product", nonCommercial: true);
+
+        var json = Parse(result);
+        json.GetProperty("price").ValueKind.Should().Be(JsonValueKind.Null);
+        json.GetProperty("currency").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
     private Task<string> ExecuteToolAsync(
         string productSeoName,
         string catalogSeoName = "main-catalog",
-        string languageCode = "ru")
+        string languageCode = "ru",
+        bool nonCommercial = false)
         => GetProductTool.ExecuteAsync(
             _auth,
             _client,
             productSeoName: productSeoName,
             catalogSeoName: catalogSeoName,
-            languageCode: languageCode);
+            languageCode: languageCode,
+            nonCommercial: nonCommercial);
 
     private void SetupGetProductDetail(ProductDetail response)
         => _client.GetProductDetailAsync(

@@ -177,6 +177,31 @@ public class SearchProductsToolTests
             .Where(e => e.StatusCode == StatusCode.Unavailable);
     }
 
+    [Fact]
+    public async Task SearchProducts_NonCommercial_HidesPriceAndCurrencyAsync()
+    {
+        var response = new SearchProductsResponse { Found = 1 };
+        response.Hits.Add(new SearchHitModel
+        {
+            Document = new ProductSearchModel
+            {
+                Id = Guid.NewGuid().ToString(),
+                Code = "PROD-001",
+                Name = "Test Product",
+                SeoName = "test-product",
+                Price = 29.99f,
+                Currency = "USD",
+            },
+        });
+        SetupSearch(response);
+
+        var result = await ExecuteToolAsync("test", nonCommercial: true);
+
+        var product = Parse(result).GetProperty("products")[0];
+        product.GetProperty("price").ValueKind.Should().Be(JsonValueKind.Null);
+        product.GetProperty("currency").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
     private Task<string> ExecuteToolAsync(
         string query,
         string? catalogSeoName = null,
@@ -186,7 +211,8 @@ public class SearchProductsToolTests
         double? priceMax = null,
         bool semanticSearch = false,
         int page = 1,
-        int pageSize = 20)
+        int pageSize = 20,
+        bool nonCommercial = false)
         => SearchProductsTool.ExecuteAsync(
             _auth,
             _client,
@@ -198,7 +224,8 @@ public class SearchProductsToolTests
             priceMax: priceMax,
             semanticSearch: semanticSearch,
             page: page,
-            pageSize: pageSize);
+            pageSize: pageSize,
+            nonCommercial: nonCommercial);
 
     private void SetupSearch(SearchProductsResponse response)
         => _client.SearchProductsAsync(

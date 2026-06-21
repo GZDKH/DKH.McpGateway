@@ -4,50 +4,48 @@ using DKH.SearchService.Contracts.Search.Api.ProductSearch.v1;
 namespace DKH.McpGateway.Application.Tools.Products;
 
 /// <summary>
-/// MCP tool for searching products with filters, pagination, and optional semantic search.
-/// Uses SearchService (Typesense) for hybrid keyword + vector search.
+/// MCP tool for listing catalog products with filters and pagination.
+/// Unlike <see cref="SearchProductsTool"/> this returns a deterministic, browseable
+/// catalog slice (no semantic ranking) — suited for content-API / catalog landing pages.
 /// </summary>
 [McpServerToolType]
-public static class SearchProductsTool
+public static class ListProductsTool
 {
-    [McpServerTool(Name = "search_products"), Description("Search products in the catalog with optional filters for category, brand, and price range. Supports semantic search for natural language queries.")]
+    [McpServerTool(Name = "list_products"), Description(
+        "List catalog products with optional brand and price filters and pagination. " +
+        "Deterministic catalog browsing (no semantic ranking). Use 'search_products' for natural-language search. " +
+        "Supports multilingual output (lang) and non-commercial mode (hides prices).")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
         ProductSearchService.ProductSearchServiceClient client,
-        [Description("Search query text")] string query,
         [Description("Catalog SEO name (e.g. 'main-catalog')")] string? catalogSeoName = null,
-        [Description("Language code (e.g. 'en', 'ru')")] string? languageCode = null,
+        [Description("Language code (e.g. 'en', 'ru')")] string? lang = null,
         [Description("Filter by brand SEO names (comma-separated)")] string? brandFilter = null,
         [Description("Minimum price filter")] double? priceMin = null,
         [Description("Maximum price filter")] double? priceMax = null,
-        [Description("Enable semantic search (vector-based natural language matching)")] bool semanticSearch = false,
         [Description("Page number (1-based)")] int page = 1,
         [Description("Page size (max 100)")] int pageSize = 20,
-        [Description("Non-commercial mode: hide prices and currency (content-API / catalog landing usage)")] bool nonCommercial = false,
+        [Description("Non-commercial mode: hide prices and currency")] bool nonCommercial = false,
         CancellationToken cancellationToken = default)
     {
         apiKeyContext.EnsurePermission(McpPermissions.Read);
         pageSize = Math.Clamp(pageSize, 1, 100);
+        page = Math.Max(page, 1);
 
         var filterBy = TypesenseFilterBuilder.Create()
             .CatalogSeo(catalogSeoName)
-            .LanguageCode(languageCode)
+            .LanguageCode(lang)
             .Brands(brandFilter?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             .PriceRange(priceMin, priceMax)
             .Build();
 
         var request = new SearchProductsRequest
         {
-            Query = query,
+            Query = "*",
             FilterBy = filterBy,
             Page = page,
             PerPage = pageSize,
         };
-
-        if (semanticSearch)
-        {
-            request.VectorQuery = $"embedding:([], k:{pageSize})";
-        }
 
         var response = await client.SearchProductsAsync(request, cancellationToken: cancellationToken);
 
@@ -56,7 +54,7 @@ public static class SearchProductsTool
             totalCount = response.Found,
             page,
             pageSize,
-            searchTimeMs = response.SearchTimeMs,
+            lang,
             products = response.Hits.Select(h => new
             {
                 id = h.Document.Id,

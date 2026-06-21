@@ -4,12 +4,15 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 
 ## Tools
 
-### Products (9 tools)
+### Products (12 tools)
 
 | Tool | File | Description |
 | ---- | ---- | ----------- |
-| `search_products` | SearchProductsTool.cs | Search products by query with pagination |
-| `get_product` | GetProductTool.cs | Get detailed product information by SEO name |
+| `search_products` | SearchProductsTool.cs | Search products by query with pagination, semantic search, multilingual (`languageCode`) and non-commercial (`nonCommercial`) modes |
+| `list_products` | ListProductsTool.cs | Deterministic filtered/paginated catalog listing (no semantic ranking); multilingual and non-commercial modes |
+| `get_product` | GetProductTool.cs | Get detailed product information by SEO name; multilingual and non-commercial modes |
+| `similar_products` | SimilarProductsTool.cs | Recommend products similar to a source product by sensory/descriptive closeness (vector search) |
+| `ask_expert` | AskExpertTool.cs | Grounded recommendation from the catalog dataset for a natural-language need (semantic search + applied criteria) |
 | `manage_product` | ManageProductTool.cs | Create, update, delete, get, or list products (action parameter) |
 | `list_brands` | ListBrandsTool.cs | List all available brands |
 | `list_categories` | ListCategoriesTool.cs | List category tree for a catalog |
@@ -41,6 +44,12 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | Tool | File | Description |
 | ---- | ---- | ----------- |
 | `manage_tags` | ManageTagsTool.cs | Create, update, or delete tags (action parameter) |
+
+### Glossary (1 tool)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `glossary_lookup` | GlossaryLookupTool.cs | Resolve a free-text term to a canonical catalog term across tags, specification attributes and categories (multilingual) |
 
 ### Manufacturers (1 tool)
 
