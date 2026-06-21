@@ -153,6 +153,15 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `manage_reservation` | ManageReservationTool.cs | Reserve, release, confirm, get, or list stock reservations (action parameter) |
 | `manage_stock_alert` | ManageStockAlertTool.cs | List, configure, or acknowledge low stock alerts (action parameter) |
 
+### Cart (4 tools)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `list_carts` | ListCartsTool.cs | List shopping carts with filtering and pagination |
+| `get_cart` | GetCartTool.cs | Get a single cart by ID (customer PII omitted) |
+| `issue_cart_claim_code` | IssueClaimCodeTool.cs | Issue an HMAC-signed claim code for phone-to-POS cart handoff |
+| `claim_cart` | ClaimCartTool.cs | POS-side: claim a cart into a cashier session via a claim code |
+
 ### Data exchange (5 tools)
 
 | Tool | File | Description |

@@ -1,5 +1,7 @@
 using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyQuery.v1;
 using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyUsage.v1;
+using DKH.CartService.Contracts.Cart.Api.CartClaim.v1;
+using DKH.CartService.Contracts.Cart.Api.CartCrud.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.LowStockAlert.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockManagement.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockQuery.v1;
@@ -130,6 +132,10 @@ public static class GrpcEndpointsRegistration
         // ApiManagementService (5012)
         grpc.AddEndpointFromConfiguration<ApiKeyQueryService.ApiKeyQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<ApiKeyUsageService.ApiKeyUsageServiceClient>();
+
+        // CartService (5008)
+        grpc.AddEndpointFromConfiguration<CartCrudService.CartCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<CartClaimService.CartClaimServiceClient>();
 
         // InventoryService (5013)
         grpc.AddEndpointFromConfiguration<StockQueryService.StockQueryServiceClient>();
