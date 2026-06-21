@@ -18,7 +18,14 @@ var platform = Platform
         }
         else
         {
-            mcp.WithHttpTransport();
+            // MCP SDK 1.2+ disables the legacy SSE endpoints (/sse, /message) by default.
+            // Keep them enabled to preserve the documented SSE transport alongside Streamable HTTP.
+            // EnableLegacySse is obsolete (MCP9004); intentional here — the gateway is auth-gated
+            // (API key + Keycloak), satisfying the "trusted clients only" caveat. Dropping legacy SSE
+            // in favour of Streamable HTTP only is tracked as a follow-up on issue #70.
+#pragma warning disable MCP9004 // Legacy SSE transport is obsolete; kept for backward-compatible clients.
+            mcp.WithHttpTransport(static options => options.EnableLegacySse = true);
+#pragma warning restore MCP9004
         }
 
         builder.Services.AddApplication();
