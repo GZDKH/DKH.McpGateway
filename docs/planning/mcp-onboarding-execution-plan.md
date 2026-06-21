@@ -8,6 +8,39 @@ without re-deriving the codebase conventions. Follow it literally.
 
 ---
 
+## Required reading (do this first — per `AGENTS.md`)
+
+Before any work, read the shared GZDKH ruleset and the repo contributing guide:
+
+1. `AGENTS.md` (this repo) → its **Required Reading** points to the shared entrypoint
+   `agents/DKH.AgentRules/AGENTS.md` and `agents/DKH.AgentRules/rules/codex/triggers.md`
+   (lazy-loads SOLID/DDD, build gates, contracts, releases, docs rules). The drafting sandbox
+   did **not** have `agents/DKH.AgentRules` checked out — the executing context must, or clone it.
+2. `CONTRIBUTING.md` — workflow, Conventional Commits, branch naming, PR process, quality gates,
+   code style, **issue creation + labels + project board**. All steps below conform to it.
+3. `CLAUDE.md` "Tool Development Rules" and the `.editorconfig`.
+
+If the shared `agents/DKH.AgentRules` rules conflict with anything below, **the shared rules win** —
+update this runbook accordingly.
+
+---
+
+## Conventions (from `CONTRIBUTING.md` — apply to every service)
+
+- **Workflow order**: issue → branch from `main` → implement → quality gates → commit → PR → review → squash-merge.
+- **Issue title**: `<type>(<scope>): <description>` (e.g. `feat(cart): expose CartService via MCP`).
+  Apply a label: `type:feature` (or `type:chore`/`type:docs` as appropriate). Add to the
+  [GZDKH Project Board](https://github.com/orgs/GZDKH/projects/19).
+- **Branch**: `<type>/<issue-number>-<short-description>` (e.g. `feat/53-cartservice-mcp-tools`).
+- **Commits**: Conventional Commits, imperative mood, ≤72-char summary, scope = service area
+  (e.g. `feat(cart): add cart management tools`), one logical change per commit.
+- **PR**: Conventional-Commits title; description with summary + `Closes #<issue>` + testing notes;
+  quality gates green; ≥1 approval; **squash-merge** to `main`.
+- **Quality gates**: blocking — `dotnet build -c Release`, `dotnet test`; non-blocking (fix before
+  push) — `dotnet format --verify-no-changes`. Never commit if a blocking gate fails.
+
+---
+
 ## 0. Required environment (must be true before starting)
 
 The web sandbox used to draft the plan lacked these; the executing context MUST have them:
@@ -220,16 +253,21 @@ propagation (`GrpcTestHelpers.CreateFaultedAsyncUnaryCall<T>(StatusCode.Unavaila
 Update `docs/en/mcp-tools.md` (add a section/rows for the service) and the capabilities table
 in `CLAUDE.md`. Keep counts accurate.
 
-### Step 2.7 — Verify & open PR
+### Step 2.7 — Verify & open PR (per `CONTRIBUTING.md`)
+
+Quality gates (blocking build/test must pass before commit; format before push):
 
 ```bash
-dotnet build -c Release          # zero warnings (they are errors)
+dotnet build -c Release          # warnings are errors — must be zero
 dotnet test
 dotnet format --verify-no-changes
 ```
 
-Branch `claude/mcp-onboard-<service>` off `main`; **one draft PR per service**; link the issue
-(`Closes #53`). Do not push to `main`.
+- Branch off `main` named `<type>/<issue-number>-<short-description>`
+  (e.g. `feat/53-cartservice-mcp-tools`).
+- Commits in Conventional Commits (`feat(cart): ...`), one logical change each.
+- **One PR per service**, Conventional-Commits title; description = summary + `Closes #<issue>`
+  + testing notes; squash-merge after ≥1 approval. Do not push to `main`.
 
 ---
 

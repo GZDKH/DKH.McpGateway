@@ -113,5 +113,9 @@ All with `lang` and the `action` parameter pattern; no PII in cart responses.
 
 ## Tracking
 
-One GitHub issue per service (see issues labeled `mcp-onboarding`). The parent tracking
-issue links all of them and records phase ordering.
+One GitHub issue per service, titled per `CONTRIBUTING.md` (`<type>(<scope>): <description>`)
+and labelled `type:feature` (epic links them all and records phase ordering). Add issues to the
+[GZDKH Project Board](https://github.com/orgs/GZDKH/projects/19).
+
+Execution conventions (branch naming, commits, PR, quality gates, required reading) follow
+`CONTRIBUTING.md` and `AGENTS.md` — see `mcp-onboarding-execution-plan.md`.
