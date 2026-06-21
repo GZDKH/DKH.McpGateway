@@ -19,7 +19,7 @@ public class GlossaryLookupToolTests
     {
         SetupTags(new ListTagsResponse());
         SetupSpecs(new ListSpecAttributesResponse());
-        SetupCategories(new GetCategoryTreeResponse());
+        SetupCategories(new CategoryTree());
     }
 
     [Fact]
@@ -33,7 +33,7 @@ public class GlossaryLookupToolTests
     [Fact]
     public async Task GlossaryLookup_CategoryMatch_ReturnsMatchesAsync()
     {
-        var tree = new GetCategoryTreeResponse();
+        var tree = new CategoryTree();
         var root = new CategoryNode { Name = "Oolong Teas", SeoName = "oolong-teas", ProductCount = 5 };
         root.Children.Add(new CategoryNode { Name = "Dark Oolong", SeoName = "dark-oolong", ProductCount = 2 });
         tree.RootCategories.Add(root);
@@ -51,7 +51,7 @@ public class GlossaryLookupToolTests
     [Fact]
     public async Task GlossaryLookup_ExactMatch_BecomesCanonicalAsync()
     {
-        var tree = new GetCategoryTreeResponse();
+        var tree = new CategoryTree();
         tree.RootCategories.Add(new CategoryNode { Name = "Oolong Teas", SeoName = "oolong-teas" });
         SetupCategories(tree);
 
@@ -128,7 +128,7 @@ public class GlossaryLookupToolTests
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
 
-    private void SetupCategories(GetCategoryTreeResponse response)
+    private void SetupCategories(CategoryTree response)
         => _categories.GetCategoryTreeAsync(
                 Arg.Any<GetCategoryTreeRequest>(),
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
