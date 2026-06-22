@@ -16,6 +16,7 @@ public static class ConfigureServices
         services.AddMemoryCache();
         services.AddHttpContextAccessor();
         services.AddScoped<IApiKeyContext, HttpApiKeyContext>();
+        services.AddScoped<IStorefrontMcpGate, StorefrontMcpGate>();
         return services;
     }
 

@@ -8,7 +8,7 @@ namespace DKH.McpGateway.Application.Tools.Storefronts;
 public static class ManageStorefrontBrandingTool
 {
     [McpServerTool(Name = "manage_storefront_branding"), Description(
-        "Update storefront branding: logo, favicon, theme colors, typography, layout, and custom CSS. " +
+        "Update storefront branding: logo/favicon media attachments, theme colors, typography, layout, and custom CSS. " +
         "Use action 'update' to set branding, 'reset' to reset to defaults, 'get' to view current branding.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
@@ -16,8 +16,8 @@ public static class ManageStorefrontBrandingTool
         StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient brandingClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
         [Description("Action: get, update, or reset")] string action,
-        [Description("Logo URL")] string? logo = null,
-        [Description("Favicon URL")] string? favicon = null,
+        [Description("Logo media attachment ID (UUID from MediaService)")] string? logoAttachmentId = null,
+        [Description("Favicon media attachment ID (UUID from MediaService)")] string? faviconAttachmentId = null,
         [Description("Primary color (hex, e.g. '#2563eb')")] string? primaryColor = null,
         [Description("Secondary color (hex)")] string? secondaryColor = null,
         [Description("Accent color (hex)")] string? accentColor = null,
@@ -99,14 +99,14 @@ public static class ManageStorefrontBrandingTool
                 },
             };
 
-            if (logo is not null)
+            if (logoAttachmentId is not null)
             {
-                request.Logo = logo;
+                request.LogoAttachmentId = new GuidValue(logoAttachmentId);
             }
 
-            if (favicon is not null)
+            if (faviconAttachmentId is not null)
             {
-                request.Favicon = favicon;
+                request.FaviconAttachmentId = new GuidValue(faviconAttachmentId);
             }
 
             if (customCss is not null)
