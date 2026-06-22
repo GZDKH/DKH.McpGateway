@@ -62,9 +62,9 @@ public sealed class ApiKeyAuthMiddleware(
             return;
         }
 
-        if (cached.Scope != ApiKeyScope.Mcp)
+        if (cached.Scope is not (ApiKeyScope.Mcp or ApiKeyScope.Storefront))
         {
-            logger.LogWarning("MCP request rejected: invalid scope '{Scope}'. Expected 'mcp'.", cached.Scope);
+            logger.LogWarning("MCP request rejected: invalid scope '{Scope}'. Expected 'mcp' or 'storefront'.", cached.Scope);
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
             await context.Response.WriteAsJsonAsync(new { error = "Invalid API key scope for MCP access" });
             return;
@@ -73,6 +73,13 @@ public sealed class ApiKeyAuthMiddleware(
         context.Items["ApiKeyId"] = cached.ApiKeyId.Value;
         context.Items["ApiKeyScope"] = cached.Scope;
         context.Items["ApiKeyPermissions"] = cached.Permissions.ToList();
+
+        // Storefront-scoped keys carry the bound storefront id (ApiManagement Contracts 1.6.0+),
+        // which the public storefront_* tools use to isolate catalog data per tenant.
+        if (cached.StorefrontId is not null && Guid.TryParse(cached.StorefrontId.Value, out var storefrontId))
+        {
+            context.Items["StorefrontId"] = storefrontId;
+        }
 
         await next(context);
     }

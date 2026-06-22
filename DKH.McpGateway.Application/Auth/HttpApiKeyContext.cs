@@ -14,6 +14,10 @@ internal sealed class HttpApiKeyContext(IHttpContextAccessor httpContextAccessor
         ? scope
         : ApiKeyScope.Unspecified;
 
+    public Guid? StorefrontId => httpContextAccessor.HttpContext?.Items["StorefrontId"] is Guid id
+        ? id
+        : null;
+
     public IReadOnlyList<string> Permissions => httpContextAccessor.HttpContext?.Items["ApiKeyPermissions"] as IReadOnlyList<string> ?? [];
 
     public bool IsAuthenticated => ApiKeyId is not null;
