@@ -67,6 +67,17 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | Cart/ | list/get carts, issue claim code, claim cart (4) | CartService |
 | Payment/ | get/list payments, get/list payment plans — read-only (4) | PaymentService |
 | Subscription/ | list plans, get/list user subscriptions — read-only (3) | SubscriptionService |
+| **StorefrontPublic/** | **per-tenant public** — storefront_list_catalogs, storefront_list_brands, storefront_get_category_tree, storefront_get_product, storefront_search_products (5) | StorefrontService + ProductCatalogService |
+
+#### Public storefront namespace (per-tenant, ADR-060)
+
+The `storefront_*` tools are the **public** surface for a single storefront. They require a
+`Scope.Storefront` API key bound to one `StorefrontId` (issued via AdminGateway). Each tool gates
+on the storefront's `McpEnabled` feature (`IStorefrontMcpGate`), resolves that storefront's catalogs
+(`StorefrontScope.ResolveCatalogSeoNamesAsync`), and restricts every downstream read to those
+catalogs — a storefront key can never reach another tenant's data. Admin (`Scope.Mcp`) keys lack the
+storefront scope and are rejected by these tools; storefront keys lack `mcp:read`/`mcp:write` and
+are rejected by the admin tools. `ApiKeyAuthMiddleware` admits only `Scope.Mcp` and `Scope.Storefront`.
 
 ### Resources (read-only data)
 
