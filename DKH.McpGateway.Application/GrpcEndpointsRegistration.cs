@@ -7,6 +7,7 @@ using DKH.InventoryService.Contracts.Inventory.Api.StockManagement.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockQuery.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockReservation.v1;
 using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
+using DKH.PaymentService.Contracts.Services.V1;
 using DKH.Platform.Grpc.Client;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
@@ -142,6 +143,9 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<StockManagementService.StockManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<StockReservationService.StockReservationServiceClient>();
         grpc.AddEndpointFromConfiguration<LowStockAlertService.LowStockAlertServiceClient>();
+
+        // PaymentService (5028) — read-only payment + payment-plan queries
+        grpc.AddEndpointFromConfiguration<Payments.PaymentsClient>();
 
         // SearchService (5017)
         grpc.AddEndpointFromConfiguration<SearchService.Contracts.Search.Api.ProductSearch.v1.ProductSearchService.ProductSearchServiceClient>();

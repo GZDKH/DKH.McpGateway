@@ -36,6 +36,7 @@
     <PackageVersion Include="DKH.ApiManagementService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.InventoryService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.CartService.Contracts" Version="1.11.0"/>
+    <PackageVersion Include="DKH.PaymentService.Contracts" Version="0.9.0"/>
     <PackageVersion Include="DKH.SearchService.Contracts" Version="1.4.0"/>
   </ItemGroup>
   <ItemGroup>
