@@ -65,6 +65,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | DataExchange/ | product catalog, reference, customer, order, review import/export (5) | Multiple |
 | Inventory/ | manage stock, query stock, reservations, alerts (4) | InventoryService |
 | Cart/ | list/get carts, issue claim code, claim cart (4) | CartService |
+| Payment/ | get/list payments, get/list payment plans — read-only (4) | PaymentService |
 
 ### Resources (read-only data)
 
@@ -104,6 +105,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | ApiManagementService | 5012 | 2 clients (key validation, usage recording) |
 | InventoryService | 5014 | 4 clients (stock query, management, reservations, alerts) |
 | CartService | 5008 | 2 clients (cart CRUD/query, claim) |
+| PaymentService | 5028 | 1 client (read-only payments + payment plans) |
 
 ## Tool Development Rules
 

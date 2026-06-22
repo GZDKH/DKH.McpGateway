@@ -162,6 +162,15 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `issue_cart_claim_code` | IssueClaimCodeTool.cs | Issue an HMAC-signed claim code for phone-to-POS cart handoff |
 | `claim_cart` | ClaimCartTool.cs | POS-side: claim a cart into a cashier session via a claim code |
 
+### Payment (4 tools, read-only)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `get_payment` | GetPaymentTool.cs | Get a payment by ID — status, amounts, provider, refunds, history (PII omitted) |
+| `list_payments` | ListPaymentsTool.cs | List payments filtered by storefront, order, status, date range |
+| `get_payment_plan` | GetPaymentPlanTool.cs | Get a split payment plan with its schedule entries |
+| `list_payment_plans` | ListPaymentPlansTool.cs | List payment plans filtered by storefront, order, status |
+
 ### Data exchange (5 tools)
 
 | Tool | File | Description |
