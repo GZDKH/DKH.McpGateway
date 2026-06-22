@@ -61,12 +61,13 @@ public sealed class ApiKeyAuthMiddlewareTests : IDisposable
     public async Task InvokeAsync_WrongScope_Returns403Async()
     {
         var context = new DefaultHttpContext();
-        context.Request.Headers["X-API-Key"] = "storefront-key";
+        context.Request.Headers["X-API-Key"] = "webhook-key";
 
         var response = new ValidateApiKeyResponse
         {
             IsValid = true,
-            Scope = ApiKeyScope.Storefront,
+            // Webhook is neither Mcp nor Storefront — the only two scopes the MCP gateway admits.
+            Scope = ApiKeyScope.Webhook,
             ApiKeyId = new GuidValue(Guid.NewGuid().ToString())
         };
         SetupValidation(response);
