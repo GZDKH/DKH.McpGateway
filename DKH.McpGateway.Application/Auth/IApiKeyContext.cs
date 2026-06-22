@@ -12,6 +12,12 @@ public interface IApiKeyContext
 
     ApiKeyScope Scope { get; }
 
+    /// <summary>
+    /// Storefront the key is bound to (for <see cref="ApiKeyScope.Storefront"/> keys),
+    /// or <c>null</c> for global (e.g. MCP-admin) keys. Drives per-tenant data isolation.
+    /// </summary>
+    Guid? StorefrontId { get; }
+
     IReadOnlyList<string> Permissions { get; }
 
     bool IsAuthenticated { get; }
