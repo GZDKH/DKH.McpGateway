@@ -26,6 +26,7 @@ public static class StorefrontSearchProductsTool
         [Description("Search query text")] string query,
         [Description("Language code (e.g. 'en', 'ru')")] string? languageCode = null,
         [Description("Page size (max 100)")] int pageSize = 20,
+        [Description("Enable semantic (vector) search for natural-language queries like 'smoky oolong with caramel'")] bool semanticSearch = false,
         CancellationToken cancellationToken = default)
     {
         var catalogSeoNames = await StorefrontScope.ResolveCatalogSeoNamesAsync(
@@ -42,15 +43,20 @@ public static class StorefrontSearchProductsTool
                 .LanguageCode(languageCode)
                 .Build();
 
-            var response = await searchClient.SearchProductsAsync(
-                new SearchProductsRequest
-                {
-                    Query = query,
-                    FilterBy = filterBy,
-                    Page = 1,
-                    PerPage = pageSize,
-                },
-                cancellationToken: cancellationToken);
+            var request = new SearchProductsRequest
+            {
+                Query = query,
+                FilterBy = filterBy,
+                Page = 1,
+                PerPage = pageSize,
+            };
+
+            if (semanticSearch)
+            {
+                request.VectorQuery = $"embedding:([], k:{pageSize})";
+            }
+
+            var response = await searchClient.SearchProductsAsync(request, cancellationToken: cancellationToken);
 
             totalFound += response.Found;
             products.AddRange(response.Hits.Select(static h => new
