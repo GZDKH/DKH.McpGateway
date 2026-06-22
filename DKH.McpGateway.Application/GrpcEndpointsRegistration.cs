@@ -44,6 +44,7 @@ using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontChannelManagement
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontDomainManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontFeaturesManagement.v1;
+using DKH.SubscriptionService.Contracts.Subscription.Api.SubscriptionCrud.v1;
 using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotAuth.v1;
 using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotCrud.v1;
 using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotNotification.v1;
@@ -146,6 +147,9 @@ public static class GrpcEndpointsRegistration
 
         // PaymentService (5028) — read-only payment + payment-plan queries
         grpc.AddEndpointFromConfiguration<Payments.PaymentsClient>();
+
+        // SubscriptionService (5024) — plan + user-subscription queries (read-only)
+        grpc.AddEndpointFromConfiguration<SubscriptionCrudService.SubscriptionCrudServiceClient>();
 
         // SearchService (5017)
         grpc.AddEndpointFromConfiguration<SearchService.Contracts.Search.Api.ProductSearch.v1.ProductSearchService.ProductSearchServiceClient>();
