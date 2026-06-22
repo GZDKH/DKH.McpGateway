@@ -23,6 +23,7 @@
     <PackageReference Include="DKH.InventoryService.Contracts"/>
     <PackageReference Include="DKH.CartService.Contracts"/>
     <PackageReference Include="DKH.PaymentService.Contracts"/>
+    <PackageReference Include="DKH.SubscriptionService.Contracts"/>
     <PackageReference Include="DKH.SearchService.Contracts"/>
   </ItemGroup>
 </Project>

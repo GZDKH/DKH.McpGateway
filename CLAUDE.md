@@ -66,6 +66,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | Inventory/ | manage stock, query stock, reservations, alerts (4) | InventoryService |
 | Cart/ | list/get carts, issue claim code, claim cart (4) | CartService |
 | Payment/ | get/list payments, get/list payment plans — read-only (4) | PaymentService |
+| Subscription/ | list plans, get/list user subscriptions — read-only (3) | SubscriptionService |
 
 ### Resources (read-only data)
 
@@ -106,6 +107,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | InventoryService | 5014 | 4 clients (stock query, management, reservations, alerts) |
 | CartService | 5008 | 2 clients (cart CRUD/query, claim) |
 | PaymentService | 5028 | 1 client (read-only payments + payment plans) |
+| SubscriptionService | 5024 | 1 client (read-only plans + user subscriptions) |
 
 ## Tool Development Rules
 

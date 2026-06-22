@@ -171,6 +171,14 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `get_payment_plan` | GetPaymentPlanTool.cs | Get a split payment plan with its schedule entries |
 | `list_payment_plans` | ListPaymentPlansTool.cs | List payment plans filtered by storefront, order, status |
 
+### Subscription (3 tools, read-only)
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `list_subscription_plans` | ListPlansTool.cs | List subscription plans (code, display names, price, features) |
+| `get_user_subscription` | GetUserSubscriptionTool.cs | Get a user's current subscription by user ID |
+| `list_user_subscriptions` | ListUserSubscriptionsTool.cs | List user subscriptions filtered by user, status, plan code |
+
 ### Data exchange (5 tools)
 
 | Tool | File | Description |
