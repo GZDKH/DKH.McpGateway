@@ -67,7 +67,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | Cart/ | list/get carts, issue claim code, claim cart (4) | CartService |
 | Payment/ | get/list payments, get/list payment plans — read-only (4) | PaymentService |
 | Subscription/ | list plans, get/list user subscriptions — read-only (3) | SubscriptionService |
-| **StorefrontPublic/** | **per-tenant public** — storefront_list_catalogs, storefront_list_brands, storefront_get_category_tree, storefront_get_product, storefront_search_products (5) | StorefrontService + ProductCatalogService |
+| **StorefrontPublic/** | **per-tenant public** — storefront_list_catalogs, storefront_list_brands, storefront_get_category_tree, storefront_get_product, storefront_search_products, storefront_recommend_products (6) | StorefrontService + ProductCatalogService + SearchService |
 
 #### Public storefront namespace (per-tenant, ADR-060)
 
@@ -119,6 +119,7 @@ are rejected by the admin tools. `ApiKeyAuthMiddleware` admits only `Scope.Mcp` 
 | CartService | 5008 | 2 clients (cart CRUD/query, claim) |
 | PaymentService | 5028 | 1 client (read-only payments + payment plans) |
 | SubscriptionService | 5024 | 1 client (read-only plans + user subscriptions) |
+| SearchService | 5017 | 1 client (product search + vector recommendations) |
 
 ## Tool Development Rules
 
