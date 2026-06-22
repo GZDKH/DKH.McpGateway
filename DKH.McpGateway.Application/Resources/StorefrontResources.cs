@@ -82,8 +82,8 @@ public static class StorefrontResources
                 branding = b is not null
                     ? new
                     {
-                        logo = b.Logo,
-                        favicon = b.Favicon,
+                        logoAttachmentId = b.LogoAttachmentId?.Value,
+                        faviconAttachmentId = b.FaviconAttachmentId?.Value,
                         primaryColor = b.Colors?.Primary,
                         secondaryColor = b.Colors?.Secondary,
                     }

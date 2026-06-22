@@ -21,9 +21,9 @@ public static class GetStorefrontBrandingTool
         var result = new
         {
             storefrontId = b.StorefrontId,
-            logo = b.Logo,
-            favicon = b.Favicon,
-            ogImage = b.OgImage,
+            logoAttachmentId = b.LogoAttachmentId?.Value,
+            faviconAttachmentId = b.FaviconAttachmentId?.Value,
+            ogImageAttachmentId = b.OgImageAttachmentId?.Value,
             customCss = string.IsNullOrEmpty(b.CustomCss) ? null : b.CustomCss,
             colors = b.Colors is not null
                 ? new
