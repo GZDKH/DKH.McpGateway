@@ -14,6 +14,7 @@ using DKH.InventoryService.Contracts.Inventory.Api.LowStockAlert.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockManagement.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockQuery.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockReservation.v1;
+using DKH.LogisticsService.Contracts.Services.v1;
 using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
 using DKH.PaymentService.Contracts.Services.V1;
 using DKH.Platform.Grpc.Client;
@@ -171,5 +172,11 @@ public static class GrpcEndpointsRegistration
 
         // SearchService (5017)
         grpc.AddEndpointFromConfiguration<SearchService.Contracts.Search.Api.ProductSearch.v1.ProductSearchService.ProductSearchServiceClient>();
+
+        // LogisticsService (5019)
+        grpc.AddEndpointFromConfiguration<QuoteService.QuoteServiceClient>();
+        grpc.AddEndpointFromConfiguration<RateCardService.RateCardServiceClient>();
+        grpc.AddEndpointFromConfiguration<SurchargeRuleService.SurchargeRuleServiceClient>();
+        grpc.AddEndpointFromConfiguration<CarrierCapabilityService.CarrierCapabilityServiceClient>();
     }
 }
