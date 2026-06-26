@@ -58,6 +58,11 @@ using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotAuth.v1;
 using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotCrud.v1;
 using DKH.TelegramBotService.Contracts.TelegramBot.Api.BotNotification.v1;
 using DKH.TelegramBotService.Contracts.TelegramBot.Api.BroadcastManagement.v1;
+using DKH.WarehouseService.Contracts.Warehouse.Api.HandlingTask.v1;
+using DKH.WarehouseService.Contracts.Warehouse.Api.IncomingShipment.v1;
+using DKH.WarehouseService.Contracts.Warehouse.Api.TransferOrder.v1;
+using DKH.WarehouseService.Contracts.Warehouse.Api.WarehouseCrud.v1;
+using DKH.WarehouseService.Contracts.Warehouse.Api.WarehouseZoneCrud.v1;
 using CustomerDataExchangeClient =
     DKH.CustomerService.Contracts.Customer.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using OrderDataExchangeClient =
@@ -178,5 +183,12 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<RateCardService.RateCardServiceClient>();
         grpc.AddEndpointFromConfiguration<SurchargeRuleService.SurchargeRuleServiceClient>();
         grpc.AddEndpointFromConfiguration<CarrierCapabilityService.CarrierCapabilityServiceClient>();
+
+        // WarehouseService (5021)
+        grpc.AddEndpointFromConfiguration<WarehouseCrudService.WarehouseCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<WarehouseZoneCrudService.WarehouseZoneCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<HandlingTaskService.HandlingTaskServiceClient>();
+        grpc.AddEndpointFromConfiguration<IncomingShipmentService.IncomingShipmentServiceClient>();
+        grpc.AddEndpointFromConfiguration<TransferOrderService.TransferOrderServiceClient>();
     }
 }
