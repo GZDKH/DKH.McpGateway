@@ -2,6 +2,14 @@ using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyQuery.v1;
 using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyUsage.v1;
 using DKH.CartService.Contracts.Cart.Api.CartClaim.v1;
 using DKH.CartService.Contracts.Cart.Api.CartCrud.v1;
+using DKH.DeliveryService.Contracts.Delivery.Api.Allocation.v1;
+using DKH.DeliveryService.Contracts.Delivery.Api.Analytics.v1;
+using DKH.DeliveryService.Contracts.Delivery.Api.Cancellation.v1;
+using DKH.DeliveryService.Contracts.Delivery.Api.Claims.v1;
+using DKH.DeliveryService.Contracts.Delivery.Api.CustomsLink.v1;
+using DKH.DeliveryService.Contracts.Delivery.Api.DeliveryCrud.v1;
+using DKH.DeliveryService.Contracts.Delivery.Api.Dispatch.v1;
+using DKH.DeliveryService.Contracts.Delivery.Api.Settlements.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.LowStockAlert.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockManagement.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockQuery.v1;
@@ -150,6 +158,16 @@ public static class GrpcEndpointsRegistration
 
         // SubscriptionService (5024) — plan + user-subscription queries (read-only)
         grpc.AddEndpointFromConfiguration<SubscriptionCrudService.SubscriptionCrudServiceClient>();
+
+        // DeliveryService (5027)
+        grpc.AddEndpointFromConfiguration<DeliveryCrudService.DeliveryCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<DispatchService.DispatchServiceClient>();
+        grpc.AddEndpointFromConfiguration<ClaimsService.ClaimsServiceClient>();
+        grpc.AddEndpointFromConfiguration<SettlementsService.SettlementsServiceClient>();
+        grpc.AddEndpointFromConfiguration<AnalyticsService.AnalyticsServiceClient>();
+        grpc.AddEndpointFromConfiguration<AllocationService.AllocationServiceClient>();
+        grpc.AddEndpointFromConfiguration<CancellationService.CancellationServiceClient>();
+        grpc.AddEndpointFromConfiguration<CustomsLinkService.CustomsLinkServiceClient>();
 
         // SearchService (5017)
         grpc.AddEndpointFromConfiguration<SearchService.Contracts.Search.Api.ProductSearch.v1.ProductSearchService.ProductSearchServiceClient>();
