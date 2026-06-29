@@ -18,6 +18,7 @@ using DKH.LogisticsService.Contracts.Services.v1;
 using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
 using DKH.PaymentService.Contracts.Services.V1;
 using DKH.Platform.Grpc.Client;
+using DKH.ProcurementService.Contracts.Services.V1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
@@ -190,5 +191,8 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<HandlingTaskService.HandlingTaskServiceClient>();
         grpc.AddEndpointFromConfiguration<IncomingShipmentService.IncomingShipmentServiceClient>();
         grpc.AddEndpointFromConfiguration<TransferOrderService.TransferOrderServiceClient>();
+
+        // ProcurementService (5030) — inbound supply workflow: POs, inspections, sourcing, receiving, returns, custom orders
+        grpc.AddEndpointFromConfiguration<Procurement.ProcurementClient>();
     }
 }
