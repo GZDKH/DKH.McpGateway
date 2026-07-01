@@ -179,6 +179,57 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `get_user_subscription` | GetUserSubscriptionTool.cs | Get a user's current subscription by user ID |
 | `list_user_subscriptions` | ListUserSubscriptionsTool.cs | List user subscriptions filtered by user, status, plan code |
 
+### Customs (44 tools)
+
+Customs tools expose the DKH.CustomsService declaration, duty, document-packet, trade-restriction, HS-code, and nomenclature-system surfaces. Responses omit generated document `content` bytes; `calculate_customs_duties` is kept as a backwards-compatible alias for `calculate_duties`.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `create_customs_declaration` | DeclarationTools.cs | Create a customs declaration with declared HS-code items |
+| `update_customs_declaration_items` | DeclarationTools.cs | Replace declaration items |
+| `attach_customs_certificate` | DeclarationTools.cs | Attach a certificate document reference to a declaration |
+| `submit_customs_declaration` | DeclarationTools.cs | Submit a declaration with an optional filing reference |
+| `update_customs_declaration_status` | DeclarationTools.cs | Advance or reject declaration status |
+| `get_customs_declaration` | GetCustomsDeclarationTool.cs | Get a customs declaration by ID |
+| `list_customs_declarations` | DeclarationTools.cs | List declarations with fulfillment, shipment, and status filters |
+| `create_duty_rule` | DutyLookupTools.cs | Create a customs duty rule |
+| `update_duty_rule` | DutyLookupTools.cs | Update mutable duty-rule fields |
+| `expire_duty_rule` | DutyLookupTools.cs | Expire a customs duty rule |
+| `get_duty_rule` | DutyLookupTools.cs | Get a customs duty rule by ID |
+| `list_duty_rules` | DutyLookupTools.cs | List duty rules by destination, origin, system, prefix, and date |
+| `calculate_duties` | DutyLookupTools.cs | Calculate customs duties for HS lines |
+| `calculate_customs_duties` | DutyLookupTools.cs | Legacy alias for duty calculation |
+| `create_trade_restriction` | TradeRestrictionTools.cs | Create a destination/origin/HS-prefix restriction |
+| `check_trade_restriction` | TradeRestrictionTools.cs | Check whether a route and HS code are restricted |
+| `create_document_packet` | DocumentPacketTools.cs | Create a customs document packet |
+| `add_document_packet_item` | DocumentPacketTools.cs | Add a document reference to a packet |
+| `generate_standard_customs_documents` | GenerateStandardCustomsDocumentsTool.cs | Generate standard customs document metadata without returning bytes |
+| `compile_document_packet` | DocumentPacketTools.cs | Compile a customs document packet |
+| `submit_document_packet` | DocumentPacketTools.cs | Submit a packet with an optional filing reference |
+| `acknowledge_document_packet` | DocumentPacketTools.cs | Mark a submitted packet as acknowledged |
+| `get_document_packet` | DocumentPacketTools.cs | Get a customs document packet by ID |
+| `create_wco_hs_code` | HsCodeMutationTools.cs | Create a WCO HS code row |
+| `update_wco_hs_code` | HsCodeMutationTools.cs | Update WCO HS code notes and translations |
+| `retire_wco_hs_code` | HsCodeMutationTools.cs | Retire a WCO HS code |
+| `reinstate_wco_hs_code` | HsCodeMutationTools.cs | Reinstate a retired WCO HS code |
+| `get_wco_hs_code` | HsCodeLookupTools.cs | Get a WCO HS code by ID |
+| `get_wco_hs_code_by_code` | HsCodeLookupTools.cs | Get a WCO HS code by code and revision |
+| `list_wco_hs_codes` | HsCodeLookupTools.cs | List WCO HS codes by code prefix, level, revision, and status |
+| `get_wco_hs_hierarchy` | HsCodeLookupTools.cs | Get a WCO HS hierarchy |
+| `create_national_hs_code` | HsCodeMutationTools.cs | Create a national HS code row |
+| `update_national_hs_code` | HsCodeMutationTools.cs | Update national HS code dates, notes, and translations |
+| `retire_national_hs_code` | HsCodeMutationTools.cs | Retire a national HS code |
+| `reinstate_national_hs_code` | HsCodeMutationTools.cs | Reinstate a retired national HS code |
+| `get_national_hs_code` | HsCodeLookupTools.cs | Get a national HS code by ID |
+| `get_national_hs_code_by_full_code` | HsCodeLookupTools.cs | Get a national HS code by system code and full code |
+| `list_national_hs_codes` | HsCodeLookupTools.cs | List national HS codes by system, code prefix, level, date, and status |
+| `get_national_hs_hierarchy` | HsCodeLookupTools.cs | Get a national HS hierarchy |
+| `create_nomenclature_system` | NomenclatureSystemMutationTools.cs | Create a nomenclature system |
+| `update_nomenclature_system` | NomenclatureSystemMutationTools.cs | Update a nomenclature system |
+| `get_nomenclature_system` | NomenclatureSystemLookupTools.cs | Get a nomenclature system by ID |
+| `get_nomenclature_system_by_code` | NomenclatureSystemLookupTools.cs | Get a nomenclature system by code |
+| `list_nomenclature_systems` | NomenclatureSystemLookupTools.cs | List nomenclature systems by region |
+
 ### Data exchange (5 tools)
 
 | Tool | File | Description |
@@ -217,4 +268,4 @@ Analytics prompt templates that guide AI through multi-step analysis workflows.
 | `review_analysis` | ReviewAnalysisPrompt.cs | Review sentiment and trends analysis |
 | `data_quality_check` | DataQualityCheckPrompt.cs | Data completeness and quality check |
 
-*Last updated: February 2026*
+*Last updated: July 2026*

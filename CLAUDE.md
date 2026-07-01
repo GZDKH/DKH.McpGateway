@@ -37,7 +37,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 
 **Key files:**
 - `ConfigureServices.cs` — `AddMcpGatewayServer()` registers tools, resources, prompts
-- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (59 clients)
+- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (81 clients)
 - `Tools/Common/McpJsonDefaults.cs` — shared JSON serialization options
 
 ## MCP Capabilities
@@ -67,9 +67,17 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | Cart/ | list/get carts, issue claim code, claim cart (4) | CartService |
 | Payment/ | get/list payments, get/list payment plans — read-only (4) | PaymentService |
 | Subscription/ | list plans, get/list user subscriptions — read-only (3) | SubscriptionService |
-| Delivery/ | quotes, fulfillments, shipments, dispatch, allocation, cancellation, customs, SLA analytics (15) | DeliveryService |
+| Delivery/ | quotes, fulfillments, shipments, dispatch, allocation, cancellation, customs, SLA analytics (14) | DeliveryService |
 | DeliveryClaims/ | open/add evidence/update status/list claims (4) | DeliveryService |
 | DeliverySettlements/ | get/list settlements, import carrier invoice (3) | DeliveryService |
+| Logistics/ | rate cards, surcharge rules, carrier capabilities, rate calculation (22) | LogisticsService |
+| Warehouse/ | warehouse CRUD/status lifecycle (7) | WarehouseService |
+| WarehouseZones/ | warehouse zone CRUD/status lifecycle (7) | WarehouseService |
+| HandlingTasks/ | handling task creation, assignment, lifecycle, listing (7) | WarehouseService |
+| IncomingShipments/ | incoming shipment queries and factory/warehouse confirmations (5) | WarehouseService |
+| TransferOrders/ | transfer order creation, transit, receiving, cancellation, listing (6) | WarehouseService |
+| Procurement/ | sourcing, inspections, purchase orders, receiving, returns, custom orders (32; PII masked) | ProcurementService |
+| Customs/ | declarations, document packets, duty rules/calculation, trade restrictions, WCO/national HS codes, nomenclature systems (44 incl. legacy duty alias; document bytes omitted) | CustomsService |
 | **StorefrontPublic/** | **per-tenant public** — storefront_list_catalogs, storefront_list_brands, storefront_get_category_tree, storefront_get_product, storefront_search_products, storefront_recommend_products (6) | StorefrontService + ProductCatalogService + SearchService |
 
 #### Public storefront namespace (per-tenant, ADR-060)
@@ -124,6 +132,10 @@ are rejected by the admin tools. `ApiKeyAuthMiddleware` admits only `Scope.Mcp` 
 | SubscriptionService | 5024 | 1 client (read-only plans + user subscriptions) |
 | DeliveryService | 5027 | 8 clients (DeliveryCrud, Dispatch, Claims, Settlements, Analytics, Allocation, Cancellation, CustomsLink) |
 | SearchService | 5017 | 1 client (product search + vector recommendations) |
+| LogisticsService | 5019 | 4 clients (Quote, RateCard, SurchargeRule, CarrierCapability) |
+| WarehouseService | 5021 | 5 clients (WarehouseCrud, WarehouseZoneCrud, HandlingTask, IncomingShipment, TransferOrder) |
+| CustomsService | 5022 | 7 clients (Declarations, Duty, TradeRestrictions, DocumentPackets, WCO HS, National HS, NomenclatureSystem) |
+| ProcurementService | 5030 | 1 client (Procurement workflow API) |
 
 ## Tool Development Rules
 
