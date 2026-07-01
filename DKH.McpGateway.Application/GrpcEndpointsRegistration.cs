@@ -2,6 +2,13 @@ using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyQuery.v1;
 using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyUsage.v1;
 using DKH.CartService.Contracts.Cart.Api.CartClaim.v1;
 using DKH.CartService.Contracts.Cart.Api.CartCrud.v1;
+using DKH.CustomsService.Contracts.Customs.Api.Declarations.v1;
+using DKH.CustomsService.Contracts.Customs.Api.DocumentPackets.v1;
+using DKH.CustomsService.Contracts.Customs.Api.TradeRestrictions.v1;
+using DKH.CustomsService.Contracts.Duty.Api.V2;
+using DKH.CustomsService.Contracts.NationalHsCode.Api.Crud.V2;
+using DKH.CustomsService.Contracts.NomenclatureSystem.Api.Crud.V2;
+using DKH.CustomsService.Contracts.WcoHsCode.Api.Crud.V2;
 using DKH.DeliveryService.Contracts.Delivery.Api.Allocation.v1;
 using DKH.DeliveryService.Contracts.Delivery.Api.Analytics.v1;
 using DKH.DeliveryService.Contracts.Delivery.Api.Cancellation.v1;
@@ -191,6 +198,15 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<HandlingTaskService.HandlingTaskServiceClient>();
         grpc.AddEndpointFromConfiguration<IncomingShipmentService.IncomingShipmentServiceClient>();
         grpc.AddEndpointFromConfiguration<TransferOrderService.TransferOrderServiceClient>();
+
+        // CustomsService (5022)
+        grpc.AddEndpointFromConfiguration<DeclarationsService.DeclarationsServiceClient>("CustomsDeclarationsServiceClient");
+        grpc.AddEndpointFromConfiguration<DutyService.DutyServiceClient>("CustomsDutyServiceClient");
+        grpc.AddEndpointFromConfiguration<TradeRestrictionsService.TradeRestrictionsServiceClient>("CustomsTradeRestrictionsServiceClient");
+        grpc.AddEndpointFromConfiguration<DocumentPacketsService.DocumentPacketsServiceClient>("CustomsDocumentPacketsServiceClient");
+        grpc.AddEndpointFromConfiguration<WcoHsCodeCrudService.WcoHsCodeCrudServiceClient>("CustomsWcoHsCodeCrudServiceClient");
+        grpc.AddEndpointFromConfiguration<NationalHsCodeCrudService.NationalHsCodeCrudServiceClient>("CustomsNationalHsCodeCrudServiceClient");
+        grpc.AddEndpointFromConfiguration<NomenclatureSystemCrudService.NomenclatureSystemCrudServiceClient>("CustomsNomenclatureSystemCrudServiceClient");
 
         // ProcurementService (5030) — inbound supply workflow: POs, inspections, sourcing, receiving, returns, custom orders
         grpc.AddEndpointFromConfiguration<Procurement.ProcurementClient>();
