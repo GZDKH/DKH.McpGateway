@@ -273,6 +273,29 @@ Counterparty tools expose the DKH.CounterpartyService identity, media/document, 
 | `get_counterparty_balance` | CounterpartyFinancialTools.cs | Get AP balance rows |
 | `get_counterparty_financial_dashboard` | CounterpartyFinancialTools.cs | Get the financial dashboard projection |
 
+### Staff (16 tools)
+
+Staff tools expose the DKH.StaffService employee, department, onboarding, working-shift, cashier-shift, and device-presence surfaces. Employee responses omit personal identity fields (`fullName`, `email`, `keycloakUserId`). Device heartbeat ingestion is intentionally not exposed because it is internal telemetry.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `get_employee` | StaffTools.cs | Get an employee by ID with employee PII omitted |
+| `list_employees` | StaffTools.cs | List employees with optional filters and PII omitted |
+| `get_employee_by_keycloak_user_id` | StaffTools.cs | Look up an employee by Keycloak user ID without echoing the lookup key |
+| `get_department` | StaffTools.cs | Get a department by ID |
+| `list_departments` | StaffTools.cs | List departments |
+| `get_onboarding_checklist` | StaffTools.cs | Get an onboarding checklist by ID |
+| `get_employee_onboarding_checklist` | StaffTools.cs | Get an employee onboarding checklist |
+| `open_working_shift` | StaffTools.cs | Open a working shift |
+| `close_working_shift` | StaffTools.cs | Close a working shift |
+| `get_current_working_shift` | StaffTools.cs | Get the current working shift for an employee and module |
+| `list_active_working_shifts` | StaffTools.cs | List active working shifts |
+| `open_cashier_shift` | StaffTools.cs | Open a cashier shift |
+| `close_cashier_shift` | StaffTools.cs | Close a cashier shift |
+| `get_current_cashier_shift` | StaffTools.cs | Get the current cashier shift for an employee |
+| `list_active_cashier_shifts` | StaffTools.cs | List active cashier shifts |
+| `list_device_presences` | StaffTools.cs | List device presence records |
+
 ### Data exchange (5 tools)
 
 | Tool | File | Description |
