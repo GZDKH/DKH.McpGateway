@@ -30,5 +30,6 @@
     <PackageReference Include="DKH.WarehouseService.Contracts"/>
     <PackageReference Include="DKH.ProcurementService.Contracts"/>
     <PackageReference Include="DKH.CustomsService.Contracts"/>
+    <PackageReference Include="DKH.CounterpartyService.Contracts"/>
   </ItemGroup>
 </Project>

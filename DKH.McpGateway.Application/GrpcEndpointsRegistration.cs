@@ -2,6 +2,9 @@ using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyQuery.v1;
 using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyUsage.v1;
 using DKH.CartService.Contracts.Cart.Api.CartClaim.v1;
 using DKH.CartService.Contracts.Cart.Api.CartCrud.v1;
+using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
+using DKH.CounterpartyService.Contracts.Counterparty.Api.PartnerRelationship.v1;
+using DKH.CounterpartyService.Contracts.Counterparty.Services.v1;
 using DKH.CustomsService.Contracts.Customs.Api.Declarations.v1;
 using DKH.CustomsService.Contracts.Customs.Api.DocumentPackets.v1;
 using DKH.CustomsService.Contracts.Customs.Api.TradeRestrictions.v1;
@@ -207,6 +210,12 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<WcoHsCodeCrudService.WcoHsCodeCrudServiceClient>("CustomsWcoHsCodeCrudServiceClient");
         grpc.AddEndpointFromConfiguration<NationalHsCodeCrudService.NationalHsCodeCrudServiceClient>("CustomsNationalHsCodeCrudServiceClient");
         grpc.AddEndpointFromConfiguration<NomenclatureSystemCrudService.NomenclatureSystemCrudServiceClient>("CustomsNomenclatureSystemCrudServiceClient");
+
+        // CounterpartyService (5020) — counterparty identity, partner relationships, AP balances, financial dashboard
+        grpc.AddEndpointFromConfiguration<CounterpartyCrudService.CounterpartyCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<PartnerRelationshipCrudService.PartnerRelationshipCrudServiceClient>();
+        grpc.AddEndpointFromConfiguration<CounterpartyApBalanceService.CounterpartyApBalanceServiceClient>();
+        grpc.AddEndpointFromConfiguration<CounterpartyFinancialDashboardService.CounterpartyFinancialDashboardServiceClient>();
 
         // ProcurementService (5030) — inbound supply workflow: POs, inspections, sourcing, receiving, returns, custom orders
         grpc.AddEndpointFromConfiguration<Procurement.ProcurementClient>();

@@ -37,7 +37,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 
 **Key files:**
 - `ConfigureServices.cs` — `AddMcpGatewayServer()` registers tools, resources, prompts
-- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (81 clients)
+- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (85 clients)
 - `Tools/Common/McpJsonDefaults.cs` — shared JSON serialization options
 
 ## MCP Capabilities
@@ -78,6 +78,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | TransferOrders/ | transfer order creation, transit, receiving, cancellation, listing (6) | WarehouseService |
 | Procurement/ | sourcing, inspections, purchase orders, receiving, returns, custom orders (32; PII masked) | ProcurementService |
 | Customs/ | declarations, document packets, duty rules/calculation, trade restrictions, WCO/national HS codes, nomenclature systems (44 incl. legacy duty alias; document bytes omitted) | CustomsService |
+| Counterparty/ | counterparty identity, media/documents, ACL, verification, partner relationships, AP balances, financial dashboard (36; PII masked; contact channels excluded) | CounterpartyService |
 | **StorefrontPublic/** | **per-tenant public** — storefront_list_catalogs, storefront_list_brands, storefront_get_category_tree, storefront_get_product, storefront_search_products, storefront_recommend_products (6) | StorefrontService + ProductCatalogService + SearchService |
 
 #### Public storefront namespace (per-tenant, ADR-060)
@@ -135,6 +136,7 @@ are rejected by the admin tools. `ApiKeyAuthMiddleware` admits only `Scope.Mcp` 
 | LogisticsService | 5019 | 4 clients (Quote, RateCard, SurchargeRule, CarrierCapability) |
 | WarehouseService | 5021 | 5 clients (WarehouseCrud, WarehouseZoneCrud, HandlingTask, IncomingShipment, TransferOrder) |
 | CustomsService | 5022 | 7 clients (Declarations, Duty, TradeRestrictions, DocumentPackets, WCO HS, National HS, NomenclatureSystem) |
+| CounterpartyService | 5020 | 4 clients (CounterpartyCrud, PartnerRelationshipCrud, AP Balance, FinancialDashboard) |
 | ProcurementService | 5030 | 1 client (Procurement workflow API) |
 
 ## Tool Development Rules

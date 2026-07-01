@@ -230,6 +230,49 @@ Customs tools expose the DKH.CustomsService declaration, duty, document-packet, 
 | `get_nomenclature_system_by_code` | NomenclatureSystemLookupTools.cs | Get a nomenclature system by code |
 | `list_nomenclature_systems` | NomenclatureSystemLookupTools.cs | List nomenclature systems by region |
 
+### Counterparty (36 tools)
+
+Counterparty tools expose the DKH.CounterpartyService identity, media/document, ACL, verification, partner-relationship, AP-balance, and financial-dashboard surfaces. Responses omit PII fields (`legalName`, `taxId`, `registrationNumber`, `email`, `phone`, `address`) and audit-log PII changes. Contact-channel RPCs are intentionally not exposed because contact `value` is PII.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `get_counterparty` | CounterpartyCrudTools.cs | Get a counterparty by ID with PII omitted |
+| `list_counterparties` | CounterpartyCrudTools.cs | List counterparties with optional filters and PII omitted |
+| `create_counterparty` | CounterpartyCrudTools.cs | Create a counterparty; accepts PII inputs but does not echo them |
+| `update_counterparty` | CounterpartyCrudTools.cs | Update a counterparty; accepts PII inputs but does not echo them |
+| `archive_counterparty` | CounterpartyCrudTools.cs | Archive a counterparty |
+| `batch_get_counterparty_basics` | CounterpartyCrudTools.cs | Fetch lightweight non-PII basics for multiple counterparties |
+| `set_counterparty_capabilities` | CounterpartyCrudTools.cs | Replace or clear logistics/service capabilities |
+| `attach_counterparty_media` | CounterpartyCrudTools.cs | Attach a media reference |
+| `detach_counterparty_media` | CounterpartyCrudTools.cs | Detach a media reference |
+| `set_primary_counterparty_media` | CounterpartyCrudTools.cs | Promote a media row to primary |
+| `list_counterparty_media` | CounterpartyCrudTools.cs | List media rows |
+| `attach_counterparty_document` | CounterpartyCrudTools.cs | Attach a verification/compliance document |
+| `detach_counterparty_document` | CounterpartyCrudTools.cs | Detach a document row |
+| `verify_counterparty_document` | CounterpartyCrudTools.cs | Mark a document as verified |
+| `reject_counterparty_document` | CounterpartyCrudTools.cs | Reject a document |
+| `list_counterparty_documents` | CounterpartyCrudTools.cs | List documents for a counterparty |
+| `list_expiring_documents` | CounterpartyCrudTools.cs | List documents expiring within a day window |
+| `import_counterparty` | CounterpartyCrudTools.cs | Idempotently import a counterparty with caller-provided ID |
+| `list_counterparty_audit_log` | CounterpartyCrudTools.cs | List audit entries with PII change keys filtered |
+| `grant_counterparty_access` | CounterpartyCrudTools.cs | Grant or update a user's counterparty ACL |
+| `revoke_counterparty_access` | CounterpartyCrudTools.cs | Revoke a user's counterparty ACL |
+| `list_counterparty_acl` | CounterpartyCrudTools.cs | List ACL entries |
+| `submit_for_verification` | CounterpartyCrudTools.cs | Submit a counterparty for verification |
+| `approve_verification` | CounterpartyCrudTools.cs | Approve a verification attempt |
+| `reject_verification` | CounterpartyCrudTools.cs | Reject a verification attempt |
+| `list_verification_attempts` | CounterpartyCrudTools.cs | List verification attempts |
+| `get_counterparty_business_relationship` | CounterpartyCrudTools.cs | Get the derived business relationship snapshot |
+| `activate_partner_relationship` | PartnerRelationshipTools.cs | Activate a partner relationship |
+| `suspend_partner_relationship` | PartnerRelationshipTools.cs | Suspend a partner relationship |
+| `reactivate_partner_relationship` | PartnerRelationshipTools.cs | Reactivate a partner relationship |
+| `terminate_partner_relationship` | PartnerRelationshipTools.cs | Terminate a partner relationship |
+| `update_partner_relationship_terms` | PartnerRelationshipTools.cs | Update commercial relationship terms |
+| `get_partner_relationship` | PartnerRelationshipTools.cs | Get a partner relationship by ID |
+| `list_partner_relationships_by_counterparty` | PartnerRelationshipTools.cs | List partner relationship history for a counterparty |
+| `get_counterparty_balance` | CounterpartyFinancialTools.cs | Get AP balance rows |
+| `get_counterparty_financial_dashboard` | CounterpartyFinancialTools.cs | Get the financial dashboard projection |
+
 ### Data exchange (5 tools)
 
 | Tool | File | Description |
