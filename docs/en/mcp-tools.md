@@ -320,6 +320,18 @@ Engagement tools expose the DKH.EngagementService request lifecycle, template, a
 | `get_service_report` | GetServiceReportTool.cs | Get an engagement service report by ID |
 | `review_service_report` | ReviewServiceReportTool.cs | Accept or reject an engagement service report |
 
+### Print (5 tools)
+
+Print tools expose the DKH.PrintService printer registry and print-job queue. No customer PII and no money movement; `payloadRef` is an opaque storage reference (not payload content) and `routingHints` is operational metadata.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `register_printer` | RegisterPrinterTool.cs | Register a printer (name, connection string, type Thermal/Label/Office, optional location) |
+| `list_printers` | ListPrintersTool.cs | List printers, optionally filtered by location |
+| `route_print_job` | RoutePrintJobTool.cs | Queue a print job (job type + opaque payload ref + routing hints) → Queued |
+| `get_print_job` | GetPrintJobTool.cs | Get a print job by ID — type, payload ref, routing hints, lifecycle status, timestamps |
+| `list_print_jobs` | ListPrintJobsTool.cs | List print jobs, filtered by status, with pagination |
+
 ### Data exchange (5 tools)
 
 | Tool | File | Description |
