@@ -49,6 +49,7 @@
     <PackageVersion Include="DKH.CounterpartyService.Contracts" Version="1.22.0"/>
     <PackageVersion Include="DKH.StaffService.Contracts" Version="0.6.0"/>
     <PackageVersion Include="DKH.EngagementService.Contracts" Version="1.5.0"/>
+    <PackageVersion Include="DKH.AssistantService.Contracts" Version="1.3.0"/>
     <PackageVersion Include="DKH.PrintService.Contracts" Version="0.2.0"/>
     <PackageVersion Include="DKH.MediaService.Contracts" Version="1.3.0"/>
   </ItemGroup>

@@ -353,6 +353,17 @@ Print tools expose the DKH.PrintService printer registry and print-job queue. No
 | `get_print_job` | GetPrintJobTool.cs | Get a print job by ID — type, payload ref, routing hints, lifecycle status, timestamps |
 | `list_print_jobs` | ListPrintJobsTool.cs | List print jobs, filtered by status, with pagination |
 
+### Assistant (4 tools)
+
+Assistant tools expose the DKH.AssistantService conversational chat surface. `userId` is accepted only as an optional personalization input and is never echoed in tool responses. Assistant config and operator-chat RPCs are intentionally excluded from this thin onboarding slice.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `assistant_chat` | AssistantChatTool.cs | Send a chat message and return text, product cards, suggestions, intent, cache flag, and session count |
+| `assistant_chat_stream` | AssistantChatStreamTool.cs | Send a streaming chat message and return one aggregated JSON response |
+| `assistant_get_suggestions` | AssistantGetSuggestionsTool.cs | Get conversation-aware suggestions for a storefront session |
+| `assistant_clear_session` | AssistantClearSessionTool.cs | Clear AssistantService conversation context for a storefront session |
+
 ### Media (8 tools)
 
 Media tools expose the DKH.MediaService asset, attachment, upload-session, and scope-registry surfaces. Responses omit internal actor identifiers (`attached_by_id`, `requested_by_id`); signed, time-limited upload/download URLs are returned by design.

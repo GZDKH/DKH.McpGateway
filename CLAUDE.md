@@ -82,6 +82,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | Counterparty/ | counterparty identity, media/documents, ACL, verification, partner relationships, AP balances, financial dashboard (36; PII masked; contact channels excluded) | CounterpartyService |
 | Staff/ | employees, departments, onboarding, working shifts, cashier shifts, device presence (16; employee PII masked; heartbeat ingestion excluded) | StaffService |
 | Engagement/ | create/assign/start/complete/cancel/get/list requests, list assigned, template CRUD+publish, report lifecycle (17; requester/provider identity masked; profile service excluded) | EngagementService |
+| Assistant/ | chat, streaming chat, suggestions, clear session (4; user ID input not echoed) | AssistantService |
 | Media/ | asset storage ref + signed download link, scope registry, attachment list/metadata/reorder/detach, upload-session create (8; actor ids omitted; signed URLs returned) | MediaService |
 | Print/ | register printer, list printers, route/get/list print jobs (5; no PII) | PrintService |
 | **StorefrontPublic/** | **per-tenant public** — storefront_list_catalogs, storefront_list_brands, storefront_get_category_tree, storefront_get_product, storefront_search_products, storefront_recommend_products (6) | StorefrontService + ProductCatalogService + SearchService |
@@ -145,6 +146,7 @@ are rejected by the admin tools. `ApiKeyAuthMiddleware` admits only `Scope.Mcp` 
 | CounterpartyService | 5020 | 4 clients (CounterpartyCrud, PartnerRelationshipCrud, AP Balance, FinancialDashboard) |
 | StaffService | 5031 | 1 client (employees, departments, onboarding, shifts, presence) |
 | EngagementService | 5032 | 1 client (engagement lifecycle, templates, reports) |
+| AssistantService | 5023 | 1 client (conversational chat, suggestions, session clearing) |
 | MediaService | 5026 | 4 clients (AssetService, AttachmentService, UploadSessionService, ScopeRegistryService) |
 | ProcurementService | 5030 | 1 client (Procurement workflow API) |
 | PrintService | 5029 | 1 client (Prints — printer registry + print-job queue) |

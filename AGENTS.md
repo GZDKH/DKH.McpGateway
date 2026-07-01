@@ -75,6 +75,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | Reviews/ | review stats, summary, product ranking (3) | ReviewService |
 | Storefronts/ | list/get/manage storefronts, branding, catalogs, channels, domains, features (11) | StorefrontService |
 | Telegram/ | manage bots, channels, manager groups, scheduling (4) | TelegramBotService |
+| Assistant/ | chat, streaming chat, suggestions, clear session (4; user ID input not echoed) | AssistantService |
 | DataExchange/ | product catalog, reference, customer, order, review import/export (5) | Multiple |
 | Inventory/ | manage stock, query stock, reservations, alerts (4) | InventoryService |
 
@@ -115,6 +116,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | ReviewService | 5011 | 3 clients (CRUD, query, data exchange) |
 | ApiManagementService | 5012 | 2 clients (key validation, usage recording) |
 | InventoryService | 5014 | 4 clients (stock query, management, reservations, alerts) |
+| AssistantService | 5023 | 1 client (conversational chat, suggestions, session clearing) |
 
 ## Tool Development Rules
 
