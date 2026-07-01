@@ -58,6 +58,7 @@ using DKH.ReferenceService.Contracts.Reference.Api.StateProvinceTypeManagement.v
 using DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v1;
 using DKH.ReviewService.Contracts.Review.Api.ReviewCrud.v1;
 using DKH.ReviewService.Contracts.Review.Api.ReviewQuery.v1;
+using DKH.StaffService.Contracts.Services.V1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontChannelManagement.v1;
@@ -216,6 +217,9 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<PartnerRelationshipCrudService.PartnerRelationshipCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<CounterpartyApBalanceService.CounterpartyApBalanceServiceClient>();
         grpc.AddEndpointFromConfiguration<CounterpartyFinancialDashboardService.CounterpartyFinancialDashboardServiceClient>();
+
+        // StaffService (5031) — shift management, departments, onboarding, device presence with employee PII masked
+        grpc.AddEndpointFromConfiguration<Staff.StaffClient>();
 
         // ProcurementService (5030) — inbound supply workflow: POs, inspections, sourcing, receiving, returns, custom orders
         grpc.AddEndpointFromConfiguration<Procurement.ProcurementClient>();
