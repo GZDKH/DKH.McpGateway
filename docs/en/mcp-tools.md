@@ -353,6 +353,21 @@ Print tools expose the DKH.PrintService printer registry and print-job queue. No
 | `get_print_job` | GetPrintJobTool.cs | Get a print job by ID — type, payload ref, routing hints, lifecycle status, timestamps |
 | `list_print_jobs` | ListPrintJobsTool.cs | List print jobs, filtered by status, with pagination |
 
+### Media (8 tools)
+
+Media tools expose the DKH.MediaService asset, attachment, upload-session, and scope-registry surfaces. Responses omit internal actor identifiers (`attached_by_id`, `requested_by_id`); signed, time-limited upload/download URLs are returned by design.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `media_get_asset` | GetAssetTool.cs | Get a media asset's storage reference (container/key/type/size) by ID |
+| `media_get_asset_download_link` | GetAssetDownloadLinkTool.cs | Get a signed, time-limited download link for an asset |
+| `media_list_scopes` | ListScopesTool.cs | List registered media scopes and their constraints |
+| `media_get_attachments` | GetAttachmentsTool.cs | List attachments for a scope/scope-key, optionally filtered by role |
+| `media_update_attachment_metadata` | UpdateAttachmentMetadataTool.cs | Update an attachment's alt text and caption |
+| `media_change_attachment_sort_order` | ChangeAttachmentSortOrderTool.cs | Reorder attachments within a scope/role |
+| `media_detach` | DetachTool.cs | Detach (remove) an attachment |
+| `media_create_upload_session` | CreateUploadSessionTool.cs | Create an upload session and return its signed upload URL |
+
 ### Data exchange (5 tools)
 
 | Tool | File | Description |

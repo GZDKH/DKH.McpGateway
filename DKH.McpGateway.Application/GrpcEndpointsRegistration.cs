@@ -25,6 +25,7 @@ using DKH.InventoryService.Contracts.Inventory.Api.StockManagement.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockQuery.v1;
 using DKH.InventoryService.Contracts.Inventory.Api.StockReservation.v1;
 using DKH.LogisticsService.Contracts.Services.v1;
+using DKH.MediaService.Contracts.Api.V1;
 using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
 using DKH.PaymentService.Contracts.Services.V1;
 using DKH.Platform.Grpc.Client;
@@ -243,5 +244,11 @@ public static class GrpcEndpointsRegistration
 
         // PrintService (5029) — printer registry + print-job queue
         grpc.AddEndpointFromConfiguration<Prints.PrintsClient>();
+
+        // MediaService gRPC (5026) — assets, attachments, upload sessions, scope registry
+        grpc.AddEndpointFromConfiguration<AssetService.AssetServiceClient>();
+        grpc.AddEndpointFromConfiguration<AttachmentService.AttachmentServiceClient>();
+        grpc.AddEndpointFromConfiguration<UploadSessionService.UploadSessionServiceClient>();
+        grpc.AddEndpointFromConfiguration<ScopeRegistryService.ScopeRegistryServiceClient>();
     }
 }
