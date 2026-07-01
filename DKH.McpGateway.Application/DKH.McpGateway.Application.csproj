@@ -39,5 +39,6 @@
     <PackageReference Include="DKH.BroadcastService.Contracts"/>
     <PackageReference Include="DKH.PrintService.Contracts"/>
     <PackageReference Include="DKH.MediaService.Contracts"/>
+    <PackageReference Include="DKH.NotificationService.Contracts"/>
   </ItemGroup>
 </Project>

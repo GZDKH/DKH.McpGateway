@@ -397,6 +397,18 @@ Broadcast tools expose the DKH.BroadcastService broadcast CRUD and schedule/canc
 | `retry_broadcast` | RetryBroadcastTool.cs | Retry a failed broadcast |
 | `cancel_broadcast` | CancelBroadcastTool.cs | Cancel a pending broadcast |
 
+### Notification (5 tools, read-only)
+
+Notification tools expose the DKH.NotificationService delivery health/status and bulk-job query surface. Sending, cancel, admin notification, user notification, and callback RPCs are intentionally not exposed. Delivery `recipient` values are omitted from all responses because they can contain email addresses, phone numbers, or chat IDs.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `get_notification_health` | GetNotificationHealthTool.cs | Get delivery health counters by status and channel |
+| `get_notification_status` | GetNotificationStatusTool.cs | Get delivery status by order ID with recipient contact values omitted |
+| `get_bulk_job_status` | GetBulkJobStatusTool.cs | Get bulk notification job status and counters |
+| `list_bulk_jobs` | ListBulkJobsTool.cs | List bulk notification jobs with optional status filter and pagination |
+| `get_bulk_job_failures` | GetBulkJobFailuresTool.cs | List failed bulk-job recipients with contact values omitted |
+
 ### Media (8 tools)
 
 Media tools expose the DKH.MediaService asset, attachment, upload-session, and scope-registry surfaces. Responses omit internal actor identifiers (`attached_by_id`, `requested_by_id`); signed, time-limited upload/download URLs are returned by design.
