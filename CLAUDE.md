@@ -37,7 +37,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 
 **Key files:**
 - `ConfigureServices.cs` — `AddMcpGatewayServer()` registers tools, resources, prompts
-- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (96 clients)
+- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (97 clients)
 - `Tools/Common/McpJsonDefaults.cs` — shared JSON serialization options
 
 ## MCP Capabilities
@@ -84,6 +84,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | Engagement/ | create/assign/start/complete/cancel/get/list requests, list assigned, template CRUD+publish, report lifecycle (17; requester/provider identity masked; profile service excluded) | EngagementService |
 | Assistant/ | chat, streaming chat, suggestions, clear session (4; user ID input not echoed) | AssistantService |
 | ProductRequest/ | request CRUD, restore/delete, status transitions, translation upsert (12; no contact PII, customerId retained as opaque ID) | ProductRequestService |
+| Broadcast/ | create/update/delete/get/list broadcasts, retry and cancel delivery (7; no contact PII, delivery callback excluded) | BroadcastService |
 | Media/ | asset storage ref + signed download link, scope registry, attachment list/metadata/reorder/detach, upload-session create (8; actor ids omitted; signed URLs returned) | MediaService |
 | Print/ | register printer, list printers, route/get/list print jobs (5; no PII) | PrintService |
 | **StorefrontPublic/** | **per-tenant public** — storefront_list_catalogs, storefront_list_brands, storefront_get_category_tree, storefront_get_product, storefront_search_products, storefront_recommend_products (6) | StorefrontService + ProductCatalogService + SearchService |
@@ -149,6 +150,7 @@ are rejected by the admin tools. `ApiKeyAuthMiddleware` admits only `Scope.Mcp` 
 | EngagementService | 5032 | 1 client (engagement lifecycle, templates, reports) |
 | AssistantService | 5023 | 1 client (conversational chat, suggestions, session clearing) |
 | ProductRequestService | 5018 | 1 client (request CRUD + status transitions) |
+| BroadcastService | 5016 | 1 client (broadcast CRUD + schedule/cancel/retry) |
 | MediaService | 5026 | 4 clients (AssetService, AttachmentService, UploadSessionService, ScopeRegistryService) |
 | ProcurementService | 5030 | 1 client (Procurement workflow API) |
 | PrintService | 5029 | 1 client (Prints — printer registry + print-job queue) |
