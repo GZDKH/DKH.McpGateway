@@ -144,6 +144,27 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `manage_telegram_manager_groups` | ManageTelegramManagerGroupsTool.cs | Manage Telegram manager groups |
 | `manage_telegram_scheduling` | ManageTelegramSchedulingTool.cs | Manage Telegram message scheduling |
 
+### TelegramClient (14 tools)
+
+TelegramClient tools expose the DKH.TelegramClientService message archive, media, chat-monitoring, and read-only session surfaces. Session phone numbers and auth credentials are intentionally omitted; auth/session mutation RPCs are not exposed.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `get_messages` | GetMessagesTool.cs | Get archived Telegram messages for a monitored chat |
+| `search_messages` | SearchMessagesTool.cs | Search archived Telegram messages in a monitored chat |
+| `get_media` | GetMediaTool.cs | Get Telegram media attachment metadata |
+| `download_media` | DownloadMediaTool.cs | Download Telegram media to service storage and return metadata |
+| `export_messages` | ExportMessagesTool.cs | Export archived messages as base64 content with length and content type |
+| `add_monitored_chat` | AddMonitoredChatTool.cs | Add a public Telegram chat to monitoring |
+| `remove_monitored_chat` | RemoveMonitoredChatTool.cs | Remove a Telegram chat from monitoring |
+| `pause_monitored_chat` | PauseMonitoredChatTool.cs | Pause Telegram chat monitoring |
+| `resume_monitored_chat` | ResumeMonitoredChatTool.cs | Resume Telegram chat monitoring |
+| `list_monitored_chats` | ListMonitoredChatsTool.cs | List Telegram chats monitored by a session |
+| `get_monitoring_status` | GetMonitoringStatusTool.cs | Get Telegram chat monitoring and backfill status |
+| `trigger_backfill` | TriggerBackfillTool.cs | Trigger Telegram chat history backfill |
+| `get_telegram_session` | GetTelegramSessionTool.cs | Get a Telegram session with phone number omitted |
+| `list_telegram_sessions` | ListTelegramSessionsTool.cs | List Telegram sessions with phone numbers omitted |
+
 ### Inventory (4 tools)
 
 | Tool | File | Description |
