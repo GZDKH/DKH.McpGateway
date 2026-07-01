@@ -25,6 +25,7 @@
     <PackageReference Include="DKH.Platform.Identity"/>
     <PackageReference Include="ModelContextProtocol"/>
     <PackageReference Include="ModelContextProtocol.AspNetCore"/>
+    <PackageReference Include="Microsoft.OpenApi"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DKH.ProductCatalogService.Contracts"/>

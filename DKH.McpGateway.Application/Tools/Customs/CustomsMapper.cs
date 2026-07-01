@@ -75,6 +75,18 @@ internal static class CustomsMapper
         currency = result.Currency,
     };
 
+    internal static object MapTradeRestriction(TradeRestrictionModel restriction) => new
+    {
+        id = restriction.Id,
+        destinationCountry = restriction.DestinationCountry,
+        originCountry = restriction.OriginCountry,
+        hsCodePrefix = restriction.HsCodePrefix,
+        type = restriction.Type.ToString(),
+        reason = restriction.Reason,
+        validFrom = restriction.ValidFrom?.ToDateTimeOffset().ToString("O"),
+        validUntil = restriction.ValidUntil?.ToDateTimeOffset().ToString("O"),
+    };
+
     internal static object MapWcoHsCode(WcoHsCodeModel code) => new
     {
         id = code.Id,

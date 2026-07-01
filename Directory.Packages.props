@@ -24,6 +24,7 @@
   <ItemGroup>
     <PackageVersion Include="ModelContextProtocol" Version="1.4.0"/>
     <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="1.4.0"/>
+    <PackageVersion Include="Microsoft.OpenApi" Version="2.7.5"/>
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="DKH.ProductCatalogService.Contracts" Version="3.22.0"/>
