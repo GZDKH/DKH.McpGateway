@@ -77,6 +77,8 @@ using DKH.WarehouseService.Contracts.Warehouse.Api.WarehouseCrud.v1;
 using DKH.WarehouseService.Contracts.Warehouse.Api.WarehouseZoneCrud.v1;
 using CustomerDataExchangeClient =
     DKH.CustomerService.Contracts.Customer.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
+using EngagementGrpc =
+    DKH.EngagementService.Contracts.Engagement.Services.V1.EngagementService;
 using OrderDataExchangeClient =
     DKH.OrderService.Contracts.Order.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ProductCatalogDataExchangeClient =
@@ -220,6 +222,9 @@ public static class GrpcEndpointsRegistration
 
         // StaffService (5031) — shift management, departments, onboarding, device presence with employee PII masked
         grpc.AddEndpointFromConfiguration<Staff.StaffClient>();
+
+        // EngagementService (5032) — engagement request lifecycle, templates, reports
+        grpc.AddEndpointFromConfiguration<EngagementGrpc.EngagementServiceClient>();
 
         // ProcurementService (5030) — inbound supply workflow: POs, inspections, sourcing, receiving, returns, custom orders
         grpc.AddEndpointFromConfiguration<Procurement.ProcurementClient>();
