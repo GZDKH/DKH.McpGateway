@@ -45,6 +45,7 @@
     <PackageVersion Include="DKH.WarehouseService.Contracts" Version="1.6.0"/>
     <PackageVersion Include="DKH.ProcurementService.Contracts" Version="0.23.0"/>
     <PackageVersion Include="DKH.CustomsService.Contracts" Version="2.1.0"/>
+    <PackageVersion Include="DKH.CounterpartyService.Contracts" Version="1.22.0"/>
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
