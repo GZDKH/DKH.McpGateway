@@ -79,6 +79,8 @@ using DKH.WarehouseService.Contracts.Warehouse.Api.IncomingShipment.v1;
 using DKH.WarehouseService.Contracts.Warehouse.Api.TransferOrder.v1;
 using DKH.WarehouseService.Contracts.Warehouse.Api.WarehouseCrud.v1;
 using DKH.WarehouseService.Contracts.Warehouse.Api.WarehouseZoneCrud.v1;
+using BroadcastGrpc =
+    DKH.BroadcastService.Contracts.Broadcast.Api.v1.BroadcastService;
 using ChatMonitoringGrpc =
     DKH.TelegramClientService.Contracts.TelegramClient.Api.ChatMonitoring.V1.ChatMonitoringService;
 using CustomerDataExchangeClient =
@@ -249,6 +251,9 @@ public static class GrpcEndpointsRegistration
 
         // ProductRequestService (5018) — request CRUD + status transitions
         grpc.AddEndpointFromConfiguration<ProductRequestCrudService.ProductRequestCrudServiceClient>();
+
+        // BroadcastService (5016) — broadcast CRUD + schedule/cancel/retry
+        grpc.AddEndpointFromConfiguration<BroadcastGrpc.BroadcastServiceClient>();
 
         // PrintService (5029) — printer registry + print-job queue
         grpc.AddEndpointFromConfiguration<Prints.PrintsClient>();

@@ -51,6 +51,7 @@
     <PackageVersion Include="DKH.EngagementService.Contracts" Version="1.5.0"/>
     <PackageVersion Include="DKH.AssistantService.Contracts" Version="1.3.0"/>
     <PackageVersion Include="DKH.ProductRequestService.Contracts" Version="1.0.0"/>
+    <PackageVersion Include="DKH.BroadcastService.Contracts" Version="1.1.0"/>
     <PackageVersion Include="DKH.PrintService.Contracts" Version="0.2.0"/>
     <PackageVersion Include="DKH.MediaService.Contracts" Version="1.3.0"/>
   </ItemGroup>

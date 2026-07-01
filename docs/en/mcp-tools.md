@@ -383,6 +383,20 @@ ProductRequest tools expose the DKH.ProductRequestService request CRUD and statu
 | `cancel_product_request` | CancelProductRequestTool.cs | Cancel a product request |
 | `set_product_request_translation` | SetProductRequestTranslationTool.cs | Set localized product request fields |
 
+### Broadcast (7 tools)
+
+Broadcast tools expose the DKH.BroadcastService broadcast CRUD and schedule/cancel/retry surface. `targetConfig` describes audience/channel configuration and is retained; no email, phone, or name fields are present. `ReportDeliveryResult` is intentionally excluded because it is an internal delivery callback.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `get_broadcast` | GetBroadcastTool.cs | Get a broadcast by ID |
+| `list_broadcasts` | ListBroadcastsTool.cs | List broadcasts with storefront, target type, status, and pagination filters |
+| `create_broadcast` | CreateBroadcastTool.cs | Create and schedule a broadcast |
+| `update_broadcast` | UpdateBroadcastTool.cs | Update broadcast content or schedule fields |
+| `delete_broadcast` | DeleteBroadcastTool.cs | Delete a broadcast |
+| `retry_broadcast` | RetryBroadcastTool.cs | Retry a failed broadcast |
+| `cancel_broadcast` | CancelBroadcastTool.cs | Cancel a pending broadcast |
+
 ### Media (8 tools)
 
 Media tools expose the DKH.MediaService asset, attachment, upload-session, and scope-registry surfaces. Responses omit internal actor identifiers (`attached_by_id`, `requested_by_id`); signed, time-limited upload/download URLs are returned by design.
