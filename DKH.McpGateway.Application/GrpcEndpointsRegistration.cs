@@ -1,5 +1,6 @@
 using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyQuery.v1;
 using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyUsage.v1;
+using DKH.AssistantService.Contracts.Assistant.Services.V1;
 using DKH.CartService.Contracts.Cart.Api.CartClaim.v1;
 using DKH.CartService.Contracts.Cart.Api.CartCrud.v1;
 using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
@@ -241,6 +242,9 @@ public static class GrpcEndpointsRegistration
 
         // ProcurementService (5030) — inbound supply workflow: POs, inspections, sourcing, receiving, returns, custom orders
         grpc.AddEndpointFromConfiguration<Procurement.ProcurementClient>();
+
+        // AssistantService (5023) — conversational chat, suggestions, session clearing
+        grpc.AddEndpointFromConfiguration<AssistantChatService.AssistantChatServiceClient>();
 
         // PrintService (5029) — printer registry + print-job queue
         grpc.AddEndpointFromConfiguration<Prints.PrintsClient>();

@@ -21,4 +21,33 @@ internal static class GrpcTestHelpers
             static () => [],
             () => { });
     }
+
+    internal static AsyncServerStreamingCall<T> CreateServerStreamingCall<T>(params T[] responses)
+        where T : class
+        => new(
+            new InMemoryAsyncStreamReader<T>(responses),
+            Task.FromResult<Metadata>([]),
+            () => Status.DefaultSuccess,
+            static () => [],
+            () => { });
+
+    private sealed class InMemoryAsyncStreamReader<T>(IReadOnlyList<T> responses) : IAsyncStreamReader<T>
+        where T : class
+    {
+        private int _index = -1;
+
+        public T Current { get; private set; } = default!;
+
+        public Task<bool> MoveNext(CancellationToken cancellationToken)
+        {
+            _index++;
+            if (_index >= responses.Count)
+            {
+                return Task.FromResult(false);
+            }
+
+            Current = responses[_index];
+            return Task.FromResult(true);
+        }
+    }
 }

@@ -34,6 +34,7 @@
     <PackageReference Include="DKH.CounterpartyService.Contracts"/>
     <PackageReference Include="DKH.StaffService.Contracts"/>
     <PackageReference Include="DKH.EngagementService.Contracts"/>
+    <PackageReference Include="DKH.AssistantService.Contracts"/>
     <PackageReference Include="DKH.PrintService.Contracts"/>
     <PackageReference Include="DKH.MediaService.Contracts"/>
   </ItemGroup>
