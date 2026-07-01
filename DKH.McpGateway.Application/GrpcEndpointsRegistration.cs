@@ -89,6 +89,8 @@ using EngagementGrpc =
     DKH.EngagementService.Contracts.Engagement.Services.V1.EngagementService;
 using MessageCollectionGrpc =
     DKH.TelegramClientService.Contracts.TelegramClient.Api.MessageCollection.V1.MessageCollectionService;
+using NotificationGrpc =
+    DKH.NotificationService.Contracts.Notification.Api.NotificationManagement.v1.NotificationManagementService;
 using OrderDataExchangeClient =
     DKH.OrderService.Contracts.Order.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ProductCatalogDataExchangeClient =
@@ -254,6 +256,9 @@ public static class GrpcEndpointsRegistration
 
         // BroadcastService (5016) — broadcast CRUD + schedule/cancel/retry
         grpc.AddEndpointFromConfiguration<BroadcastGrpc.BroadcastServiceClient>();
+
+        // NotificationService (5002) — read-only delivery health/status and bulk-job queries
+        grpc.AddEndpointFromConfiguration<NotificationGrpc.NotificationManagementServiceClient>();
 
         // PrintService (5029) — printer registry + print-job queue
         grpc.AddEndpointFromConfiguration<Prints.PrintsClient>();
