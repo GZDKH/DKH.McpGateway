@@ -37,7 +37,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 
 **Key files:**
 - `ConfigureServices.cs` — `AddMcpGatewayServer()` registers tools, resources, prompts
-- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (87 clients)
+- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (90 clients)
 - `Tools/Common/McpJsonDefaults.cs` — shared JSON serialization options
 
 ## MCP Capabilities
@@ -62,6 +62,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 | Reviews/ | review stats, summary, product ranking (3) | ReviewService |
 | Storefronts/ | list/get/manage storefronts, branding, catalogs, channels, domains, features (11) | StorefrontService |
 | Telegram/ | manage bots, channels, manager groups, scheduling (4) | TelegramBotService |
+| TelegramClient/ | message archive query, media metadata/download/export, chat monitoring, session reads (14; phone/auth credentials omitted) | TelegramClientService |
 | DataExchange/ | product catalog, reference, customer, order, review import/export (5) | Multiple |
 | Inventory/ | manage stock, query stock, reservations, alerts (4) | InventoryService |
 | Cart/ | list/get carts, issue claim code, claim cart (4) | CartService |
@@ -124,6 +125,7 @@ are rejected by the admin tools. `ApiKeyAuthMiddleware` admits only `Scope.Mcp` 
 | ProductCatalogService | 5003 | 17 clients (query, CRUD, specs, attrs, variants, data exchange) |
 | ReferenceService | 5004 | 12 clients (query, CRUD, data exchange) |
 | TelegramBotService | 5001 | 4 clients (management, scheduling, notifications, auth) |
+| TelegramClientService | 5015 | 3 clients (message archive, chat monitoring, session reads) |
 | OrderService | 5007 | 2 clients (CRUD, data exchange) |
 | StorefrontService | 5009 | 6 clients (CRUD, branding, catalogs, channels, domains, features) |
 | CustomerService | 5010 | 1 client (data exchange) |

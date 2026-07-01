@@ -75,10 +75,14 @@ using DKH.WarehouseService.Contracts.Warehouse.Api.IncomingShipment.v1;
 using DKH.WarehouseService.Contracts.Warehouse.Api.TransferOrder.v1;
 using DKH.WarehouseService.Contracts.Warehouse.Api.WarehouseCrud.v1;
 using DKH.WarehouseService.Contracts.Warehouse.Api.WarehouseZoneCrud.v1;
+using ChatMonitoringGrpc =
+    DKH.TelegramClientService.Contracts.TelegramClient.Api.ChatMonitoring.V1.ChatMonitoringService;
 using CustomerDataExchangeClient =
     DKH.CustomerService.Contracts.Customer.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using EngagementGrpc =
     DKH.EngagementService.Contracts.Engagement.Services.V1.EngagementService;
+using MessageCollectionGrpc =
+    DKH.TelegramClientService.Contracts.TelegramClient.Api.MessageCollection.V1.MessageCollectionService;
 using OrderDataExchangeClient =
     DKH.OrderService.Contracts.Order.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ProductCatalogDataExchangeClient =
@@ -87,6 +91,8 @@ using ReferenceDataExchangeClient =
     DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ReviewDataExchangeClient =
     DKH.ReviewService.Contracts.Review.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
+using SessionManagementGrpc =
+    DKH.TelegramClientService.Contracts.TelegramClient.Api.SessionManagement.V1.SessionManagementService;
 
 namespace DKH.McpGateway.Application;
 
@@ -158,6 +164,11 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<BroadcastManagementService.BroadcastManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<BotNotificationService.BotNotificationServiceClient>();
         grpc.AddEndpointFromConfiguration<BotAuthService.BotAuthServiceClient>();
+
+        // TelegramClientService (5015) — message archive query, chat monitoring, session reads
+        grpc.AddEndpointFromConfiguration<MessageCollectionGrpc.MessageCollectionServiceClient>();
+        grpc.AddEndpointFromConfiguration<ChatMonitoringGrpc.ChatMonitoringServiceClient>();
+        grpc.AddEndpointFromConfiguration<SessionManagementGrpc.SessionManagementServiceClient>();
 
         // ApiManagementService (5012)
         grpc.AddEndpointFromConfiguration<ApiKeyQueryService.ApiKeyQueryServiceClient>();

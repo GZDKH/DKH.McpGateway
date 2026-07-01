@@ -19,6 +19,7 @@
     <PackageReference Include="DKH.StorefrontService.Contracts"/>
     <PackageReference Include="DKH.ReviewService.Contracts"/>
     <PackageReference Include="DKH.TelegramBotService.Contracts"/>
+    <PackageReference Include="DKH.TelegramClientService.Contracts"/>
     <PackageReference Include="DKH.ApiManagementService.Contracts"/>
     <PackageReference Include="DKH.InventoryService.Contracts"/>
     <PackageReference Include="DKH.CartService.Contracts"/>
