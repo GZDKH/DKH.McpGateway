@@ -364,6 +364,25 @@ Assistant tools expose the DKH.AssistantService conversational chat surface. `us
 | `assistant_get_suggestions` | AssistantGetSuggestionsTool.cs | Get conversation-aware suggestions for a storefront session |
 | `assistant_clear_session` | AssistantClearSessionTool.cs | Clear AssistantService conversation context for a storefront session |
 
+### ProductRequest (12 tools)
+
+ProductRequest tools expose the DKH.ProductRequestService request CRUD and status-transition surface. The service model contains no contact PII fields (no email, phone, or address); `customerId` is retained as an opaque identifier.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `get_product_request` | GetProductRequestTool.cs | Get a product request by ID |
+| `list_product_requests` | ListProductRequestsTool.cs | List product requests by storefront with status/customer/soft-delete filters |
+| `create_product_request` | CreateProductRequestTool.cs | Create a product request with optional category/source/price/quantity/photo URLs |
+| `update_product_request` | UpdateProductRequestTool.cs | Update product request details |
+| `delete_product_request` | DeleteProductRequestTool.cs | Soft-delete a product request |
+| `restore_product_request` | RestoreProductRequestTool.cs | Restore a soft-deleted product request |
+| `permanently_delete_product_request` | PermanentlyDeleteProductRequestTool.cs | Hard-delete a product request |
+| `start_review_product_request` | StartReviewProductRequestTool.cs | Move a product request into review |
+| `mark_found_product_request` | MarkFoundProductRequestTool.cs | Mark a product request as found and link a catalog product |
+| `mark_not_found_product_request` | MarkNotFoundProductRequestTool.cs | Mark a product request as not found |
+| `cancel_product_request` | CancelProductRequestTool.cs | Cancel a product request |
+| `set_product_request_translation` | SetProductRequestTranslationTool.cs | Set localized product request fields |
+
 ### Media (8 tools)
 
 Media tools expose the DKH.MediaService asset, attachment, upload-session, and scope-registry surfaces. Responses omit internal actor identifiers (`attached_by_id`, `requested_by_id`); signed, time-limited upload/download URLs are returned by design.

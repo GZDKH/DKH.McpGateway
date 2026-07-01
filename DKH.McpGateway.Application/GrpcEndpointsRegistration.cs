@@ -48,6 +48,7 @@ using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.TagManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantAttrManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantAttrValueManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantQuery.v1;
+using DKH.ProductRequestService.Contracts.ProductRequest.Api.ProductRequestCrud.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CityManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
@@ -245,6 +246,9 @@ public static class GrpcEndpointsRegistration
 
         // AssistantService (5023) — conversational chat, suggestions, session clearing
         grpc.AddEndpointFromConfiguration<AssistantChatService.AssistantChatServiceClient>();
+
+        // ProductRequestService (5018) — request CRUD + status transitions
+        grpc.AddEndpointFromConfiguration<ProductRequestCrudService.ProductRequestCrudServiceClient>();
 
         // PrintService (5029) — printer registry + print-job queue
         grpc.AddEndpointFromConfiguration<Prints.PrintsClient>();
