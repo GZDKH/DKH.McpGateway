@@ -296,6 +296,30 @@ Staff tools expose the DKH.StaffService employee, department, onboarding, workin
 | `list_active_cashier_shifts` | StaffTools.cs | List active cashier shifts |
 | `list_device_presences` | StaffTools.cs | List device presence records |
 
+### Engagement (17 tools)
+
+Engagement tools expose the DKH.EngagementService request lifecycle, template, and report surfaces. Responses omit requester/provider identity values (`keycloakUserId`, `sourceId`). ProfileService RPCs are intentionally not exposed because provider profiles are person-identity centric.
+
+| Tool | File | Description |
+| ---- | ---- | ----------- |
+| `create_service_request` | CreateServiceRequestTool.cs | Create an engagement service request without echoing requester identity |
+| `assign_provider` | AssignProviderTool.cs | Assign a provider without echoing provider identity |
+| `start_service_request` | StartServiceRequestTool.cs | Start an assigned engagement service request |
+| `complete_service_request` | CompleteServiceRequestTool.cs | Complete an engagement service request |
+| `cancel_service_request` | CancelServiceRequestTool.cs | Cancel an engagement service request with an optional reason |
+| `get_service_request` | GetServiceRequestTool.cs | Get a service request with requester/provider identity omitted |
+| `list_service_requests` | ListServiceRequestsTool.cs | List service requests with optional status filtering |
+| `list_assigned_requests` | ListAssignedRequestsTool.cs | List requests assigned to a provider without echoing the lookup key |
+| `create_service_template` | CreateServiceTemplateTool.cs | Create a service template with optional form schema JSON |
+| `get_service_template` | GetServiceTemplateTool.cs | Get a service template by ID |
+| `publish_service_template` | PublishServiceTemplateTool.cs | Publish a service template |
+| `list_service_templates` | ListServiceTemplatesTool.cs | List service templates with optional type and published filters |
+| `create_service_report` | CreateServiceReportTool.cs | Create a service report for a request/template version |
+| `save_service_report_answers` | SaveServiceReportAnswersTool.cs | Save report answers from JSON input |
+| `submit_service_report` | SubmitServiceReportTool.cs | Submit an engagement service report |
+| `get_service_report` | GetServiceReportTool.cs | Get an engagement service report by ID |
+| `review_service_report` | ReviewServiceReportTool.cs | Accept or reject an engagement service report |
+
 ### Data exchange (5 tools)
 
 | Tool | File | Description |
