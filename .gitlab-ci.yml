@@ -4,3 +4,14 @@ include:
 
 variables:
   COMPOSE_SERVICE_NAME: "mcp-gateway"
+
+# Temporary CI_JOB_TOKEN verification; branch is deleted after the pipeline.
+workflow:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "verify/371-engagement-job-token"'
+
+verify-engagement-job-token:
+  stage: test
+  extends: .dotnet-build
+  rules:
+    - when: always
