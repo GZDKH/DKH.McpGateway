@@ -101,11 +101,25 @@ the parsed caller metadata and incoming bearer token to every configured
 downstream gRPC client. All configured endpoints must therefore be trusted
 internal services and logs must never record the token or propagated claims.
 
+Permission-guarded admin tools require an `ApiKeyScope.Mcp` key in addition to
+their `mcp:read` or `mcp:write` permission. A `Storefront`-scoped key cannot
+invoke those tools even if it was mistakenly issued an admin permission. The
+supported public read-only tool surface for storefront keys remains the
+`storefront_*` namespace defined by ADR-060.
+
+ProductCatalog data exchange is an authenticated merchant surface. Every HTTP
+call requires exactly one `X-Workspace-Id` header. The gateway creates fresh
+gRPC metadata containing only the normalized `x-workspace-id`; it never copies
+arbitrary client metadata. ProductCatalogService independently verifies that
+Workspace against the propagated Keycloak caller and active membership.
+
 Stdio mode has no HTTP principal or bearer token. It registers the same
 downstream client types without the identity interceptor; authenticated
 storefront provisioning and publishing are HTTP-only. The legacy
 `manage_storefront(action=create)` path is rejected in both modes until the
 idempotent, Workspace-safe provisioning workflow is available.
+ProductCatalog data exchange is also rejected in stdio mode; there is no
+missing-header, global-key, or trusted-system bypass.
 
 ## Key design patterns
 
@@ -122,4 +136,4 @@ idempotent, Workspace-safe provisioning workflow is available.
 - Transport: `--stdio` flag or `MCP_TRANSPORT=stdio` env variable for stdio mode
 - Docker port: 5013
 
-*Last updated: February 2026*
+*Last updated: July 2026*

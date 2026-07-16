@@ -60,6 +60,7 @@ public class HttpApiKeyContextTests
     public void EnsurePermission_WithPermission_DoesNotThrow()
     {
         _httpContext.Items["ApiKeyId"] = "key-123";
+        _httpContext.Items["ApiKeyScope"] = ApiKeyScope.Mcp;
         _httpContext.Items["ApiKeyPermissions"] =
             new List<string> { "mcp:write" };
 
@@ -72,6 +73,7 @@ public class HttpApiKeyContextTests
     public void EnsurePermission_WithoutPermission_Throws()
     {
         _httpContext.Items["ApiKeyId"] = "key-123";
+        _httpContext.Items["ApiKeyScope"] = ApiKeyScope.Mcp;
         _httpContext.Items["ApiKeyPermissions"] =
             new List<string> { "mcp:read" };
 
@@ -79,6 +81,33 @@ public class HttpApiKeyContextTests
 
         act.Should().Throw<UnauthorizedAccessException>()
             .WithMessage("*mcp:write*");
+    }
+
+    [Fact]
+    public void EnsurePermission_WithStorefrontScopeAndMatchingPermission_Throws()
+    {
+        _httpContext.Items["ApiKeyId"] = "key-123";
+        _httpContext.Items["ApiKeyScope"] = ApiKeyScope.Storefront;
+        _httpContext.Items["ApiKeyPermissions"] =
+            new List<string> { "mcp:read", "mcp:write" };
+
+        var act = () => _sut.EnsurePermission("mcp:write");
+
+        act.Should().Throw<UnauthorizedAccessException>()
+            .WithMessage("*MCP-scoped*");
+    }
+
+    [Fact]
+    public void EnsurePermission_WithUnspecifiedScopeAndMatchingPermission_Throws()
+    {
+        _httpContext.Items["ApiKeyId"] = "key-123";
+        _httpContext.Items["ApiKeyPermissions"] =
+            new List<string> { "mcp:read" };
+
+        var act = () => _sut.EnsurePermission("mcp:read");
+
+        act.Should().Throw<UnauthorizedAccessException>()
+            .WithMessage("*MCP-scoped*");
     }
 
     [Fact]

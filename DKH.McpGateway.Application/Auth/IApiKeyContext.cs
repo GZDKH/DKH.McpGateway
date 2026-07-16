@@ -24,5 +24,9 @@ public interface IApiKeyContext
 
     bool HasPermission(string permission);
 
+    /// <summary>
+    /// Requires an authenticated <see cref="ApiKeyScope.Mcp"/> admin key with the requested
+    /// permission. Storefront-scoped keys use the dedicated public tool namespace instead.
+    /// </summary>
     void EnsurePermission(string permission);
 }

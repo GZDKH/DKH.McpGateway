@@ -1,15 +1,32 @@
+using System.Security.Claims;
+using DKH.ApiManagementService.Contracts.ApiManagement.Models.ApiKey.v1;
 using DKH.McpGateway.Application.Tools.DataExchange;
 using Google.Protobuf;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 using CatalogDx = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1;
 
 namespace DKH.McpGateway.Tests.Tools.DataExchange;
 
 public class ProductCatalogDataToolTests
 {
+    private readonly Guid _workspaceId = Guid.NewGuid();
     private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
+    private readonly DefaultHttpContext _httpContext = new();
+    private readonly HttpContextAccessor _httpContextAccessor = new();
 
     private readonly CatalogDx.DataExchangeService.DataExchangeServiceClient _client =
         Substitute.For<CatalogDx.DataExchangeService.DataExchangeServiceClient>();
+
+    public ProductCatalogDataToolTests()
+    {
+        _httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("sub", Guid.NewGuid().ToString("D"))],
+            authenticationType: "Test"));
+        _httpContext.Request.Headers[ProductCatalogWorkspaceRequestContext.WorkspaceIdHeaderName] =
+            _workspaceId.ToString("D");
+        _httpContextAccessor.HttpContext = _httpContext;
+    }
 
     [Fact]
     public async Task Import_HappyPath_ReturnsSuccessAsync()
@@ -67,7 +84,8 @@ public class ProductCatalogDataToolTests
                 !r.Options.CreateMissingGroups &&
                 !r.Options.CreateMissingAttributes &&
                 !r.Options.CreateMissingOptions),
-            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
+            Arg.Is<Metadata>(metadata => HasExpectedWorkspaceMetadata(metadata)),
+            Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -120,7 +138,8 @@ public class ProductCatalogDataToolTests
                 r.OrderBy == "name:asc" &&
                 r.Page == 2 &&
                 r.PageSize == 25),
-            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
+            Arg.Is<Metadata>(metadata => HasExpectedWorkspaceMetadata(metadata)),
+            Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -139,6 +158,11 @@ public class ProductCatalogDataToolTests
         json.GetProperty("success").GetBoolean().Should().BeTrue();
         json.GetProperty("totalRecords").GetInt32().Should().Be(5);
         json.GetProperty("validRecords").GetInt32().Should().Be(5);
+
+        _ = _client.Received(1).ValidateImportAsync(
+            Arg.Any<CatalogDx.ValidateImportRequest>(),
+            Arg.Is<Metadata>(metadata => HasExpectedWorkspaceMetadata(metadata)),
+            Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -215,7 +239,8 @@ public class ProductCatalogDataToolTests
 
         _ = _client.Received(1).GetImportTemplateAsync(
             Arg.Is<CatalogDx.GetImportTemplateRequest>(r => r.IncludeExample),
-            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
+            Arg.Is<Metadata>(metadata => HasExpectedWorkspaceMetadata(metadata)),
+            Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -226,6 +251,22 @@ public class ProductCatalogDataToolTests
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeFalse();
         json.GetProperty("error").GetString().Should().Contain("Unknown action");
+        _auth.DidNotReceive().EnsurePermission(Arg.Any<string>());
+        _client.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task UnknownAction_WithStorefrontScope_FailsAtAuthenticationBoundaryAsync()
+    {
+        var storefront = ApiKeyContextMocks.FullAccess();
+        storefront.Scope.Returns(ApiKeyScope.Storefront);
+
+        var act = () => ExecuteToolAsync("unknown", auth: storefront);
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("*MCP-scoped*");
+        storefront.DidNotReceive().EnsurePermission(Arg.Any<string>());
+        _client.ReceivedCalls().Should().BeEmpty();
     }
 
     [Theory]
@@ -245,15 +286,124 @@ public class ProductCatalogDataToolTests
         json.GetProperty("success").GetBoolean().Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("export")]
+    [InlineData("validate")]
+    [InlineData("template")]
+    public async Task ReadActions_WithReadOnlyKey_RequireReadPermissionAsync(string action)
+    {
+        var readOnly = ApiKeyContextMocks.ReadOnly();
+        SetupReadAction(action);
+
+        var result = await ExecuteToolAsync(
+            action,
+            content: action == "validate" ? "[{}]" : null,
+            auth: readOnly);
+
+        Parse(result).GetProperty("success").GetBoolean().Should().BeTrue();
+        readOnly.Received(1).EnsurePermission(McpPermissions.Read);
+    }
+
     [Fact]
     public async Task PermissionDenied_ThrowsUnauthorizedAsync()
     {
         var readOnly = ApiKeyContextMocks.ReadOnly();
 
         var act = () => ProductCatalogDataTool.ExecuteAsync(
-            readOnly, _client, action: "import", profile: "products");
+            readOnly, _httpContextAccessor, _client, action: "import", profile: "products");
 
         await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        readOnly.Received(1).EnsurePermission(McpPermissions.Write);
+        _client.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("not-a-guid")]
+    [InlineData("00000000-0000-0000-0000-000000000000")]
+    public async Task InvalidWorkspaceHeader_FailsBeforeGrpcAsync(string value)
+    {
+        _httpContext.Request.Headers[ProductCatalogWorkspaceRequestContext.WorkspaceIdHeaderName] = value;
+
+        var act = () => ExecuteToolAsync("export");
+
+        await act.Should().ThrowAsync<RpcException>()
+            .Where(exception => exception.StatusCode == StatusCode.InvalidArgument);
+        _client.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task MissingWorkspaceHeader_FailsBeforeGrpcAsync()
+    {
+        _httpContext.Request.Headers.Remove(ProductCatalogWorkspaceRequestContext.WorkspaceIdHeaderName);
+
+        var act = () => ExecuteToolAsync("export");
+
+        await act.Should().ThrowAsync<RpcException>()
+            .Where(exception => exception.StatusCode == StatusCode.InvalidArgument);
+        _client.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DuplicateWorkspaceHeader_FailsBeforeGrpcAsync()
+    {
+        _httpContext.Request.Headers[ProductCatalogWorkspaceRequestContext.WorkspaceIdHeaderName] =
+            new StringValues([Guid.NewGuid().ToString("D"), Guid.NewGuid().ToString("D")]);
+
+        var act = () => ExecuteToolAsync("export");
+
+        await act.Should().ThrowAsync<RpcException>()
+            .Where(exception => exception.StatusCode == StatusCode.InvalidArgument);
+        _client.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(ApiKeyScope.Storefront)]
+    [InlineData(ApiKeyScope.Unspecified)]
+    public async Task NonAdminScope_FailsBeforeGrpcAsync(ApiKeyScope scope)
+    {
+        var nonAdmin = ApiKeyContextMocks.FullAccess();
+        nonAdmin.Scope.Returns(scope);
+
+        var act = () => ExecuteToolAsync("export", auth: nonAdmin);
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("*MCP-scoped*");
+        _client.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task NoHttpContext_RejectsStdioStyleExecutionBeforeGrpcAsync()
+    {
+        _httpContextAccessor.HttpContext = null;
+
+        var act = () => ExecuteToolAsync("export");
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("*HTTP transport*");
+        _client.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task UnauthenticatedHttpPrincipal_FailsBeforeGrpcAsync()
+    {
+        _httpContext.User = new ClaimsPrincipal();
+
+        var act = () => ExecuteToolAsync("export");
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>()
+            .WithMessage("*HTTP principal*");
+        _client.ReceivedCalls().Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task UnauthenticatedApiKey_FailsBeforeGrpcAsync()
+    {
+        var act = () => ExecuteToolAsync("export", auth: ApiKeyContextMocks.Unauthenticated());
+
+        await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        _client.ReceivedCalls().Should().BeEmpty();
     }
 
     [Fact]
@@ -299,15 +449,21 @@ public class ProductCatalogDataToolTests
         string? published = null,
         string? orderBy = null,
         int? page = null,
-        int? pageSize = null)
+        int? pageSize = null,
+        IApiKeyContext? auth = null)
         => ProductCatalogDataTool.ExecuteAsync(
-            _auth, _client,
+            auth ?? _auth, _httpContextAccessor, _client,
             action: action, profile: profile, format: format, content: content,
             createMissingGroups: createMissingGroups,
             createMissingAttributes: createMissingAttributes,
             createMissingOptions: createMissingOptions,
             language: language, search: search, published: published,
             orderBy: orderBy, page: page, pageSize: pageSize);
+
+    private bool HasExpectedWorkspaceMetadata(Metadata metadata)
+        => metadata.Count == 1
+           && metadata[0].Key == ProductCatalogWorkspaceRequestContext.GrpcWorkspaceIdHeaderName
+           && metadata[0].Value == _workspaceId.ToString("D");
 
     private void SetupImport(CatalogDx.ImportResponse response)
         => _client.ImportAsync(
@@ -332,6 +488,26 @@ public class ProductCatalogDataToolTests
                 Arg.Any<CatalogDx.GetImportTemplateRequest>(),
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
+
+    private void SetupReadAction(string action)
+    {
+        if (action == "export")
+        {
+            SetupExport(new CatalogDx.ExportResponse { Content = ByteString.CopyFromUtf8("{}") });
+            return;
+        }
+
+        if (action == "validate")
+        {
+            SetupValidate(new CatalogDx.ValidateImportResponse { Valid = true });
+            return;
+        }
+
+        SetupTemplate(new CatalogDx.GetImportTemplateResponse
+        {
+            Content = ByteString.CopyFromUtf8("{}"),
+        });
+    }
 
     private static JsonElement Parse(string json) => JsonDocument.Parse(json).RootElement;
 }

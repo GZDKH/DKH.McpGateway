@@ -36,6 +36,12 @@ internal gRPC endpoints. Stdio has no HTTP identity and does not register that
 interceptor; authenticated storefront provisioning and publishing are
 HTTP-only.
 
+ProductCatalog data exchange is HTTP-only. Configure the MCP HTTP client with
+an MCP-scoped API key, an authenticated Keycloak session, and exactly one
+`X-Workspace-Id` header. Missing, empty, invalid, or duplicate Workspace values
+are rejected before a downstream call. Stdio and global execution without an
+explicit Workspace are intentionally fail-closed.
+
 ## Configuration
 
 ### gRPC endpoints

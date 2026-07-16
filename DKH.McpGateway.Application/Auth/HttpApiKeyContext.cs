@@ -31,6 +31,12 @@ internal sealed class HttpApiKeyContext(IHttpContextAccessor httpContextAccessor
             throw new UnauthorizedAccessException("API key not provided");
         }
 
+        if (Scope != ApiKeyScope.Mcp)
+        {
+            throw new UnauthorizedAccessException(
+                "Admin MCP tools require an MCP-scoped API key.");
+        }
+
         if (!HasPermission(permission))
         {
             throw new UnauthorizedAccessException(
