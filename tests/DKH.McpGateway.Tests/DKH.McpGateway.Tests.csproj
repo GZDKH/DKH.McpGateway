@@ -15,6 +15,7 @@
     <PackageReference Include="Grpc.Core.Api"/>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\DKH.McpGateway.Api\DKH.McpGateway.Api.csproj"/>
     <ProjectReference Include="..\..\DKH.McpGateway.Application\DKH.McpGateway.Application.csproj"/>
   </ItemGroup>
 </Project>

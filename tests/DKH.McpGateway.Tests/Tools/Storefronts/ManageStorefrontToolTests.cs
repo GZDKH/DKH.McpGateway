@@ -14,44 +14,25 @@ public class ManageStorefrontToolTests
         Substitute.For<StorefrontsCrudService.StorefrontsCrudServiceClient>();
 
     [Fact]
-    public async Task Create_HappyPath_ReturnsCreatedStorefrontAsync()
+    public async Task Create_IsRejectedWithoutCallingGrpcAsync()
     {
-        _client.CreateAsync(
-                Arg.Any<CreateStorefrontRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CreateStorefrontResponse
-            {
-                Storefront = new StorefrontModel
-                {
-                    Id = new GuidValue(Guid.NewGuid().ToString()),
-                    Code = "my-store",
-                    Name = "My Store",
-                    Status = StorefrontStatus.Active,
-                },
-            }));
-
         var result = await ManageStorefrontTool.ExecuteAsync(
-            _auth, _client, "create", storefrontCode: "my-store", name: "My Store",
-            ownerId: Guid.NewGuid().ToString());
+            _auth, _client, "create", storefrontCode: "my-store", name: "My Store");
 
         var json = Parse(result);
-        json.GetProperty("success").GetBoolean().Should().BeTrue();
-        json.GetProperty("action").GetString().Should().Be("created");
+        json.GetProperty("success").GetBoolean().Should().BeFalse();
+        json.GetProperty("errorCode").GetString().Should().Be("legacy_storefront_create_disabled");
+        json.GetProperty("nextAction").GetString().Should().Contain("provision_storefront_draft");
+        _client.ReceivedCalls().Should().NotContain(call => call.GetMethodInfo().Name == "CreateAsync");
     }
 
     [Fact]
-    public async Task Create_MissingCode_ReturnsErrorAsync()
+    public async Task Create_MissingFields_ReturnsSameMigrationErrorAsync()
     {
         var result = await ManageStorefrontTool.ExecuteAsync(_auth, _client, "create", name: "Test");
 
-        Parse(result).GetProperty("error").GetString().Should().Contain("storefrontCode and name are required");
-    }
-
-    [Fact]
-    public async Task Create_MissingName_ReturnsErrorAsync()
-    {
-        var result = await ManageStorefrontTool.ExecuteAsync(_auth, _client, "create", storefrontCode: "test");
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("storefrontCode and name are required");
+        Parse(result).GetProperty("errorCode").GetString().Should().Be("legacy_storefront_create_disabled");
+        _client.ReceivedCalls().Should().NotContain(call => call.GetMethodInfo().Name == "CreateAsync");
     }
 
     [Fact]
@@ -78,6 +59,7 @@ public class ManageStorefrontToolTests
             _auth, _client, "merge", storefrontCode: "test-store");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("Unknown action");
+        Parse(result).GetProperty("error").GetString().Should().Contain("update or delete");
     }
 
     [Fact]

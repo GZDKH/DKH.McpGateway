@@ -1,6 +1,6 @@
+using DKH.McpGateway.Api;
 using DKH.Platform.Authentication.Keycloak;
 using DKH.Platform.Authorization;
-using DKH.Platform.Identity;
 using DKH.Platform.Telemetry;
 
 var useStdio = args.Contains("--stdio") ||
@@ -44,13 +44,13 @@ var platform = Platform
     })
     .AddPlatformLogging()
     .AddPlatformTelemetry()
-    .AddPlatformGrpcEndpoints((_, grpc) => grpc.AddMcpGatewayEndpoints());
+    .AddPlatformGrpcEndpoints((_, grpc) => grpc.AddMcpGatewayEndpoints(propagateCurrentUser: !useStdio));
 
 if (!useStdio)
 {
     platform = platform
         .AddPlatformKeycloakAuth()
-        .AddHttpCurrentUser()
+        .AddMcpHttpCurrentUserPropagation()
         .AddPlatformAuthorization(policies => policies.AddRolePolicy(
             McpAuthorizationPolicies.McpAccess,
             PlatformRoles.Realm.SuperAdmin,
