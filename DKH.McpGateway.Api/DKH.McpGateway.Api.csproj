@@ -3,6 +3,9 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="DKH.McpGateway.Tests"/>
+  </ItemGroup>
+  <ItemGroup>
     <Content Update="appsettings.Development.json">
       <DependentUpon>appsettings.json</DependentUpon>
     </Content>

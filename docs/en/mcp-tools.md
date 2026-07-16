@@ -128,7 +128,7 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `get_storefront_branding` | GetStorefrontBrandingTool.cs | Get storefront branding (logo, colors) |
 | `get_storefront_features` | GetStorefrontFeaturesTool.cs | Get storefront feature flags |
 | `get_storefront_overview` | StorefrontOverviewTool.cs | Combined storefront overview (branding + features) |
-| `manage_storefront` | ManageStorefrontTool.cs | Create, update, or delete storefronts |
+| `manage_storefront` | ManageStorefrontTool.cs | Update or delete storefronts; legacy create returns a migration error until safe provisioning ships |
 | `manage_storefront_branding` | ManageStorefrontBrandingTool.cs | Update storefront branding |
 | `manage_storefront_catalogs` | ManageStorefrontCatalogsTool.cs | Assign/remove catalogs from storefront |
 | `manage_storefront_channels` | ManageStorefrontChannelsTool.cs | Manage storefront sales channels |

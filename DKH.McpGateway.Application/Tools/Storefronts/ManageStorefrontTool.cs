@@ -7,68 +7,34 @@ namespace DKH.McpGateway.Application.Tools.Storefronts;
 public static class ManageStorefrontTool
 {
     [McpServerTool(Name = "manage_storefront"), Description(
-        "Create, update, or delete a storefront. " +
-        "For create: provide code, name, and optional description/features. " +
-        "For update/delete: provide storefrontCode to identify the storefront.")]
+        "Update or delete a storefront. " +
+        "Legacy create is disabled because it is not idempotent or workspace-safe; " +
+        "stale create callers receive a migration error. " +
+        "Provide storefrontCode to identify the storefront.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
         StorefrontsCrudService.StorefrontsCrudServiceClient client,
-        [Description("Action: create, update, or delete")] string action,
-        [Description("Storefront code (required for update/delete, e.g. 'my-store')")] string? storefrontCode = null,
-        [Description("Storefront name (for create/update)")] string? name = null,
-        [Description("Storefront description (for create/update)")] string? description = null,
-        [Description("Owner ID (required for create)")] string? ownerId = null,
-        [Description("Enable cart feature (for create/update)")] bool? cartEnabled = null,
-        [Description("Enable orders feature (for create/update)")] bool? ordersEnabled = null,
-        [Description("Enable payments feature (for create/update)")] bool? paymentsEnabled = null,
-        [Description("Enable reviews feature (for create/update)")] bool? reviewsEnabled = null,
-        [Description("Enable wishlist feature (for create/update)")] bool? wishlistEnabled = null,
+        [Description("Action: update or delete. Legacy create is rejected.")] string action,
+        [Description("Storefront code (required, e.g. 'my-store')")] string? storefrontCode = null,
+        [Description("Storefront name (for update)")] string? name = null,
+        [Description("Storefront description (for update)")] string? description = null,
+        [Description("Enable cart feature (for update)")] bool? cartEnabled = null,
+        [Description("Enable orders feature (for update)")] bool? ordersEnabled = null,
+        [Description("Enable payments feature (for update)")] bool? paymentsEnabled = null,
+        [Description("Enable reviews feature (for update)")] bool? reviewsEnabled = null,
+        [Description("Enable wishlist feature (for update)")] bool? wishlistEnabled = null,
         CancellationToken cancellationToken = default)
     {
         apiKeyContext.EnsurePermission(McpPermissions.Write);
 
         if (string.Equals(action, "create", StringComparison.OrdinalIgnoreCase))
         {
-            if (string.IsNullOrEmpty(storefrontCode) || string.IsNullOrEmpty(name))
-            {
-                return JsonSerializer.Serialize(
-                    new { success = false, error = "storefrontCode and name are required for create" },
-                    McpJsonDefaults.Options);
-            }
-
-            var request = new CreateStorefrontRequest
-            {
-                Code = storefrontCode,
-                Name = name,
-                OwnerId = new GuidValue(ownerId ?? ""),
-            };
-
-            if (description is not null)
-            {
-                request.Description = description;
-            }
-
-            if (cartEnabled.HasValue || ordersEnabled.HasValue || paymentsEnabled.HasValue
-                || reviewsEnabled.HasValue || wishlistEnabled.HasValue)
-            {
-                request.Features = new StorefrontFeaturesModel
-                {
-                    CartEnabled = cartEnabled ?? false,
-                    OrdersEnabled = ordersEnabled ?? false,
-                    PaymentsEnabled = paymentsEnabled ?? false,
-                    ReviewsEnabled = reviewsEnabled ?? false,
-                    WishlistEnabled = wishlistEnabled ?? false,
-                };
-            }
-
-            var response = await client.CreateAsync(request, cancellationToken: cancellationToken);
-            var s = response.Storefront;
-
             return JsonSerializer.Serialize(new
             {
-                success = true,
-                action = "created",
-                storefront = new { s.Id, s.Code, s.Name, status = s.Status.ToString() },
+                success = false,
+                errorCode = "legacy_storefront_create_disabled",
+                error = "Legacy storefront creation is disabled because it is not idempotent or workspace-safe.",
+                nextAction = "Use provision_storefront_draft after the safe provisioning workflow is released.",
             }, McpJsonDefaults.Options);
         }
 
@@ -155,7 +121,7 @@ public static class ManageStorefrontTool
         }
 
         return JsonSerializer.Serialize(
-            new { success = false, error = $"Unknown action '{action}'. Use: create, update, or delete" },
+            new { success = false, error = $"Unknown action '{action}'. Use: update or delete" },
             McpJsonDefaults.Options);
     }
 }

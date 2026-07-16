@@ -7,6 +7,7 @@ DKH.McpGateway is an MCP (Model Context Protocol) server that exposes GZDKH plat
 - **Stateless gateway** — no database, no local state. All data comes from downstream services via gRPC.
 - **2-layer structure** — `Api` (host/transport) + `Application` (tools/resources/prompts/gRPC registration). No Infrastructure layer needed because MCP SDK injects gRPC clients directly into tool method parameters via DI.
 - **Dual transport** — HTTP SSE (for web-based clients) and stdio (for CLI-based clients like Claude Code). Unified `Platform.CreateWeb()` entry point with conditional transport selection.
+- **HTTP caller propagation** — authenticated HTTP requests require both a valid MCP API key and a Keycloak principal. The principal and bearer token are propagated to configured trusted internal gRPC services; stdio has no HTTP identity and does not register the propagation interceptor.
 
 ## Project structure
 
@@ -90,6 +91,21 @@ gRPC Client (from DI) → Downstream Backend Service
   ▼
 JSON response → MCP protocol → AI Client
 ```
+
+## Authentication and trust boundary
+
+HTTP MCP requests pass two independent gates: `X-API-Key` supplies MCP scope and
+permissions, while Keycloak supplies the caller identity. `AddHttpCurrentUser()`
+reads that identity and `PlatformUserIdentityPropagationInterceptor` forwards
+the parsed caller metadata and incoming bearer token to every configured
+downstream gRPC client. All configured endpoints must therefore be trusted
+internal services and logs must never record the token or propagated claims.
+
+Stdio mode has no HTTP principal or bearer token. It registers the same
+downstream client types without the identity interceptor; authenticated
+storefront provisioning and publishing are HTTP-only. The legacy
+`manage_storefront(action=create)` path is rejected in both modes until the
+idempotent, Workspace-safe provisioning workflow is available.
 
 ## Key design patterns
 

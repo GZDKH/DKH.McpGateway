@@ -30,7 +30,11 @@ docker compose -f docker-compose.services.yml --profile mcp up -d
 | HTTP SSE | Default (no flags) | Web-based MCP clients, shared server |
 | stdio | `--stdio` flag or `MCP_TRANSPORT=stdio` | CLI clients (Claude Code, Cursor) |
 
-Both modes use the same `Platform.CreateWeb()` entry point with identical gRPC client registration, logging, and DI configuration.
+Both modes use the same `Platform.CreateWeb()` entry point and downstream client
+set. HTTP mode additionally registers current-user propagation for its trusted
+internal gRPC endpoints. Stdio has no HTTP identity and does not register that
+interceptor; authenticated storefront provisioning and publishing are
+HTTP-only.
 
 ## Configuration
 
