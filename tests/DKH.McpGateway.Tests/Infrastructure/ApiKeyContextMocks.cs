@@ -1,3 +1,5 @@
+using DKH.ApiManagementService.Contracts.ApiManagement.Models.ApiKey.v1;
+
 namespace DKH.McpGateway.Tests.Infrastructure;
 
 internal static class ApiKeyContextMocks
@@ -7,6 +9,7 @@ internal static class ApiKeyContextMocks
         var mock = Substitute.For<IApiKeyContext>();
         mock.IsAuthenticated.Returns(true);
         mock.ApiKeyId.Returns("test-key-id");
+        mock.Scope.Returns(ApiKeyScope.Mcp);
         mock.HasPermission(Arg.Any<string>()).Returns(true);
         return mock;
     }
@@ -16,6 +19,7 @@ internal static class ApiKeyContextMocks
         var mock = Substitute.For<IApiKeyContext>();
         mock.IsAuthenticated.Returns(true);
         mock.ApiKeyId.Returns("test-key-id");
+        mock.Scope.Returns(ApiKeyScope.Mcp);
         mock.HasPermission(McpPermissions.Read).Returns(true);
         mock.HasPermission(McpPermissions.Write).Returns(false);
         mock.When(x => x.EnsurePermission(McpPermissions.Write))

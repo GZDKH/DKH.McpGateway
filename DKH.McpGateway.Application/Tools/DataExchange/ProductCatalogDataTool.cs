@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using Google.Protobuf;
+using Microsoft.AspNetCore.Http;
 using ExportRequest = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.ExportRequest;
 using GetImportTemplateRequest = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.GetImportTemplateRequest;
 using ImportOptions = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.ImportOptions;
@@ -13,7 +15,8 @@ namespace DKH.McpGateway.Application.Tools.DataExchange;
 public static class ProductCatalogDataTool
 {
     [McpServerTool(Name = "product_catalog_data"), Description(
-        "Bulk import/export product catalog data. " +
+        "Workspace-scoped merchant import/export for product catalog data. " +
+        "Requires authenticated HTTP, an MCP-scoped API key, and exactly one X-Workspace-Id header. " +
         "Actions: 'import' to bulk import data, 'export' to download data, " +
         "'validate' to dry-run validation, 'template' to get import template. " +
         "Profiles: products, brands, categories, tags, manufacturers, packages, " +
@@ -22,6 +25,7 @@ public static class ProductCatalogDataTool
         "Formats: json, csv, excel, xml.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         ProductCatalogDataExchangeClient client,
         [Description("Action: import, export, validate, or template")] string action,
         [Description("Data profile: products, brands, categories, tags, manufacturers, packages, catalogs, etc.")] string profile,
@@ -42,9 +46,22 @@ public static class ProductCatalogDataTool
         [Description("Include example data row (for template)")] bool? includeExample = null,
         CancellationToken cancellationToken = default)
     {
-        apiKeyContext.EnsurePermission(McpPermissions.Write);
+        var workspaceMetadata = ProductCatalogWorkspaceRequestContext.CreateRequiredGrpcMetadata(
+            apiKeyContext,
+            httpContextAccessor);
 
-        if (string.Equals(action, "import", StringComparison.OrdinalIgnoreCase))
+        var normalizedAction = action?.Trim().ToLowerInvariant();
+        if (normalizedAction is not ("import" or "export" or "validate" or "template"))
+        {
+            return JsonSerializer.Serialize(
+                new { success = false, error = $"Unknown action '{action}'. Use: import, export, validate, or template" },
+                McpJsonDefaults.Options);
+        }
+
+        apiKeyContext.EnsurePermission(
+            normalizedAction == "import" ? McpPermissions.Write : McpPermissions.Read);
+
+        if (normalizedAction == "import")
         {
             if (string.IsNullOrEmpty(content))
             {
@@ -69,7 +86,10 @@ public static class ProductCatalogDataTool
                 },
             };
 
-            var response = await client.ImportAsync(request, cancellationToken: cancellationToken);
+            var response = await client.ImportAsync(
+                request,
+                headers: workspaceMetadata,
+                cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
             {
@@ -80,7 +100,7 @@ public static class ProductCatalogDataTool
             }, McpJsonDefaults.Options);
         }
 
-        if (string.Equals(action, "export", StringComparison.OrdinalIgnoreCase))
+        if (normalizedAction == "export")
         {
             var request = new ExportRequest
             {
@@ -118,7 +138,10 @@ public static class ProductCatalogDataTool
                 request.PageSize = pageSize.Value;
             }
 
-            var response = await client.ExportAsync(request, cancellationToken: cancellationToken);
+            var response = await client.ExportAsync(
+                request,
+                headers: workspaceMetadata,
+                cancellationToken: cancellationToken);
             var exportedContent = response.Content.ToStringUtf8();
 
             return JsonSerializer.Serialize(new
@@ -130,7 +153,7 @@ public static class ProductCatalogDataTool
             }, McpJsonDefaults.Options);
         }
 
-        if (string.Equals(action, "validate", StringComparison.OrdinalIgnoreCase))
+        if (normalizedAction == "validate")
         {
             if (string.IsNullOrEmpty(content))
             {
@@ -146,6 +169,7 @@ public static class ProductCatalogDataTool
                     Format = format,
                     Content = ByteString.CopyFromUtf8(content),
                 },
+                headers: workspaceMetadata,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -169,7 +193,7 @@ public static class ProductCatalogDataTool
             }, McpJsonDefaults.Options);
         }
 
-        if (string.Equals(action, "template", StringComparison.OrdinalIgnoreCase))
+        if (normalizedAction == "template")
         {
             var response = await client.GetImportTemplateAsync(
                 new GetImportTemplateRequest
@@ -178,6 +202,7 @@ public static class ProductCatalogDataTool
                     Format = format,
                     IncludeExample = includeExample ?? true,
                 },
+                headers: workspaceMetadata,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -189,8 +214,6 @@ public static class ProductCatalogDataTool
             }, McpJsonDefaults.Options);
         }
 
-        return JsonSerializer.Serialize(
-            new { success = false, error = $"Unknown action '{action}'. Use: import, export, validate, or template" },
-            McpJsonDefaults.Options);
+        throw new UnreachableException();
     }
 }

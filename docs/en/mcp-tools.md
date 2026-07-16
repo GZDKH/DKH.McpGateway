@@ -426,9 +426,17 @@ Media tools expose the DKH.MediaService asset, attachment, upload-session, and s
 
 ### Data exchange (5 tools)
 
+`product_catalog_data` is available only over authenticated HTTP with an
+`ApiKeyScope.Mcp` key and exactly one `X-Workspace-Id` header. `import` requires
+`mcp:write`; `export`, `validate`, and `template` require `mcp:read`. The
+selected Workspace is independently checked by ProductCatalogService against
+the propagated caller. The supported public tool surface for storefront-scoped
+keys is the read-only `storefront_*` namespace; those keys cannot invoke bulk
+data exchange.
+
 | Tool | File | Description |
 | ---- | ---- | ----------- |
-| `product_catalog_data` | ProductCatalogDataTool.cs | Import/export product catalog data |
+| `product_catalog_data` | ProductCatalogDataTool.cs | Workspace-scoped import/export/validation/templates for product catalog data |
 | `reference_data` | ReferenceDataTool.cs | Import/export reference data |
 | `order_data` | OrderDataTool.cs | Import/export order data |
 | `customer_data` | CustomerDataTool.cs | Import/export customer data |
