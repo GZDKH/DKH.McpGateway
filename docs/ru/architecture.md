@@ -10,6 +10,18 @@ scope `Storefront` не может вызывать эти инструмент�
 административное разрешение. Поддерживаемая публичная read-only tool-поверхность для
 storefront-ключей остаётся пространством `storefront_*` из ADR-060.
 
+HTTP host публикует path-aware RFC 9728 metadata для нативных OAuth-клиентов.
+`Mcp:PublicEndpoint` фиксирует один resource и один absolute metadata URL для
+Streamable HTTP и сохранённых legacy SSE routes. Штатный MCP SDK отклоняет
+metadata-запрос, если scheme или host не совпадают с настроенным endpoint;
+доверенные forwarded headers восстанавливают публичные значения на edge.
+Документ содержит внешний Keycloak issuer, audience-mapping scope `mcp:tools` и
+header-based передачу bearer token. Этот scope просит Keycloak добавить
+канонический audience; доступ по-прежнему требует realm role и независимых
+API-key scope/permissions. Metadata является единственным OAuth-specific обходом
+проверки API-ключа; health и metrics остаются отдельными служебными endpoint-ами.
+Ответы 401 для MCP содержат ссылку `resource_metadata`.
+
 Обмен данными ProductCatalog является аутентифицированной merchant-поверхностью.
 Каждый HTTP-вызов требует ровно один заголовок `X-Workspace-Id`. Gateway создаёт
 новый gRPC metadata только с нормализованным `x-workspace-id`, не копируя произвольные

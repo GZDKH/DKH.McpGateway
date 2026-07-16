@@ -27,7 +27,7 @@ docker compose -f docker-compose.services.yml --profile mcp up -d
 
 | Mode | Activation | Use case |
 | ---- | ---------- | -------- |
-| HTTP SSE | Default (no flags) | Web-based MCP clients, shared server |
+| Streamable HTTP + legacy SSE | Default (no flags) | Authenticated network MCP clients |
 | stdio | `--stdio` flag or `MCP_TRANSPORT=stdio` | CLI clients (Claude Code, Cursor) |
 
 Both modes use the same `Platform.CreateWeb()` entry point and downstream client
@@ -41,6 +41,50 @@ an MCP-scoped API key, an authenticated Keycloak session, and exactly one
 `X-Workspace-Id` header. Missing, empty, invalid, or duplicate Workspace values
 are rejected before a downstream call. Stdio and global execution without an
 explicit Workspace are intentionally fail-closed.
+
+### Native OAuth clients
+
+The canonical production MCP resource is exactly `https://thetea.app/mcp`
+(without a trailing slash). The gateway publishes RFC 9728 protected-resource
+metadata at
+`https://thetea.app/.well-known/oauth-protected-resource/mcp` and advertises
+the external Keycloak issuer and resource scope `mcp:tools`. HTTP MCP remains
+dual-authenticated: OAuth provides the caller identity and realm role, while
+`X-API-Key` independently provides MCP scope and `mcp:read` / `mcp:write`
+permissions. `mcp:tools` activates the Keycloak audience mapper; it does not
+replace either authorization gate.
+
+Register the server in Codex without putting credentials in `config.toml`:
+
+```bash
+codex mcp add gzdkh-storefront \
+  --url https://thetea.app/mcp \
+  --oauth-client-id dkh-codex-local \
+  --oauth-resource https://thetea.app/mcp
+```
+
+Then configure environment-backed headers under the generated server table:
+
+```toml
+[mcp_servers.gzdkh-storefront]
+url = "https://thetea.app/mcp"
+oauth_resource = "https://thetea.app/mcp"
+env_http_headers = { "X-API-Key" = "DKH_MCP_API_KEY", "X-Workspace-Id" = "DKH_MCP_WORKSPACE_ID" }
+
+[mcp_servers.gzdkh-storefront.oauth]
+client_id = "dkh-codex-local"
+```
+
+Set `DKH_MCP_API_KEY` in the launching environment. Set
+`DKH_MCP_WORKSPACE_ID` only for tools whose contract requires the trusted
+Workspace header. Complete browser authorization with:
+
+```bash
+codex mcp login gzdkh-storefront --scopes mcp:tools
+```
+
+Never use a wildcard redirect URI, copy an access token into the config, or
+replace the API-key permission boundary with OAuth scopes.
 
 ## Configuration
 
@@ -74,6 +118,9 @@ Environment-specific overrides:
 | -------- | ----------- | ------- |
 | `ASPNETCORE_ENVIRONMENT` | Configuration environment | `Development` |
 | `MCP_TRANSPORT` | Transport mode (`stdio` or empty) | empty (HTTP) |
+| `Mcp__PublicEndpoint` | Exact canonical OAuth resource shared by all HTTP routes | `http://localhost:5013/mcp` |
+| `Platform__Network__KnownProxies__0` | Trusted reverse-proxy address for forwarded scheme/host | none |
+| `Platform__Auth__Keycloak__AdditionalAudiences__0` | Accepted native MCP OAuth audience | `https://thetea.app/mcp` |
 
 ## Logs
 
@@ -89,9 +136,11 @@ Log configuration is in the `Logging` section of appsettings:
 
 ## Health check
 
-The HTTP transport exposes the SSE endpoint at `http://localhost:5013/sse`.
+The HTTP transport exposes Streamable HTTP at `http://localhost:5013/mcp` and
+the readiness probe at `http://localhost:5013/health/ready`.
 
-In Docker, health check uses `curl -f http://localhost:5013/sse` with 30s interval and 3 retries.
+Container and orchestrator health checks must use `/health/ready`, not an MCP
+transport endpoint that requires both authentication gates.
 
 ## Downstream service dependencies
 

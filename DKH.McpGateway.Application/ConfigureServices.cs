@@ -36,7 +36,7 @@ public static class ConfigureServices
 
     /// <summary>
     /// Adds API key authentication and usage recording middleware.
-    /// Must be called before <c>MapMcp()</c> in the HTTP pipeline.
+    /// Must be called before mapping the MCP endpoint in the HTTP pipeline.
     /// </summary>
     public static IApplicationBuilder UseApiKeyAuth(this IApplicationBuilder app)
     {

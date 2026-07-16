@@ -1,5 +1,6 @@
 using DKH.ApiManagementService.Contracts.ApiManagement.Api.ApiKeyQuery.v1;
 using DKH.ApiManagementService.Contracts.ApiManagement.Models.ApiKey.v1;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -13,12 +14,17 @@ public sealed class ApiKeyAuthMiddleware(
     ILogger<ApiKeyAuthMiddleware> logger)
 {
     private const string ApiKeyHeader = "X-API-Key";
+    private const string ProtectedResourceMetadataPath = "/.well-known/oauth-protected-resource";
     private static readonly TimeSpan CacheTtl = TimeSpan.FromSeconds(30);
 
     public async Task InvokeAsync(HttpContext context)
     {
+        // MCP authentication normally serves protected-resource metadata before
+        // this middleware. Keep the explicit bypass so a future pipeline reorder
+        // cannot accidentally require an API key for OAuth discovery.
         if (context.Request.Path.StartsWithSegments("/health") ||
-            context.Request.Path.StartsWithSegments("/metrics"))
+            context.Request.Path.StartsWithSegments("/metrics") ||
+            context.Request.Path.StartsWithSegments(ProtectedResourceMetadataPath))
         {
             await next(context);
             return;
@@ -28,8 +34,7 @@ public sealed class ApiKeyAuthMiddleware(
             string.IsNullOrWhiteSpace(apiKeyValues.ToString()))
         {
             logger.LogWarning("MCP request rejected: missing {Header} header", ApiKeyHeader);
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsJsonAsync(new { error = "Missing API key" });
+            await RejectUnauthorizedAsync(context, "Missing API key");
             return;
         }
 
@@ -57,8 +62,7 @@ public sealed class ApiKeyAuthMiddleware(
         if (!cached!.IsValid)
         {
             logger.LogWarning("MCP request rejected: invalid API key. Reason: {Reason}", cached.ErrorReason);
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            await context.Response.WriteAsJsonAsync(new { error = cached.ErrorReason });
+            await RejectUnauthorizedAsync(context, cached.ErrorReason);
             return;
         }
 
@@ -82,5 +86,14 @@ public sealed class ApiKeyAuthMiddleware(
         }
 
         await next(context);
+    }
+
+    private static async Task RejectUnauthorizedAsync(HttpContext context, string? error)
+    {
+        await context.ChallengeAsync();
+        if (!context.Response.HasStarted)
+        {
+            await context.Response.WriteAsJsonAsync(new { error });
+        }
     }
 }
