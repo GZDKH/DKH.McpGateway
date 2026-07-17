@@ -30,13 +30,17 @@ var platform = Platform
 
         builder.Services.AddApplication();
         builder.Services.AddHealthChecks();
+
+        if (!useStdio)
+        {
+            builder.Services.AddPlatformForwardedHeaders(builder.Configuration);
+        }
     })
     .ConfigurePlatformWebApplication(app =>
     {
         if (!useStdio)
         {
-            app.UseApiKeyAuth();
-            app.MapMcp().RequireAuthorization(McpAuthorizationPolicies.McpAccess);
+            app.UseForwardedHeaders();
         }
 
         app.MapHealthChecks("/health/ready");
@@ -50,12 +54,19 @@ if (!useStdio)
 {
     platform = platform
         .AddPlatformKeycloakAuth()
+        .ConfigurePlatformWebApplicationBuilder(builder =>
+            builder.Services.AddMcpOAuthAuthentication(builder.Configuration))
         .AddMcpHttpCurrentUserPropagation()
         .AddPlatformAuthorization(policies => policies.AddRolePolicy(
             McpAuthorizationPolicies.McpAccess,
             PlatformRoles.Realm.SuperAdmin,
             PlatformRoles.Realm.Admin,
-            PlatformRoles.FullAccess));
+            PlatformRoles.FullAccess))
+        .ConfigurePlatformWebApplication(app =>
+        {
+            app.UseApiKeyAuth();
+            app.MapMcpGateway();
+        });
 }
 
 await platform.Build().RunAsync();

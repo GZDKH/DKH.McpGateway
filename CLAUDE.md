@@ -172,6 +172,15 @@ are rejected by the admin tools. `ApiKeyAuthMiddleware` admits only `Scope.Mcp` 
 - No database (stateless gateway)
 - gRPC endpoints: `Platform:Grpc:Endpoints` section in appsettings
 - Docker port: 5013
+- Streamable HTTP is mapped at `/mcp`; legacy trusted-client routes are
+  `/mcp/sse` and `/mcp/message`.
+- `Mcp:PublicEndpoint` pins one canonical OAuth resource for every HTTP
+  transport route and must be exact (`https://thetea.app/mcp` in production).
+- `Platform:Network:KnownProxies` must contain only the actual reverse proxy so
+  the SDK can validate the configured metadata endpoint against the restored
+  public HTTPS scheme and host.
+- `Platform:Auth:Keycloak:AdditionalAudiences` includes the canonical MCP
+  resource audience (`https://thetea.app/mcp`).
 
 ## External Dependencies
 

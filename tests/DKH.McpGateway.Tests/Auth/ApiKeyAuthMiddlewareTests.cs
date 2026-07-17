@@ -3,7 +3,10 @@ using DKH.ApiManagementService.Contracts.ApiManagement.Models.ApiKey.v1;
 using DKH.Platform.Grpc.Common.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ModelContextProtocol.AspNetCore.Authentication;
+using ModelContextProtocol.Authentication;
 
 namespace DKH.McpGateway.Tests.Auth;
 
@@ -14,18 +17,25 @@ public sealed class ApiKeyAuthMiddlewareTests : IDisposable
         Substitute.For<ApiKeyQueryService.ApiKeyQueryServiceClient>();
     private readonly MemoryCache _cache = new(new MemoryCacheOptions());
     private readonly ILogger<ApiKeyAuthMiddleware> _logger = Substitute.For<ILogger<ApiKeyAuthMiddleware>>();
+    private readonly ServiceProvider _services;
     private readonly ApiKeyAuthMiddleware _middleware;
 
     public ApiKeyAuthMiddlewareTests()
     {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services
+            .AddAuthentication(options =>
+                options.DefaultChallengeScheme = McpAuthenticationDefaults.AuthenticationScheme)
+            .AddMcp(options => options.ResourceMetadata = new ProtectedResourceMetadata());
+        _services = services.BuildServiceProvider();
         _middleware = new ApiKeyAuthMiddleware(_next, _validationClient, _cache, _logger);
     }
 
     [Fact]
     public async Task InvokeAsync_HealthCheck_SkipsValidationAsync()
     {
-        var context = new DefaultHttpContext();
-        context.Request.Path = "/health/ready";
+        var context = CreateContext("/health/ready");
 
         await _middleware.InvokeAsync(context);
 
@@ -35,18 +45,31 @@ public sealed class ApiKeyAuthMiddlewareTests : IDisposable
     [Fact]
     public async Task InvokeAsync_MissingHeader_Returns401Async()
     {
-        var context = new DefaultHttpContext();
+        var context = CreateContext();
 
         await _middleware.InvokeAsync(context);
 
         context.Response.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+        context.Response.Headers.WWWAuthenticate.ToString().Should().Be(
+            "Bearer resource_metadata=\"https://thetea.app/.well-known/oauth-protected-resource/mcp\"");
         await _next.DidNotReceive().Invoke(Arg.Any<HttpContext>());
+    }
+
+    [Fact]
+    public async Task InvokeAsync_ProtectedResourceMetadata_SkipsValidationAsync()
+    {
+        var context = CreateContext("/.well-known/oauth-protected-resource/mcp");
+
+        await _middleware.InvokeAsync(context);
+
+        await _next.Received(1).Invoke(context);
+        _validationClient.ReceivedCalls().Should().BeEmpty();
     }
 
     [Fact]
     public async Task InvokeAsync_InvalidKey_Returns401Async()
     {
-        var context = new DefaultHttpContext();
+        var context = CreateContext();
         context.Request.Headers["X-API-Key"] = "invalid-key";
 
         var response = new ValidateApiKeyResponse { IsValid = false, ErrorReason = "Invalid key" };
@@ -55,12 +78,13 @@ public sealed class ApiKeyAuthMiddlewareTests : IDisposable
         await _middleware.InvokeAsync(context);
 
         context.Response.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+        context.Response.Headers.WWWAuthenticate.ToString().Should().Contain("resource_metadata=");
     }
 
     [Fact]
     public async Task InvokeAsync_WrongScope_Returns403Async()
     {
-        var context = new DefaultHttpContext();
+        var context = CreateContext();
         context.Request.Headers["X-API-Key"] = "webhook-key";
 
         var response = new ValidateApiKeyResponse
@@ -80,7 +104,7 @@ public sealed class ApiKeyAuthMiddlewareTests : IDisposable
     [Fact]
     public async Task InvokeAsync_ValidMcpKey_CallsNextAsync()
     {
-        var context = new DefaultHttpContext();
+        var context = CreateContext();
         context.Request.Headers["X-API-Key"] = "valid-mcp-key";
 
         var response = new ValidateApiKeyResponse
@@ -104,8 +128,22 @@ public sealed class ApiKeyAuthMiddlewareTests : IDisposable
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
     }
 
+    private DefaultHttpContext CreateContext(string path = "/mcp")
+    {
+        var context = new DefaultHttpContext
+        {
+            RequestServices = _services
+        };
+        context.Request.Scheme = Uri.UriSchemeHttps;
+        context.Request.Host = new HostString("thetea.app");
+        context.Request.Path = path;
+        context.Response.Body = new MemoryStream();
+        return context;
+    }
+
     public void Dispose()
     {
         _cache.Dispose();
+        _services.Dispose();
     }
 }

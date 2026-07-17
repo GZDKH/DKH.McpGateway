@@ -6,7 +6,7 @@ DKH.McpGateway is an MCP (Model Context Protocol) server that exposes GZDKH plat
 
 - **Stateless gateway** — no database, no local state. All data comes from downstream services via gRPC.
 - **2-layer structure** — `Api` (host/transport) + `Application` (tools/resources/prompts/gRPC registration). No Infrastructure layer needed because MCP SDK injects gRPC clients directly into tool method parameters via DI.
-- **Dual transport** — HTTP SSE (for web-based clients) and stdio (for CLI-based clients like Claude Code). Unified `Platform.CreateWeb()` entry point with conditional transport selection.
+- **Dual transport** — Streamable HTTP at `/mcp` (with legacy SSE routes for trusted clients) and stdio. Both use one `Platform.CreateWeb()` entry point with conditional transport selection.
 - **HTTP caller propagation** — authenticated HTTP requests require both a valid MCP API key and a Keycloak principal. The principal and bearer token are propagated to configured trusted internal gRPC services; stdio has no HTTP identity and does not register the propagation interceptor.
 
 ## Project structure
@@ -80,7 +80,7 @@ The gateway exposes three types of MCP primitives:
 AI Client (Claude Desktop / Claude Code / Cursor)
   │
   ▼
-MCP Protocol (stdio or HTTP SSE)
+MCP Protocol (stdio or Streamable HTTP at /mcp)
   │
   ▼
 DKH.McpGateway.Application — Tool / Resource / Prompt handler
@@ -100,6 +100,18 @@ reads that identity and `PlatformUserIdentityPropagationInterceptor` forwards
 the parsed caller metadata and incoming bearer token to every configured
 downstream gRPC client. All configured endpoints must therefore be trusted
 internal services and logs must never record the token or propagated claims.
+
+The HTTP host exposes RFC 9728 protected-resource metadata for native OAuth
+clients. `Mcp:PublicEndpoint` pins one resource and one absolute metadata URL for
+Streamable HTTP and the retained legacy SSE routes. The official MCP SDK rejects
+metadata requests whose scheme or host does not match that configured endpoint;
+trusted forwarded headers restore the public values at the edge. The document
+advertises only the external Keycloak issuer, the `mcp:tools` audience-mapping
+scope, and header-based bearer delivery. That scope asks Keycloak to attach the
+canonical audience; endpoint access still requires a realm role plus the
+independent API-key scope and permissions. Unauthorized MCP responses include
+the metadata URL. The metadata document is the only OAuth-specific API-key
+bypass; operational health and metrics endpoints remain separate.
 
 Permission-guarded admin tools require an `ApiKeyScope.Mcp` key in addition to
 their `mcp:read` or `mcp:write` permission. A `Storefront`-scoped key cannot
@@ -133,6 +145,11 @@ missing-header, global-key, or trusted-system bypass.
 ## Configuration
 
 - gRPC endpoints: `Platform:Grpc:Endpoints` section in appsettings
+- HTTP MCP endpoint: `/mcp` (canonical production resource:
+  `https://thetea.app/mcp`, without a trailing slash)
+- Canonical OAuth resource: `Mcp:PublicEndpoint`
+- Trusted reverse proxies: `Platform:Network:KnownProxies`
+- OAuth resource audiences: `Platform:Auth:Keycloak:AdditionalAudiences`
 - Transport: `--stdio` flag or `MCP_TRANSPORT=stdio` env variable for stdio mode
 - Docker port: 5013
 
