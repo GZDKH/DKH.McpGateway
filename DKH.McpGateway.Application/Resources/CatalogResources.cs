@@ -1,3 +1,5 @@
+using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
+using DKH.McpGateway.Application.Tools.Products;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
@@ -71,6 +73,7 @@ public static class CatalogResources
     [Description("Get detailed product information by SEO name.")]
     public static async Task<string> GetProductAsync(
         ProductManagementService.ProductManagementServiceClient client,
+        CounterpartyCrudService.CounterpartyCrudServiceClient counterpartyClient,
         IMemoryCache cache,
         [Description("Product SEO name or slug")] string productSeoName,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
@@ -91,6 +94,11 @@ public static class CatalogResources
                 },
                 cancellationToken: cancellationToken);
 
+            // ADR-020 — Brand/Manufacturer names resolved from counterparty links, not
+            // the legacy product.Brand / product.Manufacturer proto fields.
+            var (brandName, manufacturerName) = await ProductCounterpartyNameResolver.ResolveAsync(
+                product, counterpartyClient, languageCode, cancellationToken);
+
             return JsonSerializer.Serialize(new
             {
                 name = product.Name,
@@ -99,8 +107,8 @@ public static class CatalogResources
                 description = product.Description,
                 price = product.CallForPrice ? (double?)null : product.Price,
                 currency = product.CurrencyCode,
-                brand = product.Brand?.Name,
-                manufacturer = product.Manufacturer?.Name,
+                brand = brandName,
+                manufacturer = manufacturerName,
                 categories = product.Categories.Select(static c => new { name = c.CategoryName, seoName = c.CategorySeoName }),
             }, McpJsonDefaults.Options);
         }))!;
