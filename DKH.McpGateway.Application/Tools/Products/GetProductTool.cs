@@ -15,6 +15,7 @@ public static class GetProductTool
         [Description("Product SEO name or slug")] string productSeoName,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
+        [Description("Non-commercial mode: hide prices and currency (content-API / catalog landing usage)")] bool nonCommercial = false,
         CancellationToken cancellationToken = default)
     {
         apiKeyContext.EnsurePermission(McpPermissions.Read);
@@ -34,8 +35,8 @@ public static class GetProductTool
             name = product.Name,
             seoName = product.SeoName,
             description = product.Description,
-            price = product.CallForPrice ? (double?)null : product.Price,
-            currency = product.CurrencyCode,
+            price = nonCommercial || product.CallForPrice ? (double?)null : product.Price,
+            currency = nonCommercial ? null : product.CurrencyCode,
             brand = product.Brand?.Name,
             manufacturer = product.Manufacturer?.Name,
             categories = product.Categories.Select(static c => new { name = c.CategoryName, seoName = c.CategorySeoName }),

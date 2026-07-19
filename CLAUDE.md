@@ -46,7 +46,8 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 
 | Folder | Tools | Service |
 |--------|-------|---------|
-| Products/ | search, get, list brands/catalogs/categories, create/update/delete, stats, analytics (9) | ProductCatalogService |
+| Products/ | search, list, get, similar, ask_expert, list brands/catalogs/categories, create/update/delete, stats, analytics (12) | ProductCatalogService + SearchService |
+| Glossary/ | resolve canonical term across tags/specs/categories (1) | ProductCatalogService |
 | Brands/ | manage brands (1) | ProductCatalogService |
 | Catalogs/ | manage catalogs (1) | ProductCatalogService |
 | Categories/ | manage categories (1) | ProductCatalogService |
