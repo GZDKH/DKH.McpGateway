@@ -1,5 +1,7 @@
 using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
+using DKH.McpGateway.Application.Tools.DataExchange;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Products;
 
@@ -12,6 +14,7 @@ public static class GetProductTool
     [McpServerTool(Name = "get_product"), Description("Get detailed product information including variants, specifications, and media.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         ProductManagementService.ProductManagementServiceClient client,
         CounterpartyCrudService.CounterpartyCrudServiceClient counterpartyClient,
         [Description("Product SEO name or slug")] string productSeoName,
@@ -19,6 +22,11 @@ public static class GetProductTool
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
     {
+        // #85: bind the lookup to the selected, server-validated Workspace
+        // BEFORE any downstream RPC — reuses the #83 resolver; ProductCatalog
+        // independently verifies the propagated caller's membership.
+        var workspaceMetadata = ProductCatalogWorkspaceRequestContext.CreateRequiredGrpcMetadata(
+            apiKeyContext, httpContextAccessor);
         apiKeyContext.EnsurePermission(McpPermissions.Read);
         var product = await client.GetProductDetailAsync(
             new GetProductDetailRequest
@@ -27,7 +35,7 @@ public static class GetProductTool
                 ProductSeoName = productSeoName,
                 LanguageCode = languageCode,
             },
-            cancellationToken: cancellationToken);
+            headers: workspaceMetadata, cancellationToken: cancellationToken);
 
         // ADR-020 — Brand/Manufacturer names resolved from counterparty links, not
         // the legacy product.Brand / product.Manufacturer proto fields.

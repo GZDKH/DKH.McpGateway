@@ -1,20 +1,36 @@
+using System.Security.Claims;
 using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
 using DKH.CounterpartyService.Contracts.Counterparty.Models.v1;
+using DKH.McpGateway.Application.Tools.DataExchange;
 using DKH.McpGateway.Application.Tools.Products;
 using DKH.Platform.Grpc.Common.Types;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.QueryCommon.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Tests.Tools.Products;
 
 public class GetProductToolTests
 {
     private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
+    private readonly Guid _workspaceId = Guid.NewGuid();
+    private readonly DefaultHttpContext _httpContext = new();
+    private readonly HttpContextAccessor _httpContextAccessor = new();
     private readonly ProductManagementService.ProductManagementServiceClient _client =
         Substitute.For<ProductManagementService.ProductManagementServiceClient>();
 
     private readonly CounterpartyCrudService.CounterpartyCrudServiceClient _counterpartyClient =
         Substitute.For<CounterpartyCrudService.CounterpartyCrudServiceClient>();
+
+    public GetProductToolTests()
+    {
+        _httpContext.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("sub", Guid.NewGuid().ToString("D"))],
+            authenticationType: "Test"));
+        _httpContext.Request.Headers[ProductCatalogWorkspaceRequestContext.WorkspaceIdHeaderName] =
+            _workspaceId.ToString("D");
+        _httpContextAccessor.HttpContext = _httpContext;
+    }
 
     [Fact]
     public async Task GetProduct_HappyPath_ReturnsProductDetailAsync()
@@ -273,6 +289,7 @@ public class GetProductToolTests
         string languageCode = "ru")
         => GetProductTool.ExecuteAsync(
             _auth,
+            _httpContextAccessor,
             _client,
             _counterpartyClient,
             productSeoName: productSeoName,

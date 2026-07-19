@@ -119,8 +119,11 @@ invoke those tools even if it was mistakenly issued an admin permission. The
 supported public read-only tool surface for storefront keys remains the
 `storefront_*` namespace defined by ADR-060.
 
-ProductCatalog data exchange is an authenticated merchant surface. Every HTTP
-call requires exactly one `X-Workspace-Id` header. The gateway creates fresh
+ProductCatalog data exchange — and every workspace-scoped ProductCatalog
+admin/query tool (`list_catalogs`, `list_categories`, `get_product`,
+`product_stats`, `category_distribution`, `get_product_origin`) — is an
+authenticated merchant surface. Every HTTP call requires exactly one
+`X-Workspace-Id` header. The gateway creates fresh
 gRPC metadata containing only the normalized `x-workspace-id`; it never copies
 arbitrary client metadata. ProductCatalogService independently verifies that
 Workspace against the propagated Keycloak caller and active membership.
@@ -130,8 +133,9 @@ downstream client types without the identity interceptor; authenticated
 storefront provisioning and publishing are HTTP-only. The legacy
 `manage_storefront(action=create)` path is rejected in both modes until the
 idempotent, Workspace-safe provisioning workflow is available.
-ProductCatalog data exchange is also rejected in stdio mode; there is no
-missing-header, global-key, or trusted-system bypass.
+ProductCatalog data exchange and the workspace-scoped admin/query tools are
+also rejected in stdio mode; there is no missing-header, global-key, or
+trusted-system bypass.
 
 ## Key design patterns
 

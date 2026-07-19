@@ -426,8 +426,12 @@ Media tools expose the DKH.MediaService asset, attachment, upload-session, and s
 
 ### Data exchange (5 tools)
 
-`product_catalog_data` is available only over authenticated HTTP with an
-`ApiKeyScope.Mcp` key and exactly one `X-Workspace-Id` header. `import` requires
+`product_catalog_data` — like the workspace-scoped catalog read tools
+(`list_catalogs`, `list_categories`, `get_product`, `product_stats`,
+`category_distribution`, `get_product_origin`) — is available only over
+authenticated HTTP with an `ApiKeyScope.Mcp` key and exactly one
+`X-Workspace-Id` header; the selected Workspace is propagated as gRPC
+metadata on every downstream call. `import` requires
 `mcp:write`; `export`, `validate`, and `template` require `mcp:read`. The
 selected Workspace is independently checked by ProductCatalogService against
 the propagated caller. The supported public tool surface for storefront-scoped
