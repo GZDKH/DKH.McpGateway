@@ -22,12 +22,15 @@ API-key scope/permissions. Metadata является единственным OA
 проверки API-ключа; health и metrics остаются отдельными служебными endpoint-ами.
 Ответы 401 для MCP содержат ссылку `resource_metadata`.
 
-Обмен данными ProductCatalog является аутентифицированной merchant-поверхностью.
+Обмен данными ProductCatalog — как и все workspace-скоупные admin/query
+инструменты каталога (`list_catalogs`, `list_categories`, `get_product`,
+`product_stats`, `category_distribution`, `get_product_origin`) — является
+аутентифицированной merchant-поверхностью.
 Каждый HTTP-вызов требует ровно один заголовок `X-Workspace-Id`. Gateway создаёт
 новый gRPC metadata только с нормализованным `x-workspace-id`, не копируя произвольные
 metadata клиента. ProductCatalogService независимо сверяет Workspace с переданной
 Keycloak identity и активным membership пользователя.
 
 В режиме stdio нет HTTP principal и передачи identity, поэтому ProductCatalog data
-exchange отклоняется. Fallback для отсутствующего заголовка, глобального ключа или
+exchange и workspace-скоупные admin/query инструменты отклоняются. Fallback для отсутствующего заголовка, глобального ключа или
 неявного trusted-system режима не предусмотрен.

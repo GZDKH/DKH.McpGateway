@@ -4,8 +4,12 @@
 
 ## Обмен данными
 
-`product_catalog_data` доступен только через аутентифицированный HTTP с ключом
-`ApiKeyScope.Mcp` и ровно одним заголовком `X-Workspace-Id`. Для `import` требуется
+`product_catalog_data` — как и workspace-скоупные инструменты чтения каталога
+(`list_catalogs`, `list_categories`, `get_product`, `product_stats`,
+`category_distribution`, `get_product_origin`) — доступен только через
+аутентифицированный HTTP с ключом `ApiKeyScope.Mcp` и ровно одним заголовком
+`X-Workspace-Id`; выбранный Workspace передаётся как gRPC metadata в каждом
+downstream-вызове. Для `import` требуется
 `mcp:write`; для `export`, `validate` и `template` — `mcp:read`. ProductCatalogService
 независимо проверяет выбранный Workspace по переданной identity пользователя.
 Поддерживаемая публичная tool-поверхность storefront-ключей — read-only пространство

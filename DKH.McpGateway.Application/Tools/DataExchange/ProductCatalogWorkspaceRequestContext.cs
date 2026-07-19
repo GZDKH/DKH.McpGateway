@@ -30,17 +30,17 @@ internal static class ProductCatalogWorkspaceRequestContext
         if (!apiKeyContext.IsAuthenticated || apiKeyContext.Scope != ApiKeyScope.Mcp)
         {
             throw new UnauthorizedAccessException(
-                "Product catalog data exchange requires an MCP-scoped API key.");
+                "Workspace-scoped product catalog tools require an MCP-scoped API key.");
         }
 
         var httpContext = httpContextAccessor.HttpContext
             ?? throw new UnauthorizedAccessException(
-                "Product catalog data exchange requires authenticated HTTP transport.");
+                "Workspace-scoped product catalog tools require authenticated HTTP transport.");
 
         if (httpContext.User.Identity?.IsAuthenticated != true)
         {
             throw new UnauthorizedAccessException(
-                "Product catalog data exchange requires an authenticated HTTP principal.");
+                "Workspace-scoped product catalog tools require an authenticated HTTP principal.");
         }
 
         if (!httpContext.Request.Headers.TryGetValue(WorkspaceIdHeaderName, out var headerValues)

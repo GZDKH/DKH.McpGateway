@@ -1,7 +1,10 @@
+using DKH.McpGateway.Application.Tools.DataExchange;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CityManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.StateProvinceManagement.v1;
+
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Geography;
 
@@ -11,6 +14,7 @@ public static class ProductOriginTool
     [McpServerTool(Name = "get_product_origin"), Description("Get product manufacturing/sourcing origin with resolved country, province, and city names.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         ProductManagementService.ProductManagementServiceClient productClient,
         CountryManagementService.CountryManagementServiceClient countryClient,
         StateProvinceManagementService.StateProvinceManagementServiceClient provinceClient,
@@ -20,6 +24,11 @@ public static class ProductOriginTool
         [Description("Language code")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
     {
+        // #85: bind the lookup to the selected, server-validated Workspace
+        // BEFORE any downstream RPC — reuses the #83 resolver; ProductCatalog
+        // independently verifies the propagated caller's membership.
+        var workspaceMetadata = ProductCatalogWorkspaceRequestContext.CreateRequiredGrpcMetadata(
+            apiKeyContext, httpContextAccessor);
         apiKeyContext.EnsurePermission(McpPermissions.Read);
         var product = await productClient.GetProductDetailAsync(
             new GetProductDetailRequest
@@ -28,7 +37,7 @@ public static class ProductOriginTool
                 ProductSeoName = productSeoName,
                 LanguageCode = languageCode,
             },
-            cancellationToken: cancellationToken);
+            headers: workspaceMetadata, cancellationToken: cancellationToken);
 
         if (product.Origin is null || string.IsNullOrEmpty(product.Origin.CountryCode))
         {
