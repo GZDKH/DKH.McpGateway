@@ -32,10 +32,8 @@ using DKH.PaymentService.Contracts.Services.V1;
 using DKH.Platform.Grpc.Client;
 using DKH.PrintService.Contracts.Services.V1;
 using DKH.ProcurementService.Contracts.Services.V1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.BrandManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ManufacturerManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.PackageManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrGroupManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductAttrManagement.v1;
@@ -117,10 +115,8 @@ public static class GrpcEndpointsRegistration
         // ProductCatalogService (5003)
         grpc.AddEndpointFromConfiguration<VariantQueryService.VariantQueryServiceClient>();
         grpc.AddEndpointFromConfiguration<ProductCatalogDataExchangeClient>("ProductCatalogDataExchangeServiceClient");
-        grpc.AddEndpointFromConfiguration<BrandManagementService.BrandManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<CatalogManagementService.CatalogManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<CategoryManagementService.CategoryManagementServiceClient>();
-        grpc.AddEndpointFromConfiguration<ManufacturerManagementService.ManufacturerManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<PackageManagementService.PackageManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<ProductManagementService.ProductManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<TagManagementService.TagManagementServiceClient>();

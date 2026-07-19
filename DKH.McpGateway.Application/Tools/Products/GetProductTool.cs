@@ -1,3 +1,4 @@
+using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 
 namespace DKH.McpGateway.Application.Tools.Products;
@@ -12,6 +13,7 @@ public static class GetProductTool
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
         ProductManagementService.ProductManagementServiceClient client,
+        CounterpartyCrudService.CounterpartyCrudServiceClient counterpartyClient,
         [Description("Product SEO name or slug")] string productSeoName,
         [Description("Catalog SEO name")] string catalogSeoName = "main-catalog",
         [Description("Language code")] string languageCode = "ru",
@@ -27,6 +29,11 @@ public static class GetProductTool
             },
             cancellationToken: cancellationToken);
 
+        // ADR-020 — Brand/Manufacturer names resolved from counterparty links, not
+        // the legacy product.Brand / product.Manufacturer proto fields.
+        var (brandName, manufacturerName) = await ProductCounterpartyNameResolver.ResolveAsync(
+            product, counterpartyClient, languageCode, cancellationToken);
+
         var result = new
         {
             id = product.Id,
@@ -36,8 +43,8 @@ public static class GetProductTool
             description = product.Description,
             price = product.CallForPrice ? (double?)null : product.Price,
             currency = product.CurrencyCode,
-            brand = product.Brand?.Name,
-            manufacturer = product.Manufacturer?.Name,
+            brand = brandName,
+            manufacturer = manufacturerName,
             categories = product.Categories.Select(static c => new { name = c.CategoryName, seoName = c.CategorySeoName }),
             tags = product.Tags.Select(static t => t.Name),
             specifications = product.Specifications.Select(static g => new

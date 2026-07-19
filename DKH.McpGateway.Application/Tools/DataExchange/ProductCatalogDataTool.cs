@@ -19,7 +19,7 @@ public static class ProductCatalogDataTool
         "Requires authenticated HTTP, an MCP-scoped API key, and exactly one X-Workspace-Id header. " +
         "Actions: 'import' to bulk import data, 'export' to download data, " +
         "'validate' to dry-run validation, 'template' to get import template. " +
-        "Profiles: products, brands, categories, tags, manufacturers, packages, " +
+        "Profiles: products, categories, tags, packages, " +
         "catalogs, product_attributes, product_attribute_groups, product_attribute_options, " +
         "specification_attributes, specification_attribute_groups, specification_attribute_options. " +
         "Formats: json, csv, excel, xml.")]
@@ -28,7 +28,7 @@ public static class ProductCatalogDataTool
         IHttpContextAccessor httpContextAccessor,
         ProductCatalogDataExchangeClient client,
         [Description("Action: import, export, validate, or template")] string action,
-        [Description("Data profile: products, brands, categories, tags, manufacturers, packages, catalogs, etc.")] string profile,
+        [Description("Data profile: products, categories, tags, packages, catalogs, etc.")] string profile,
         [Description("File format: json, csv, excel, or xml")] string format = "json",
         [Description("JSON content to import (for import/validate action)")] string? content = null,
         [Description("Update existing records if code matches (for import)")] bool? updateExisting = null,

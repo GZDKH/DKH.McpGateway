@@ -1,3 +1,5 @@
+using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
+using DKH.McpGateway.Application.Tools.Products;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
@@ -21,6 +23,7 @@ public static class StorefrontGetProductTool
         StorefrontCatalogManagementService.StorefrontCatalogManagementServiceClient storefrontCatalogClient,
         CatalogManagementService.CatalogManagementServiceClient catalogClient,
         ProductManagementService.ProductManagementServiceClient productClient,
+        CounterpartyCrudService.CounterpartyCrudServiceClient counterpartyClient,
         [Description("Product SEO name or slug")] string productSeoName,
         [Description("Language code (e.g. 'en', 'ru')")] string languageCode = "ru",
         CancellationToken cancellationToken = default)
@@ -42,6 +45,11 @@ public static class StorefrontGetProductTool
                     },
                     cancellationToken: cancellationToken);
 
+                // ADR-020 — Brand name resolved from counterparty links, not the
+                // legacy product.Brand proto field.
+                var (brandName, _) = await ProductCounterpartyNameResolver.ResolveAsync(
+                    product, counterpartyClient, languageCode, cancellationToken);
+
                 var found = new
                 {
                     catalogSeoName,
@@ -52,7 +60,7 @@ public static class StorefrontGetProductTool
                     description = product.Description,
                     price = product.CallForPrice ? (double?)null : product.Price,
                     currency = product.CurrencyCode,
-                    brand = product.Brand?.Name,
+                    brand = brandName,
                     categories = product.Categories.Select(static c => new { name = c.CategoryName, seoName = c.CategorySeoName }),
                 };
 

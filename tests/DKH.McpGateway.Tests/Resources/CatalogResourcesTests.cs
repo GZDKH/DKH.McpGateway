@@ -1,3 +1,4 @@
+using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
 using DKH.McpGateway.Application.Resources;
 using Microsoft.Extensions.Caching.Memory;
 using CatalogMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
@@ -100,9 +101,10 @@ public class CatalogResourcesTests : IDisposable
                 Arg.Any<ProductMgmt.GetProductDetailRequest>(),
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(product));
+        var counterpartyClient = Substitute.For<CounterpartyCrudService.CounterpartyCrudServiceClient>();
 
         var result = await CatalogResources.GetProductAsync(
-            client, _cache, productSeoName: "widget");
+            client, counterpartyClient, _cache, productSeoName: "widget");
 
         var json = JsonDocument.Parse(result).RootElement;
         json.GetProperty("name").GetString().Should().Be("Widget");

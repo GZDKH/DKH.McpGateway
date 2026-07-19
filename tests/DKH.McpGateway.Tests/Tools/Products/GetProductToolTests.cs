@@ -1,6 +1,9 @@
+using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
+using DKH.CounterpartyService.Contracts.Counterparty.Models.v1;
 using DKH.McpGateway.Application.Tools.Products;
 using DKH.Platform.Grpc.Common.Types;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.QueryCommon.v1;
 
 namespace DKH.McpGateway.Tests.Tools.Products;
 
@@ -9,6 +12,9 @@ public class GetProductToolTests
     private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
     private readonly ProductManagementService.ProductManagementServiceClient _client =
         Substitute.For<ProductManagementService.ProductManagementServiceClient>();
+
+    private readonly CounterpartyCrudService.CounterpartyCrudServiceClient _counterpartyClient =
+        Substitute.For<CounterpartyCrudService.CounterpartyCrudServiceClient>();
 
     [Fact]
     public async Task GetProduct_HappyPath_ReturnsProductDetailAsync()
@@ -27,11 +33,18 @@ public class GetProductToolTests
     }
 
     [Fact]
-    public async Task GetProduct_WithBrand_ReturnsBrandNameAsync()
+    public async Task GetProduct_WithBrand_ReturnsBrandNameFromCounterpartyLinkAsync()
     {
+        var brandId = Guid.NewGuid().ToString();
         var detail = CreateProductDetail();
-        detail.Brand = new QueryBrand { Name = "TestBrand", SeoName = "test-brand" };
+        detail.Counterparties.Add(new QueryCounterparty
+        {
+            CounterpartyId = new GuidValue(brandId),
+            Role = "Brand",
+            DisplayOrder = 0,
+        });
         SetupGetProductDetail(detail);
+        SetupBatchGetCounterpartyBasics(brandId, "TestBrand");
 
         var result = await ExecuteToolAsync("test-product");
 
@@ -39,15 +52,35 @@ public class GetProductToolTests
     }
 
     [Fact]
-    public async Task GetProduct_WithManufacturer_ReturnsManufacturerNameAsync()
+    public async Task GetProduct_WithManufacturer_ReturnsManufacturerNameFromCounterpartyLinkAsync()
     {
+        var manufacturerId = Guid.NewGuid().ToString();
         var detail = CreateProductDetail();
-        detail.Manufacturer = new QueryManufacturer { Name = "TestMfg", SeoName = "test-mfg" };
+        detail.Counterparties.Add(new QueryCounterparty
+        {
+            CounterpartyId = new GuidValue(manufacturerId),
+            Role = "Manufacturer",
+            DisplayOrder = 0,
+        });
         SetupGetProductDetail(detail);
+        SetupBatchGetCounterpartyBasics(manufacturerId, "TestMfg");
 
         var result = await ExecuteToolAsync("test-product");
 
         Parse(result).GetProperty("manufacturer").GetString().Should().Be("TestMfg");
+    }
+
+    [Fact]
+    public async Task GetProduct_NoCounterpartyLinks_ReturnsNullBrandAndManufacturerAsync()
+    {
+        var detail = CreateProductDetail();
+        SetupGetProductDetail(detail);
+
+        var result = await ExecuteToolAsync("test-product");
+
+        var json = Parse(result);
+        json.GetProperty("brand").ValueKind.Should().Be(JsonValueKind.Null);
+        json.GetProperty("manufacturer").ValueKind.Should().Be(JsonValueKind.Null);
     }
 
     [Fact]
@@ -241,6 +274,7 @@ public class GetProductToolTests
         => GetProductTool.ExecuteAsync(
             _auth,
             _client,
+            _counterpartyClient,
             productSeoName: productSeoName,
             catalogSeoName: catalogSeoName,
             languageCode: languageCode);
@@ -250,6 +284,21 @@ public class GetProductToolTests
                 Arg.Any<GetProductDetailRequest>(),
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
+
+    private void SetupBatchGetCounterpartyBasics(string counterpartyId, string displayName)
+    {
+        var response = new BatchGetCounterpartyBasicsResponse();
+        response.Basics.Add(new CounterpartyBasicsModel
+        {
+            Id = new GuidValue(counterpartyId),
+            DisplayName = new LocalizedText { Values = { ["ru"] = displayName } },
+        });
+
+        _counterpartyClient.BatchGetCounterpartyBasicsAsync(
+                Arg.Any<BatchGetCounterpartyBasicsRequest>(),
+                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
+    }
 
     private static JsonElement Parse(string json) => JsonDocument.Parse(json).RootElement;
 }
