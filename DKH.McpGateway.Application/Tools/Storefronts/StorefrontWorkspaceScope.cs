@@ -49,6 +49,34 @@ internal sealed record StorefrontWorkspaceScope(Guid WorkspaceId, Metadata Heade
         }
     }
 
+    internal async Task<GetAllStorefrontsResponse> GetAllAsync(
+        StorefrontsCrudService.StorefrontsCrudServiceClient client,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var response = await client.GetAllAsync(
+            new GetAllStorefrontsRequest
+            {
+                Pagination = new PaginationRequest { Page = page, PageSize = pageSize },
+                OwnerId = new GuidValue(WorkspaceId.ToString("D")),
+            },
+            Headers,
+            cancellationToken: cancellationToken);
+
+        if (response.Storefronts.Any(storefront =>
+                storefront.WorkspaceId is null
+                || !Guid.TryParse(storefront.WorkspaceId.Value, out var workspaceId)
+                || workspaceId != WorkspaceId))
+        {
+            throw new RpcException(new Status(
+                StatusCode.PermissionDenied,
+                "Storefront list contained data outside the selected Workspace."));
+        }
+
+        return response;
+    }
+
     internal async Task<StorefrontModel> GetByIdAsync(
         StorefrontsCrudService.StorefrontsCrudServiceClient client,
         string storefrontId,

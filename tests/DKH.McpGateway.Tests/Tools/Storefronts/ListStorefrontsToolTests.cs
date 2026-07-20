@@ -1,3 +1,4 @@
+using DKH.McpGateway.Application.Tools.DataExchange;
 using DKH.McpGateway.Application.Tools.Storefronts;
 using DKH.Platform.Grpc.Common.Types;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
@@ -27,6 +28,7 @@ public class ListStorefrontsToolTests
         response.Storefronts.Add(new StorefrontSummaryModel
         {
             Id = new GuidValue(Guid.NewGuid().ToString()),
+            WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
             Code = "test-store",
             Name = "Test Store",
             Status = StorefrontStatus.Active,
@@ -34,7 +36,8 @@ public class ListStorefrontsToolTests
         });
         SetupGetAll(response);
 
-        var result = await ListStorefrontsTool.ExecuteAsync(_auth, _client);
+        var result = await ListStorefrontsTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client);
 
         var json = Parse(result);
         json.GetProperty("totalCount").GetInt32().Should().Be(1);
@@ -55,7 +58,8 @@ public class ListStorefrontsToolTests
             },
         });
 
-        var result = await ListStorefrontsTool.ExecuteAsync(_auth, _client);
+        var result = await ListStorefrontsTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client);
 
         var json = Parse(result);
         json.GetProperty("totalCount").GetInt32().Should().Be(0);
@@ -75,11 +79,16 @@ public class ListStorefrontsToolTests
             },
         });
 
-        await ListStorefrontsTool.ExecuteAsync(_auth, _client, pageSize: 999);
+        await ListStorefrontsTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client, pageSize: 999);
 
         _ = _client.Received(1).GetAllAsync(
-            Arg.Is<GetAllStorefrontsRequest>(r => r.Pagination.PageSize == 50),
-            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
+            Arg.Is<GetAllStorefrontsRequest>(r =>
+                r.Pagination.PageSize == 50
+                && r.OwnerId.Value == StorefrontWorkspaceTestContext.WorkspaceId.ToString("D")),
+            Arg.Is<Metadata>(metadata => HasSelectedWorkspace(metadata)),
+            Arg.Any<DateTime?>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -91,10 +100,34 @@ public class ListStorefrontsToolTests
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<GetAllStorefrontsResponse>(
                 StatusCode.Unavailable, "Service unavailable"));
 
-        var act = () => ListStorefrontsTool.ExecuteAsync(_auth, _client);
+        var act = () => ListStorefrontsTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client);
 
         await act.Should().ThrowAsync<RpcException>()
             .Where(e => e.StatusCode == StatusCode.Unavailable);
+    }
+
+    [Fact]
+    public async Task List_ForeignWorkspaceResponse_IsRejectedAsync()
+    {
+        var response = new GetAllStorefrontsResponse
+        {
+            Pagination = new PaginationMetadata { TotalCount = 1, CurrentPage = 1, PageSize = 20 },
+        };
+        response.Storefronts.Add(new StorefrontSummaryModel
+        {
+            Id = new GuidValue(Guid.NewGuid().ToString("D")),
+            WorkspaceId = new GuidValue(Guid.NewGuid().ToString("D")),
+            Code = "foreign",
+            Name = "Foreign store",
+        });
+        SetupGetAll(response);
+
+        var act = () => ListStorefrontsTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client);
+
+        await act.Should().ThrowAsync<RpcException>()
+            .Where(exception => exception.StatusCode == StatusCode.PermissionDenied);
     }
 
     private void SetupGetAll(GetAllStorefrontsResponse response)
@@ -104,4 +137,14 @@ public class ListStorefrontsToolTests
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
 
     private static JsonElement Parse(string json) => JsonDocument.Parse(json).RootElement;
+
+    private static bool HasSelectedWorkspace(Metadata metadata)
+    {
+        var values = metadata
+            .Where(entry => entry.Key == ProductCatalogWorkspaceRequestContext.GrpcWorkspaceIdHeaderName)
+            .Select(entry => entry.Value)
+            .ToList();
+        return values.Count == 1
+            && values[0] == StorefrontWorkspaceTestContext.WorkspaceId.ToString("D");
+    }
 }

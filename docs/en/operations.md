@@ -42,6 +42,12 @@ an MCP-scoped API key, an authenticated Keycloak session, and exactly one
 are rejected before a downstream call. Stdio and global execution without an
 explicit Workspace are intentionally fail-closed.
 
+The same HTTP requirements apply to generic `catalog://*` and
+`storefront://*` resources. Unauthorized resources are removed from MCP
+discovery and direct reads repeat the authorization check. Stdio exposes no
+tenant-sensitive merchant resources, and the gateway does not cache their
+results.
+
 ### Native OAuth clients
 
 The canonical production MCP resource is exactly `https://thetea.app/mcp`

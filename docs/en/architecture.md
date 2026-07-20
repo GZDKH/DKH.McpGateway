@@ -129,7 +129,17 @@ Workspace against the propagated Keycloak caller and active membership.
 Storefront admin tools use the same selected Workspace context. The gateway
 validates the `WorkspaceId` returned by StorefrontService before any dependent
 storefront RPC, maps both foreign and missing resources to one neutral
-`NotFound`, and partitions storefront configuration cache entries by Workspace.
+`NotFound`.
+
+Generic `catalog://*` and `storefront://*` merchant resources use MCP SDK
+authorization filters for discovery and direct reads. They require the same
+MCP-scoped key, `mcp:read`, authenticated HTTP principal, and single selected
+Workspace as merchant tools. Every resource repeats the guard before its first
+RPC, propagates normalized Workspace metadata, and disables gateway caching for
+tenant-sensitive results. Storefront list calls also set `OwnerId` to the
+selected Workspace and reject any returned item with another `WorkspaceId`.
+Consequently storefront keys and stdio cannot enumerate or read the generic
+merchant resource surface.
 
 Stdio mode has no HTTP principal or bearer token. It registers the same
 downstream client types without the identity interceptor; authenticated

@@ -1,7 +1,7 @@
 using DKH.McpGateway.Application.Resources;
+using DKH.McpGateway.Application.Tools.DataExchange;
 using DKH.McpGateway.Tests.Tools.Storefronts;
 using DKH.Platform.Grpc.Common.Types;
-using Microsoft.Extensions.Caching.Memory;
 using SfBranding = DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
 using SfCrud = DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using SfFeatures = DKH.StorefrontService.Contracts.Storefront.Api.StorefrontFeaturesManagement.v1;
@@ -9,16 +9,8 @@ using SfModels = DKH.StorefrontService.Contracts.Storefront.Models.Storefront.v1
 
 namespace DKH.McpGateway.Tests.Resources;
 
-public class StorefrontResourcesTests : IDisposable
+public class StorefrontResourcesTests
 {
-    private readonly MemoryCache _cache = new(new MemoryCacheOptions());
-
-    public void Dispose()
-    {
-        _cache.Dispose();
-        GC.SuppressFinalize(this);
-    }
-
     [Fact]
     public async Task GetStorefronts_Success_ReturnsJsonWithStorefrontsAsync()
     {
@@ -32,7 +24,10 @@ public class StorefrontResourcesTests : IDisposable
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
 
-        var result = await StorefrontResources.GetStorefrontsAsync(client, _cache);
+        var result = await StorefrontResources.GetStorefrontsAsync(
+            ApiKeyContextMocks.FullAccess(),
+            StorefrontWorkspaceTestContext.HttpContextAccessor,
+            client);
 
         var json = JsonDocument.Parse(result).RootElement;
         json.TryGetProperty("storefronts", out _).Should().BeTrue();
@@ -51,12 +46,19 @@ public class StorefrontResourcesTests : IDisposable
                 Pagination = new() { TotalCount = 0 },
             }));
 
-        await StorefrontResources.GetStorefrontsAsync(client, _cache);
+        await StorefrontResources.GetStorefrontsAsync(
+            ApiKeyContextMocks.FullAccess(),
+            StorefrontWorkspaceTestContext.HttpContextAccessor,
+            client);
 
         _ = client.Received(1).GetAllAsync(
             Arg.Is<SfCrud.GetAllStorefrontsRequest>(r =>
-                r.Pagination.Page == 1 && r.Pagination.PageSize == 50),
-            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
+                r.Pagination.Page == 1
+                && r.Pagination.PageSize == 50
+                && r.OwnerId.Value == StorefrontWorkspaceTestContext.WorkspaceId.ToString("D")),
+            Arg.Is<Metadata>(metadata => HasSelectedWorkspace(metadata)),
+            Arg.Any<DateTime?>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -98,7 +100,6 @@ public class StorefrontResourcesTests : IDisposable
             crudClient,
             brandingClient,
             featuresClient,
-            _cache,
             storefrontCode: "main");
 
         var json = JsonDocument.Parse(result).RootElement;
@@ -107,7 +108,7 @@ public class StorefrontResourcesTests : IDisposable
     }
 
     [Fact]
-    public async Task GetStorefrontConfig_CacheIsPartitionedByWorkspaceAsync()
+    public async Task GetStorefrontConfig_DoesNotReuseDataAcrossWorkspacesAsync()
     {
         var firstWorkspaceId = Guid.NewGuid();
         var secondWorkspaceId = Guid.NewGuid();
@@ -142,7 +143,6 @@ public class StorefrontResourcesTests : IDisposable
             crudClient,
             brandingClient,
             featuresClient,
-            _cache,
             "main");
         var second = await StorefrontResources.GetStorefrontConfigAsync(
             ApiKeyContextMocks.FullAccess(),
@@ -150,7 +150,6 @@ public class StorefrontResourcesTests : IDisposable
             crudClient,
             brandingClient,
             featuresClient,
-            _cache,
             "main");
 
         JsonDocument.Parse(first).RootElement.GetProperty("name").GetString().Should().Be("First workspace");
@@ -170,7 +169,10 @@ public class StorefrontResourcesTests : IDisposable
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<SfCrud.GetAllStorefrontsResponse>(
                 StatusCode.Unavailable));
 
-        var act = () => StorefrontResources.GetStorefrontsAsync(client, _cache);
+        var act = () => StorefrontResources.GetStorefrontsAsync(
+            ApiKeyContextMocks.FullAccess(),
+            StorefrontWorkspaceTestContext.HttpContextAccessor,
+            client);
 
         await act.Should().ThrowAsync<RpcException>();
     }
@@ -183,4 +185,14 @@ public class StorefrontResourcesTests : IDisposable
         Name = name,
         Status = SfModels.StorefrontStatus.Active,
     };
+
+    private static bool HasSelectedWorkspace(Metadata metadata)
+    {
+        var values = metadata
+            .Where(entry => entry.Key == ProductCatalogWorkspaceRequestContext.GrpcWorkspaceIdHeaderName)
+            .Select(entry => entry.Value)
+            .ToList();
+        return values.Count == 1
+            && values[0] == StorefrontWorkspaceTestContext.WorkspaceId.ToString("D");
+    }
 }

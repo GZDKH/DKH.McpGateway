@@ -19,4 +19,13 @@ Storefront admin-инструменты, которые находят storefron
 тот же HTTP-only Workspace-контекст. До любого вызова branding, catalog, channel,
 domain, feature, update или delete они сверяют принадлежащий StorefrontService
 `WorkspaceId`. Чужой и отсутствующий storefront возвращают одинаковый нейтральный
-`NotFound`, а cache `storefront://config` разделён по Workspace.
+`NotFound`.
+
+Ресурсы `catalog://*` и `storefront://*` видны и читаются только через
+аутентифицированный HTTP: нужен MCP-scoped API key с правом `mcp:read`,
+аутентифицированный пользователь и ровно один `X-Workspace-Id`. Проверка
+выполняется и при discovery, и повторно перед первым downstream-вызовом.
+Storefront-ключи и stdio не могут перечислять или читать эти merchant-ресурсы.
+Tenant-зависимые ответы в Gateway не кэшируются, поэтому данные не переиспользуются
+между ключами, пользователями и Workspace. Общий cache остаётся только у глобальных
+справочников `reference://*`.

@@ -1,21 +1,17 @@
 using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
 using DKH.McpGateway.Application.Resources;
-using Microsoft.Extensions.Caching.Memory;
+using DKH.McpGateway.Application.Tools.DataExchange;
+using DKH.McpGateway.Tests.Tools.Storefronts;
+using Microsoft.AspNetCore.Http;
 using CatalogMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
 using CategoryMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
 using ProductMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
 
 namespace DKH.McpGateway.Tests.Resources;
 
-public class CatalogResourcesTests : IDisposable
+public class CatalogResourcesTests
 {
-    private readonly MemoryCache _cache = new(new MemoryCacheOptions());
-
-    public void Dispose()
-    {
-        _cache.Dispose();
-        GC.SuppressFinalize(this);
-    }
+    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
 
     [Fact]
     public async Task GetCatalogs_Success_ReturnsJsonWithCatalogsAsync()
@@ -27,7 +23,8 @@ public class CatalogResourcesTests : IDisposable
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
 
-        var result = await CatalogResources.GetCatalogsAsync(client, _cache);
+        var result = await CatalogResources.GetCatalogsAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, client);
 
         var json = JsonDocument.Parse(result).RootElement;
         json.TryGetProperty("catalogs", out _).Should().BeTrue();
@@ -42,11 +39,14 @@ public class CatalogResourcesTests : IDisposable
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CatalogMgmt.GetStorefrontCatalogsResponse()));
 
-        await CatalogResources.GetCatalogsAsync(client, _cache);
+        await CatalogResources.GetCatalogsAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, client);
 
         _ = client.Received(1).GetCatalogsAsync(
             Arg.Is<CatalogMgmt.GetStorefrontCatalogsRequest>(r => r.LanguageCode == "ru"),
-            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
+            Arg.Is<Metadata>(metadata => HasSelectedWorkspace(metadata)),
+            Arg.Any<DateTime?>(),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -58,7 +58,8 @@ public class CatalogResourcesTests : IDisposable
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CategoryMgmt.CategoryTree()));
 
-        var result = await CatalogResources.GetCategoriesAsync(client, _cache);
+        var result = await CatalogResources.GetCategoriesAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, client);
 
         var json = JsonDocument.Parse(result).RootElement;
         json.GetProperty("catalog").GetString().Should().Be("main-catalog");
@@ -78,7 +79,11 @@ public class CatalogResourcesTests : IDisposable
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CategoryMgmt.CategoryTree()));
 
-        var result = await CatalogResources.GetCategoriesAsync(client, _cache, catalogSeoName: "electronics");
+        var result = await CatalogResources.GetCategoriesAsync(
+            _auth,
+            StorefrontWorkspaceTestContext.HttpContextAccessor,
+            client,
+            catalogSeoName: "electronics");
 
         JsonDocument.Parse(result).RootElement.GetProperty("catalog").GetString()
             .Should().Be("electronics");
@@ -104,7 +109,11 @@ public class CatalogResourcesTests : IDisposable
         var counterpartyClient = Substitute.For<CounterpartyCrudService.CounterpartyCrudServiceClient>();
 
         var result = await CatalogResources.GetProductAsync(
-            client, counterpartyClient, _cache, productSeoName: "widget");
+            _auth,
+            StorefrontWorkspaceTestContext.HttpContextAccessor,
+            client,
+            counterpartyClient,
+            productSeoName: "widget");
 
         var json = JsonDocument.Parse(result).RootElement;
         json.GetProperty("name").GetString().Should().Be("Widget");
@@ -122,9 +131,58 @@ public class CatalogResourcesTests : IDisposable
             .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<CatalogMgmt.GetStorefrontCatalogsResponse>(
                 StatusCode.Unavailable));
 
-        var act = () => CatalogResources.GetCatalogsAsync(client, _cache);
+        var act = () => CatalogResources.GetCatalogsAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, client);
 
         await act.Should().ThrowAsync<RpcException>()
             .Where(e => e.StatusCode == StatusCode.Unavailable);
+    }
+
+    [Fact]
+    public async Task GetCatalogs_MissingWorkspace_DoesNotCallDownstreamAsync()
+    {
+        var client = Substitute.For<CatalogMgmt.CatalogManagementService.CatalogManagementServiceClient>();
+        var context = new DefaultHttpContext
+        {
+            User = StorefrontWorkspaceTestContext.HttpContextAccessor.HttpContext!.User,
+        };
+
+        var act = () => CatalogResources.GetCatalogsAsync(
+            _auth,
+            new HttpContextAccessor { HttpContext = context },
+            client);
+
+        await act.Should().ThrowAsync<RpcException>()
+            .Where(exception => exception.StatusCode == StatusCode.InvalidArgument);
+        _ = client.DidNotReceiveWithAnyArgs().GetCatalogsAsync(default!, default!, default, default);
+    }
+
+    [Fact]
+    public async Task GetCatalogs_RepeatedRead_DoesNotReuseTenantDataAsync()
+    {
+        var client = Substitute.For<CatalogMgmt.CatalogManagementService.CatalogManagementServiceClient>();
+        client.GetCatalogsAsync(
+                Arg.Any<CatalogMgmt.GetStorefrontCatalogsRequest>(),
+                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CatalogMgmt.GetStorefrontCatalogsResponse()));
+
+        await CatalogResources.GetCatalogsAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, client);
+        await CatalogResources.GetCatalogsAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, client);
+
+        _ = client.Received(2).GetCatalogsAsync(
+            Arg.Any<CatalogMgmt.GetStorefrontCatalogsRequest>(),
+            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
+    }
+
+    private static bool HasSelectedWorkspace(Metadata metadata)
+    {
+        var values = metadata
+            .Where(entry => entry.Key == ProductCatalogWorkspaceRequestContext.GrpcWorkspaceIdHeaderName)
+            .Select(entry => entry.Value)
+            .ToList();
+        return values.Count == 1
+            && values[0] == StorefrontWorkspaceTestContext.WorkspaceId.ToString("D");
     }
 }

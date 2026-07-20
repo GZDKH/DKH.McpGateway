@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,11 @@ public static class ConfigureServices
         services.AddHttpContextAccessor();
         services.AddScoped<IApiKeyContext, HttpApiKeyContext>();
         services.AddScoped<IStorefrontMcpGate, StorefrontMcpGate>();
+        services.AddAuthorizationBuilder()
+            .AddPolicy(
+                MerchantResourceAuthorization.PolicyName,
+                policy => policy.AddRequirements(new MerchantResourceRequirement()));
+        services.AddScoped<IAuthorizationHandler, MerchantResourceAuthorizationHandler>();
         return services;
     }
 
