@@ -126,6 +126,11 @@ gRPC metadata containing only the normalized `x-workspace-id`; it never copies
 arbitrary client metadata. ProductCatalogService independently verifies that
 Workspace against the propagated Keycloak caller and active membership.
 
+Storefront admin tools use the same selected Workspace context. The gateway
+validates the `WorkspaceId` returned by StorefrontService before any dependent
+storefront RPC, maps both foreign and missing resources to one neutral
+`NotFound`, and partitions storefront configuration cache entries by Workspace.
+
 Stdio mode has no HTTP principal or bearer token. It registers the same
 downstream client types without the identity interceptor; authenticated
 storefront provisioning and publishing are HTTP-only. The legacy

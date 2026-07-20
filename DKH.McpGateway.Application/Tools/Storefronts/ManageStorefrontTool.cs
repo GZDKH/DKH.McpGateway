@@ -1,5 +1,6 @@
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using DKH.StorefrontService.Contracts.Storefront.Models.Features.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -13,6 +14,7 @@ public static class ManageStorefrontTool
         "Provide storefrontCode to identify the storefront.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient client,
         [Description("Action: update or delete. Legacy create is rejected.")] string action,
         [Description("Storefront code (required, e.g. 'my-store')")] string? storefrontCode = null,
@@ -45,24 +47,16 @@ public static class ManageStorefrontTool
                 McpJsonDefaults.Options);
         }
 
-        var storefront = await client.GetByCodeAsync(
-            new GetStorefrontByCodeRequest { Code = storefrontCode },
-            cancellationToken: cancellationToken);
-
-        if (storefront.Storefront is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Storefront with code '{storefrontCode}' not found" },
-                McpJsonDefaults.Options);
-        }
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        var storefront = await scope.GetByCodeAsync(client, storefrontCode, cancellationToken);
 
         if (string.Equals(action, "update", StringComparison.OrdinalIgnoreCase))
         {
             var request = new UpdateStorefrontRequest
             {
-                Id = storefront.Storefront.Id,
-                Name = name ?? storefront.Storefront.Name,
-                Features = storefront.Storefront.Features ?? new StorefrontFeaturesModel(),
+                Id = storefront.Id,
+                Name = name ?? storefront.Name,
+                Features = storefront.Features ?? new StorefrontFeaturesModel(),
             };
 
             if (description is not null)
@@ -95,7 +89,10 @@ public static class ManageStorefrontTool
                 request.Features.WishlistEnabled = wishlistEnabled.Value;
             }
 
-            var response = await client.UpdateAsync(request, cancellationToken: cancellationToken);
+            var response = await client.UpdateAsync(
+                request,
+                scope.Headers,
+                cancellationToken: cancellationToken);
             var s = response.Storefront;
 
             return JsonSerializer.Serialize(new
@@ -109,7 +106,8 @@ public static class ManageStorefrontTool
         if (string.Equals(action, "delete", StringComparison.OrdinalIgnoreCase))
         {
             var response = await client.DeleteAsync(
-                new DeleteStorefrontRequest { Id = storefront.Storefront.Id },
+                new DeleteStorefrontRequest { Id = storefront.Id },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

@@ -17,7 +17,8 @@ public class ManageStorefrontToolTests
     public async Task Create_IsRejectedWithoutCallingGrpcAsync()
     {
         var result = await ManageStorefrontTool.ExecuteAsync(
-            _auth, _client, "create", storefrontCode: "my-store", name: "My Store");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client,
+            "create", storefrontCode: "my-store", name: "My Store");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeFalse();
@@ -29,7 +30,8 @@ public class ManageStorefrontToolTests
     [Fact]
     public async Task Create_MissingFields_ReturnsSameMigrationErrorAsync()
     {
-        var result = await ManageStorefrontTool.ExecuteAsync(_auth, _client, "create", name: "Test");
+        var result = await ManageStorefrontTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client, "create", name: "Test");
 
         Parse(result).GetProperty("errorCode").GetString().Should().Be("legacy_storefront_create_disabled");
         _client.ReceivedCalls().Should().NotContain(call => call.GetMethodInfo().Name == "CreateAsync");
@@ -38,7 +40,8 @@ public class ManageStorefrontToolTests
     [Fact]
     public async Task Update_MissingStorefrontCode_ReturnsErrorAsync()
     {
-        var result = await ManageStorefrontTool.ExecuteAsync(_auth, _client, "update");
+        var result = await ManageStorefrontTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client, "update");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("storefrontCode is required");
     }
@@ -46,7 +49,8 @@ public class ManageStorefrontToolTests
     [Fact]
     public async Task Delete_MissingStorefrontCode_ReturnsErrorAsync()
     {
-        var result = await ManageStorefrontTool.ExecuteAsync(_auth, _client, "delete");
+        var result = await ManageStorefrontTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client, "delete");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("storefrontCode is required");
     }
@@ -56,7 +60,8 @@ public class ManageStorefrontToolTests
     {
         SetupGetByCode("test-store");
         var result = await ManageStorefrontTool.ExecuteAsync(
-            _auth, _client, "merge", storefrontCode: "test-store");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client,
+            "merge", storefrontCode: "test-store");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("Unknown action");
         Parse(result).GetProperty("error").GetString().Should().Contain("update or delete");
@@ -66,7 +71,7 @@ public class ManageStorefrontToolTests
     public async Task Unauthenticated_ThrowsUnauthorizedAsync()
     {
         var act = () => ManageStorefrontTool.ExecuteAsync(
-            ApiKeyContextMocks.Unauthenticated(), _client, "create",
+            ApiKeyContextMocks.Unauthenticated(), StorefrontWorkspaceTestContext.HttpContextAccessor, _client, "create",
             storefrontCode: "test", name: "Test");
 
         await act.Should().ThrowAsync<UnauthorizedAccessException>();
@@ -90,7 +95,8 @@ public class ManageStorefrontToolTests
             }));
 
         var result = await ManageStorefrontTool.ExecuteAsync(
-            _auth, _client, "update", storefrontCode: "test-store", name: "Updated Store");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client,
+            "update", storefrontCode: "test-store", name: "Updated Store");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -106,7 +112,8 @@ public class ManageStorefrontToolTests
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new DeleteStorefrontResponse { Success = true }));
 
         var result = await ManageStorefrontTool.ExecuteAsync(
-            _auth, _client, "delete", storefrontCode: "test-store");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client,
+            "delete", storefrontCode: "test-store");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -117,7 +124,7 @@ public class ManageStorefrontToolTests
     public async Task ReadOnly_ThrowsUnauthorizedAsync()
     {
         var act = () => ManageStorefrontTool.ExecuteAsync(
-            ApiKeyContextMocks.ReadOnly(), _client, "create",
+            ApiKeyContextMocks.ReadOnly(), StorefrontWorkspaceTestContext.HttpContextAccessor, _client, "create",
             storefrontCode: "test", name: "Test");
 
         await act.Should().ThrowAsync<UnauthorizedAccessException>();
@@ -132,6 +139,7 @@ public class ManageStorefrontToolTests
                 Storefront = new StorefrontModel
                 {
                     Id = new GuidValue(Guid.NewGuid().ToString()),
+                    WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
                     Code = code,
                     Name = "Test Store",
                     Status = StorefrontStatus.Active,

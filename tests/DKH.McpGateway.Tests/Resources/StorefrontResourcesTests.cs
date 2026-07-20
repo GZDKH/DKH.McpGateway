@@ -1,4 +1,5 @@
 using DKH.McpGateway.Application.Resources;
+using DKH.McpGateway.Tests.Tools.Storefronts;
 using DKH.Platform.Grpc.Common.Types;
 using Microsoft.Extensions.Caching.Memory;
 using SfBranding = DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
@@ -68,6 +69,7 @@ public class StorefrontResourcesTests : IDisposable
         var storefront = new SfModels.StorefrontModel
         {
             Id = new GuidValue(Guid.NewGuid().ToString()),
+            WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
             Code = "main",
             Name = "Main Store",
             Status = SfModels.StorefrontStatus.Active,
@@ -91,11 +93,71 @@ public class StorefrontResourcesTests : IDisposable
                 new SfFeatures.GetFeaturesResponse()));
 
         var result = await StorefrontResources.GetStorefrontConfigAsync(
-            crudClient, brandingClient, featuresClient, _cache, storefrontCode: "main");
+            ApiKeyContextMocks.FullAccess(),
+            StorefrontWorkspaceTestContext.HttpContextAccessor,
+            crudClient,
+            brandingClient,
+            featuresClient,
+            _cache,
+            storefrontCode: "main");
 
         var json = JsonDocument.Parse(result).RootElement;
         json.GetProperty("code").GetString().Should().Be("main");
         json.GetProperty("name").GetString().Should().Be("Main Store");
+    }
+
+    [Fact]
+    public async Task GetStorefrontConfig_CacheIsPartitionedByWorkspaceAsync()
+    {
+        var firstWorkspaceId = Guid.NewGuid();
+        var secondWorkspaceId = Guid.NewGuid();
+        var crudClient = Substitute.For<SfCrud.StorefrontsCrudService.StorefrontsCrudServiceClient>();
+        var brandingClient = Substitute.For<SfBranding.StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient>();
+        var featuresClient = Substitute.For<SfFeatures.StorefrontFeaturesManagementService.StorefrontFeaturesManagementServiceClient>();
+
+        crudClient.GetByCodeAsync(
+                Arg.Any<SfCrud.GetStorefrontByCodeRequest>(),
+                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+            .Returns(
+                GrpcTestHelpers.CreateAsyncUnaryCall(new SfCrud.GetStorefrontByCodeResponse
+                {
+                    Storefront = CreateStorefront(firstWorkspaceId, "First workspace"),
+                }),
+                GrpcTestHelpers.CreateAsyncUnaryCall(new SfCrud.GetStorefrontByCodeResponse
+                {
+                    Storefront = CreateStorefront(secondWorkspaceId, "Second workspace"),
+                }));
+        brandingClient.GetBrandingAsync(
+                Arg.Any<SfBranding.GetBrandingRequest>(),
+                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new SfBranding.GetBrandingResponse()));
+        featuresClient.GetFeaturesAsync(
+                Arg.Any<SfFeatures.GetFeaturesRequest>(),
+                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new SfFeatures.GetFeaturesResponse()));
+
+        var first = await StorefrontResources.GetStorefrontConfigAsync(
+            ApiKeyContextMocks.FullAccess(),
+            StorefrontWorkspaceTestContext.CreateAccessor(firstWorkspaceId),
+            crudClient,
+            brandingClient,
+            featuresClient,
+            _cache,
+            "main");
+        var second = await StorefrontResources.GetStorefrontConfigAsync(
+            ApiKeyContextMocks.FullAccess(),
+            StorefrontWorkspaceTestContext.CreateAccessor(secondWorkspaceId),
+            crudClient,
+            brandingClient,
+            featuresClient,
+            _cache,
+            "main");
+
+        JsonDocument.Parse(first).RootElement.GetProperty("name").GetString().Should().Be("First workspace");
+        JsonDocument.Parse(second).RootElement.GetProperty("name").GetString().Should().Be("Second workspace");
+        _ = crudClient.Received(2).GetByCodeAsync(
+            Arg.Any<SfCrud.GetStorefrontByCodeRequest>(),
+            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -112,4 +174,13 @@ public class StorefrontResourcesTests : IDisposable
 
         await act.Should().ThrowAsync<RpcException>();
     }
+
+    private static SfModels.StorefrontModel CreateStorefront(Guid workspaceId, string name) => new()
+    {
+        Id = new GuidValue(Guid.NewGuid().ToString("D")),
+        WorkspaceId = new GuidValue(workspaceId.ToString("D")),
+        Code = "main",
+        Name = name,
+        Status = SfModels.StorefrontStatus.Active,
+    };
 }

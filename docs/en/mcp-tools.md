@@ -424,6 +424,13 @@ the propagated caller. The supported public tool surface for storefront-scoped
 keys is the read-only `storefront_*` namespace; those keys cannot invoke bulk
 data exchange.
 
+Storefront admin tools that resolve a storefront by code or ID use the same
+HTTP-only Workspace context. They compare the StorefrontService-owned
+`WorkspaceId` before any branding, catalog, channel, domain, feature, update,
+or delete call. Foreign and missing storefronts return the same neutral
+`NotFound` result, and `storefront://config` cache entries are partitioned by
+Workspace.
+
 | Tool | File | Description |
 | ---- | ---- | ----------- |
 | `product_catalog_data` | ProductCatalogDataTool.cs | Workspace-scoped import/export/validation/templates for product catalog data |

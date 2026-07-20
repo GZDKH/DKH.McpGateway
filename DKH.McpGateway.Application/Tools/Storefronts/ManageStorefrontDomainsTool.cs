@@ -1,5 +1,6 @@
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontDomainManagement.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -12,6 +13,7 @@ public static class ManageStorefrontDomainsTool
         "'remove' to delete, 'verify' to check DNS, 'set_primary' to set primary domain.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
         StorefrontDomainManagementService.StorefrontDomainManagementServiceClient domainClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -23,23 +25,15 @@ public static class ManageStorefrontDomainsTool
     {
         apiKeyContext.EnsurePermission(McpPermissions.Write);
 
-        var storefront = await crudClient.GetByCodeAsync(
-            new GetStorefrontByCodeRequest { Code = storefrontCode },
-            cancellationToken: cancellationToken);
-
-        if (storefront.Storefront is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Storefront '{storefrontCode}' not found" },
-                McpJsonDefaults.Options);
-        }
-
-        var storefrontId = storefront.Storefront.Id;
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        var storefront = await scope.GetByCodeAsync(crudClient, storefrontCode, cancellationToken);
+        var storefrontId = storefront.Id;
 
         if (string.Equals(action, "list", StringComparison.OrdinalIgnoreCase))
         {
             var response = await domainClient.GetDomainsAsync(
                 new GetDomainsRequest { StorefrontId = storefrontId },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -73,6 +67,7 @@ public static class ManageStorefrontDomainsTool
                     Domain = domain,
                     IsPrimary = isPrimary ?? false,
                 },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -100,6 +95,7 @@ public static class ManageStorefrontDomainsTool
 
             var response = await domainClient.RemoveDomainAsync(
                 new RemoveDomainRequest { StorefrontId = storefrontId, DomainId = new GuidValue(domainId) },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -120,6 +116,7 @@ public static class ManageStorefrontDomainsTool
 
             var response = await domainClient.VerifyDomainAsync(
                 new VerifyDomainRequest { StorefrontId = storefrontId, DomainId = new GuidValue(domainId) },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -142,6 +139,7 @@ public static class ManageStorefrontDomainsTool
 
             var response = await domainClient.SetPrimaryAsync(
                 new SetPrimaryDomainRequest { StorefrontId = storefrontId, DomainId = new GuidValue(domainId) },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

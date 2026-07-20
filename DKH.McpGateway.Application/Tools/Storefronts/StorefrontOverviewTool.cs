@@ -2,6 +2,7 @@ using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontChannelManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontDomainManagement.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -11,6 +12,7 @@ public static class StorefrontOverviewTool
     [McpServerTool(Name = "storefront_overview"), Description("Get a comprehensive storefront overview: domains, channels, catalogs, and features in one call.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
         StorefrontDomainManagementService.StorefrontDomainManagementServiceClient domainClient,
         StorefrontChannelManagementService.StorefrontChannelManagementServiceClient channelClient,
@@ -19,25 +21,27 @@ public static class StorefrontOverviewTool
         CancellationToken cancellationToken = default)
     {
         apiKeyContext.EnsurePermission(McpPermissions.Read);
-        var storefrontTask = crudClient.GetAsync(
-            new GetStorefrontRequest { Id = new GuidValue(storefrontId) },
-            cancellationToken: cancellationToken).ResponseAsync;
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        var storefront = await scope.GetByIdAsync(crudClient, storefrontId, cancellationToken);
 
         var domainsTask = domainClient.GetDomainsAsync(
-            new GetDomainsRequest { StorefrontId = new GuidValue(storefrontId) },
+            new GetDomainsRequest { StorefrontId = storefront.Id },
+            scope.Headers,
             cancellationToken: cancellationToken).ResponseAsync;
 
         var channelsTask = channelClient.GetChannelsAsync(
-            new GetChannelsRequest { StorefrontId = new GuidValue(storefrontId) },
+            new GetChannelsRequest { StorefrontId = storefront.Id },
+            scope.Headers,
             cancellationToken: cancellationToken).ResponseAsync;
 
         var catalogsTask = catalogClient.GetCatalogsAsync(
-            new GetCatalogsRequest { StorefrontId = new GuidValue(storefrontId) },
+            new GetCatalogsRequest { StorefrontId = storefront.Id },
+            scope.Headers,
             cancellationToken: cancellationToken).ResponseAsync;
 
-        await Task.WhenAll(storefrontTask, domainsTask, channelsTask, catalogsTask);
+        await Task.WhenAll(domainsTask, channelsTask, catalogsTask);
 
-        var s = storefrontTask.Result.Storefront;
+        var s = storefront;
         var result = new
         {
             id = s.Id,
