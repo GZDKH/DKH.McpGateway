@@ -428,8 +428,7 @@ Storefront admin tools that resolve a storefront by code or ID use the same
 HTTP-only Workspace context. They compare the StorefrontService-owned
 `WorkspaceId` before any branding, catalog, channel, domain, feature, update,
 or delete call. Foreign and missing storefronts return the same neutral
-`NotFound` result, and `storefront://config` cache entries are partitioned by
-Workspace.
+`NotFound` result.
 
 | Tool | File | Description |
 | ---- | ---- | ----------- |
@@ -442,6 +441,17 @@ Workspace.
 ## Resources
 
 Read-only data endpoints that AI clients can access directly.
+
+The `catalog://*` and `storefront://*` merchant resources are visible and
+readable only over authenticated HTTP with an MCP-scoped API key, `mcp:read`,
+an authenticated caller, and exactly one `X-Workspace-Id`. The same guard runs
+again before every downstream call. ProductCatalogService and StorefrontService
+validate the selected Workspace; storefront lists are additionally requested
+with the Workspace owner filter and every returned `WorkspaceId` is checked.
+Storefront-scoped keys and stdio cannot discover or read these merchant
+resources. Tenant-sensitive resource results are not cached in the gateway, so
+data cannot be reused across API keys, callers, or Workspaces. The global
+`reference://*` resources retain their shared reference-data cache.
 
 | URI | Resource class | Description |
 | --- | -------------- | ----------- |

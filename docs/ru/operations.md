@@ -10,6 +10,11 @@ MCP-scoped API key, аутентифицированную Keycloak-сессию
 Workspace отклоняются до downstream-вызова. Stdio и глобальное выполнение без явно
 выбранного Workspace намеренно работают в fail-closed режиме.
 
+Те же HTTP-требования действуют для общих ресурсов `catalog://*` и
+`storefront://*`. Ресурсы без доступа скрываются из MCP discovery, а прямое чтение
+повторно проверяет авторизацию. В stdio tenant-зависимые merchant-ресурсы не
+доступны; их результаты в Gateway не кэшируются.
+
 ## Нативные OAuth-клиенты
 
 Канонический production resource — строго `https://thetea.app/mcp` без завершающего

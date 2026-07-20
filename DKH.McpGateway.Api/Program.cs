@@ -10,7 +10,9 @@ var platform = Platform
     .CreateWeb(args)
     .ConfigurePlatformWebApplicationBuilder(builder =>
     {
-        var mcp = builder.Services.AddMcpGatewayServer();
+        var mcp = builder.Services
+            .AddMcpGatewayServer()
+            .AddAuthorizationFilters();
 
         if (useStdio)
         {

@@ -1,4 +1,5 @@
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -8,17 +9,17 @@ public static class ListStorefrontsTool
     [McpServerTool(Name = "list_storefronts"), Description("List all storefronts with their status, code, and creation date.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient client,
         [Description("Page number (1-based)")] int page = 1,
         [Description("Page size (max 50)")] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
         apiKeyContext.EnsurePermission(McpPermissions.Read);
         pageSize = Math.Clamp(pageSize, 1, 50);
 
-        var response = await client.GetAllAsync(
-            new GetAllStorefrontsRequest { Pagination = new PaginationRequest { Page = page, PageSize = pageSize } },
-            cancellationToken: cancellationToken);
+        var response = await scope.GetAllAsync(client, page, pageSize, cancellationToken);
 
         var result = new
         {
