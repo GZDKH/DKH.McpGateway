@@ -34,6 +34,7 @@ public class GetStorefrontToolTests
                 Storefront = new StorefrontModel
                 {
                     Id = new GuidValue(Guid.NewGuid().ToString()),
+                    WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
                     Code = "my-store",
                     Name = "My Store",
                     Status = StorefrontStatus.Active,
@@ -41,7 +42,8 @@ public class GetStorefrontToolTests
                 },
             }));
 
-        var result = await GetStorefrontTool.ExecuteAsync(_auth, _client, storefrontCode: "my-store");
+        var result = await GetStorefrontTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client, storefrontCode: "my-store");
 
         var json = Parse(result);
         json.GetProperty("code").GetString().Should().Be("my-store");
@@ -59,13 +61,15 @@ public class GetStorefrontToolTests
                 Storefront = new StorefrontModel
                 {
                     Id = new GuidValue(id),
+                    WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
                     Code = "my-store",
                     Name = "My Store",
                     Status = StorefrontStatus.Active,
                 },
             }));
 
-        var result = await GetStorefrontTool.ExecuteAsync(_auth, _client, storefrontId: id);
+        var result = await GetStorefrontTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client, storefrontId: id);
 
         var json = Parse(result);
         json.GetProperty("code").GetString().Should().Be("my-store");
@@ -74,7 +78,8 @@ public class GetStorefrontToolTests
     [Fact]
     public async Task Get_NoParams_ReturnsErrorAsync()
     {
-        var result = await GetStorefrontTool.ExecuteAsync(_auth, _client);
+        var result = await GetStorefrontTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor, _client);
 
         Parse(result).GetProperty("error").GetString().Should().Contain("storefrontId or storefrontCode");
     }
@@ -118,7 +123,8 @@ public class ManageStorefrontBrandingToolTests
             }));
 
         var result = await ManageStorefrontBrandingTool.ExecuteAsync(
-            _auth, _crudClient, _brandingClient, "my-store", "get");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _brandingClient, "my-store", "get");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -141,7 +147,8 @@ public class ManageStorefrontBrandingToolTests
             }));
 
         var result = await ManageStorefrontBrandingTool.ExecuteAsync(
-            _auth, _crudClient, _brandingClient, "my-store", "update", primaryColor: "#ff0000");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _brandingClient, "my-store", "update", primaryColor: "#ff0000");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -164,7 +171,8 @@ public class ManageStorefrontBrandingToolTests
             }));
 
         var result = await ManageStorefrontBrandingTool.ExecuteAsync(
-            _auth, _crudClient, _brandingClient, "my-store", "reset");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _brandingClient, "my-store", "reset");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -179,17 +187,19 @@ public class ManageStorefrontBrandingToolTests
                 Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new GetStorefrontByCodeResponse()));
 
-        var result = await ManageStorefrontBrandingTool.ExecuteAsync(
-            _auth, _crudClient, _brandingClient, "nonexistent", "get");
+        Task<string> Act() => ManageStorefrontBrandingTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _brandingClient, "nonexistent", "get");
 
-        Parse(result).GetProperty("error").GetString().Should().Contain("not found");
+        await StorefrontWorkspaceTestContext.AssertNeutralNotFoundAsync(Act);
     }
 
     [Fact]
     public async Task UnknownAction_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontBrandingTool.ExecuteAsync(
-            _auth, _crudClient, _brandingClient, "my-store", "merge");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _brandingClient, "my-store", "merge");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("Unknown action");
     }
@@ -204,6 +214,7 @@ public class ManageStorefrontBrandingToolTests
                 Storefront = new StorefrontModel
                 {
                     Id = new GuidValue(Guid.NewGuid().ToString()),
+                    WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
                     Code = code,
                     Name = "Test Store",
                     Status = StorefrontStatus.Active,
@@ -255,7 +266,8 @@ public class ManageStorefrontCatalogsToolTests
             }));
 
         var result = await ManageStorefrontCatalogsTool.ExecuteAsync(
-            _auth, _crudClient, _catalogClient, "my-store", "list");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _catalogClient, "my-store", "list");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -282,7 +294,8 @@ public class ManageStorefrontCatalogsToolTests
             }));
 
         var result = await ManageStorefrontCatalogsTool.ExecuteAsync(
-            _auth, _crudClient, _catalogClient, "my-store", "add", catalogId: catalogId);
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _catalogClient, "my-store", "add", catalogId: catalogId);
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -293,7 +306,8 @@ public class ManageStorefrontCatalogsToolTests
     public async Task Add_MissingCatalogId_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontCatalogsTool.ExecuteAsync(
-            _auth, _crudClient, _catalogClient, "my-store", "add");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _catalogClient, "my-store", "add");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("catalogId is required");
     }
@@ -309,7 +323,8 @@ public class ManageStorefrontCatalogsToolTests
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new RemoveCatalogResponse { Success = true }));
 
         var result = await ManageStorefrontCatalogsTool.ExecuteAsync(
-            _auth, _crudClient, _catalogClient, "my-store", "remove", catalogLinkId: linkId);
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _catalogClient, "my-store", "remove", catalogLinkId: linkId);
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -320,7 +335,8 @@ public class ManageStorefrontCatalogsToolTests
     public async Task Remove_MissingLinkId_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontCatalogsTool.ExecuteAsync(
-            _auth, _crudClient, _catalogClient, "my-store", "remove");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _catalogClient, "my-store", "remove");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("catalogLinkId is required");
     }
@@ -344,7 +360,8 @@ public class ManageStorefrontCatalogsToolTests
             }));
 
         var result = await ManageStorefrontCatalogsTool.ExecuteAsync(
-            _auth, _crudClient, _catalogClient, "my-store", "set_default", catalogLinkId: linkId);
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _catalogClient, "my-store", "set_default", catalogLinkId: linkId);
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -355,7 +372,8 @@ public class ManageStorefrontCatalogsToolTests
     public async Task SetDefault_MissingLinkId_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontCatalogsTool.ExecuteAsync(
-            _auth, _crudClient, _catalogClient, "my-store", "set_default");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _catalogClient, "my-store", "set_default");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("catalogLinkId is required");
     }
@@ -368,17 +386,19 @@ public class ManageStorefrontCatalogsToolTests
                 Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new GetStorefrontByCodeResponse()));
 
-        var result = await ManageStorefrontCatalogsTool.ExecuteAsync(
-            _auth, _crudClient, _catalogClient, "nonexistent", "list");
+        Task<string> Act() => ManageStorefrontCatalogsTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _catalogClient, "nonexistent", "list");
 
-        Parse(result).GetProperty("error").GetString().Should().Contain("not found");
+        await StorefrontWorkspaceTestContext.AssertNeutralNotFoundAsync(Act);
     }
 
     [Fact]
     public async Task UnknownAction_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontCatalogsTool.ExecuteAsync(
-            _auth, _crudClient, _catalogClient, "my-store", "merge");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _catalogClient, "my-store", "merge");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("Unknown action");
     }
@@ -393,6 +413,7 @@ public class ManageStorefrontCatalogsToolTests
                 Storefront = new StorefrontModel
                 {
                     Id = new GuidValue(Guid.NewGuid().ToString()),
+                    WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
                     Code = code,
                     Name = "Test Store",
                     Status = StorefrontStatus.Active,
@@ -446,7 +467,8 @@ public class ManageStorefrontDomainsToolTests
             }));
 
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "list");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "list");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -473,7 +495,8 @@ public class ManageStorefrontDomainsToolTests
             }));
 
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "add", domain: "shop.example.com");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "add", domain: "shop.example.com");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -484,7 +507,8 @@ public class ManageStorefrontDomainsToolTests
     public async Task Add_MissingDomain_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "add");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "add");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("domain is required");
     }
@@ -500,7 +524,8 @@ public class ManageStorefrontDomainsToolTests
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new RemoveDomainResponse { Success = true }));
 
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "remove", domainId: domainId);
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "remove", domainId: domainId);
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -511,7 +536,8 @@ public class ManageStorefrontDomainsToolTests
     public async Task Remove_MissingDomainId_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "remove");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "remove");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("domainId is required");
     }
@@ -536,7 +562,8 @@ public class ManageStorefrontDomainsToolTests
             }));
 
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "verify", domainId: domainId);
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "verify", domainId: domainId);
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -547,7 +574,8 @@ public class ManageStorefrontDomainsToolTests
     public async Task Verify_MissingDomainId_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "verify");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "verify");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("domainId is required");
     }
@@ -571,7 +599,8 @@ public class ManageStorefrontDomainsToolTests
             }));
 
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "set_primary", domainId: domainId);
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "set_primary", domainId: domainId);
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -582,7 +611,8 @@ public class ManageStorefrontDomainsToolTests
     public async Task SetPrimary_MissingDomainId_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "set_primary");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "set_primary");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("domainId is required");
     }
@@ -595,17 +625,19 @@ public class ManageStorefrontDomainsToolTests
                 Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new GetStorefrontByCodeResponse()));
 
-        var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "nonexistent", "list");
+        Task<string> Act() => ManageStorefrontDomainsTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "nonexistent", "list");
 
-        Parse(result).GetProperty("error").GetString().Should().Contain("not found");
+        await StorefrontWorkspaceTestContext.AssertNeutralNotFoundAsync(Act);
     }
 
     [Fact]
     public async Task UnknownAction_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontDomainsTool.ExecuteAsync(
-            _auth, _crudClient, _domainClient, "my-store", "merge");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _domainClient, "my-store", "merge");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("Unknown action");
     }
@@ -620,6 +652,7 @@ public class ManageStorefrontDomainsToolTests
                 Storefront = new StorefrontModel
                 {
                     Id = new GuidValue(Guid.NewGuid().ToString()),
+                    WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
                     Code = code,
                     Name = "Test Store",
                     Status = StorefrontStatus.Active,
@@ -668,7 +701,8 @@ public class ManageStorefrontFeaturesToolTests
             }));
 
         var result = await ManageStorefrontFeaturesTool.ExecuteAsync(
-            _auth, _crudClient, _featuresClient, "my-store", "get");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _featuresClient, "my-store", "get");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -687,7 +721,8 @@ public class ManageStorefrontFeaturesToolTests
             }));
 
         var result = await ManageStorefrontFeaturesTool.ExecuteAsync(
-            _auth, _crudClient, _featuresClient, "my-store", "enable", featureName: "cart");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _featuresClient, "my-store", "enable", featureName: "cart");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -698,7 +733,8 @@ public class ManageStorefrontFeaturesToolTests
     public async Task Enable_MissingFeatureName_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontFeaturesTool.ExecuteAsync(
-            _auth, _crudClient, _featuresClient, "my-store", "enable");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _featuresClient, "my-store", "enable");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("featureName is required");
     }
@@ -715,7 +751,8 @@ public class ManageStorefrontFeaturesToolTests
             }));
 
         var result = await ManageStorefrontFeaturesTool.ExecuteAsync(
-            _auth, _crudClient, _featuresClient, "my-store", "disable", featureName: "cart");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _featuresClient, "my-store", "disable", featureName: "cart");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -726,7 +763,8 @@ public class ManageStorefrontFeaturesToolTests
     public async Task Disable_MissingFeatureName_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontFeaturesTool.ExecuteAsync(
-            _auth, _crudClient, _featuresClient, "my-store", "disable");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _featuresClient, "my-store", "disable");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("featureName is required");
     }
@@ -751,7 +789,8 @@ public class ManageStorefrontFeaturesToolTests
             }));
 
         var result = await ManageStorefrontFeaturesTool.ExecuteAsync(
-            _auth, _crudClient, _featuresClient, "my-store", "update",
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _featuresClient, "my-store", "update",
             cartEnabled: true, ordersEnabled: true);
 
         var json = Parse(result);
@@ -767,17 +806,19 @@ public class ManageStorefrontFeaturesToolTests
                 Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new GetStorefrontByCodeResponse()));
 
-        var result = await ManageStorefrontFeaturesTool.ExecuteAsync(
-            _auth, _crudClient, _featuresClient, "nonexistent", "get");
+        Task<string> Act() => ManageStorefrontFeaturesTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _featuresClient, "nonexistent", "get");
 
-        Parse(result).GetProperty("error").GetString().Should().Contain("not found");
+        await StorefrontWorkspaceTestContext.AssertNeutralNotFoundAsync(Act);
     }
 
     [Fact]
     public async Task UnknownAction_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontFeaturesTool.ExecuteAsync(
-            _auth, _crudClient, _featuresClient, "my-store", "merge");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _featuresClient, "my-store", "merge");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("Unknown action");
     }
@@ -792,6 +833,7 @@ public class ManageStorefrontFeaturesToolTests
                 Storefront = new StorefrontModel
                 {
                     Id = new GuidValue(Guid.NewGuid().ToString()),
+                    WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
                     Code = code,
                     Name = "Test Store",
                     Status = StorefrontStatus.Active,
@@ -844,7 +886,8 @@ public class ManageStorefrontChannelsToolTests
             }));
 
         var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "my-store", "list");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "my-store", "list");
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -868,7 +911,8 @@ public class ManageStorefrontChannelsToolTests
             }));
 
         var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "my-store", "add",
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "my-store", "add",
             channelType: "Telegram", externalId: "test_bot");
 
         var json = Parse(result);
@@ -880,7 +924,8 @@ public class ManageStorefrontChannelsToolTests
     public async Task Add_MissingChannelType_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "my-store", "add", externalId: "test_bot");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "my-store", "add", externalId: "test_bot");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("channelType and externalId are required");
     }
@@ -889,7 +934,8 @@ public class ManageStorefrontChannelsToolTests
     public async Task Add_MissingExternalId_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "my-store", "add", channelType: "Telegram");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "my-store", "add", channelType: "Telegram");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("channelType and externalId are required");
     }
@@ -912,7 +958,8 @@ public class ManageStorefrontChannelsToolTests
             }));
 
         var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "my-store", "update",
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "my-store", "update",
             channelId: channelId, isActive: false);
 
         var json = Parse(result);
@@ -924,7 +971,8 @@ public class ManageStorefrontChannelsToolTests
     public async Task Update_MissingChannelId_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "my-store", "update");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "my-store", "update");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("channelId is required");
     }
@@ -940,7 +988,8 @@ public class ManageStorefrontChannelsToolTests
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new RemoveChannelResponse { Success = true }));
 
         var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "my-store", "remove", channelId: channelId);
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "my-store", "remove", channelId: channelId);
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
@@ -951,7 +1000,8 @@ public class ManageStorefrontChannelsToolTests
     public async Task Remove_MissingChannelId_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "my-store", "remove");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "my-store", "remove");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("channelId is required");
     }
@@ -964,17 +1014,19 @@ public class ManageStorefrontChannelsToolTests
                 Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new GetStorefrontByCodeResponse()));
 
-        var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "nonexistent", "list");
+        Task<string> Act() => ManageStorefrontChannelsTool.ExecuteAsync(
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "nonexistent", "list");
 
-        Parse(result).GetProperty("error").GetString().Should().Contain("not found");
+        await StorefrontWorkspaceTestContext.AssertNeutralNotFoundAsync(Act);
     }
 
     [Fact]
     public async Task UnknownAction_ReturnsErrorAsync()
     {
         var result = await ManageStorefrontChannelsTool.ExecuteAsync(
-            _auth, _crudClient, _channelClient, "my-store", "merge");
+            _auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
+            _crudClient, _channelClient, "my-store", "merge");
 
         Parse(result).GetProperty("error").GetString().Should().Contain("Unknown action");
     }
@@ -989,6 +1041,7 @@ public class ManageStorefrontChannelsToolTests
                 Storefront = new StorefrontModel
                 {
                     Id = new GuidValue(Guid.NewGuid().ToString()),
+                    WorkspaceId = StorefrontWorkspaceTestContext.WorkspaceGuidValue,
                     Code = code,
                     Name = "Test Store",
                     Status = StorefrontStatus.Active,

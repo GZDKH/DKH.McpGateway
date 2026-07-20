@@ -31,6 +31,11 @@ API-key scope/permissions. Metadata является единственным OA
 metadata клиента. ProductCatalogService независимо сверяет Workspace с переданной
 Keycloak identity и активным membership пользователя.
 
+Storefront admin-инструменты используют тот же выбранный Workspace-контекст.
+Gateway проверяет `WorkspaceId`, возвращённый StorefrontService, до любого зависимого
+storefront RPC, отображает чужой и отсутствующий ресурс в один нейтральный
+`NotFound` и разделяет cache конфигурации storefront по Workspace.
+
 В режиме stdio нет HTTP principal и передачи identity, поэтому ProductCatalog data
 exchange и workspace-скоупные admin/query инструменты отклоняются. Fallback для отсутствующего заголовка, глобального ключа или
 неявного trusted-system режима не предусмотрен.

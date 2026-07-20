@@ -1,4 +1,6 @@
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
+using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -8,13 +10,18 @@ public static class GetStorefrontBrandingTool
     [McpServerTool(Name = "get_storefront_branding"), Description("Get storefront branding: logo, colors, typography, and layout.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
+        StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
         StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient client,
         [Description("Storefront ID (UUID)")] string storefrontId,
         CancellationToken cancellationToken = default)
     {
         apiKeyContext.EnsurePermission(McpPermissions.Read);
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        var storefront = await scope.GetByIdAsync(crudClient, storefrontId, cancellationToken);
         var response = await client.GetBrandingAsync(
-            new GetBrandingRequest { StorefrontId = new GuidValue(storefrontId) },
+            new GetBrandingRequest { StorefrontId = storefront.Id },
+            scope.Headers,
             cancellationToken: cancellationToken);
 
         var b = response.Branding;

@@ -1,6 +1,7 @@
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using DKH.StorefrontService.Contracts.Storefront.Models.Branding.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -12,6 +13,7 @@ public static class ManageStorefrontBrandingTool
         "Use action 'update' to set branding, 'reset' to reset to defaults, 'get' to view current branding.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
         StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient brandingClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -32,23 +34,15 @@ public static class ManageStorefrontBrandingTool
     {
         apiKeyContext.EnsurePermission(McpPermissions.Write);
 
-        var storefront = await crudClient.GetByCodeAsync(
-            new GetStorefrontByCodeRequest { Code = storefrontCode },
-            cancellationToken: cancellationToken);
-
-        if (storefront.Storefront is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Storefront '{storefrontCode}' not found" },
-                McpJsonDefaults.Options);
-        }
-
-        var storefrontId = storefront.Storefront.Id;
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        var storefront = await scope.GetByCodeAsync(crudClient, storefrontCode, cancellationToken);
+        var storefrontId = storefront.Id;
 
         if (string.Equals(action, "get", StringComparison.OrdinalIgnoreCase))
         {
             var branding = await brandingClient.GetBrandingAsync(
                 new GetBrandingRequest { StorefrontId = storefrontId },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -62,6 +56,7 @@ public static class ManageStorefrontBrandingTool
         {
             var response = await brandingClient.ResetToDefaultAsync(
                 new ResetBrandingRequest { StorefrontId = storefrontId },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -114,7 +109,10 @@ public static class ManageStorefrontBrandingTool
                 request.CustomCss = customCss;
             }
 
-            var response = await brandingClient.UpdateBrandingAsync(request, cancellationToken: cancellationToken);
+            var response = await brandingClient.UpdateBrandingAsync(
+                request,
+                scope.Headers,
+                cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
             {

@@ -14,3 +14,9 @@ downstream-вызове. Для `import` требуется
 независимо проверяет выбранный Workspace по переданной identity пользователя.
 Поддерживаемая публичная tool-поверхность storefront-ключей — read-only пространство
 `storefront_*`; такие ключи не могут вызывать массовый импорт или экспорт.
+
+Storefront admin-инструменты, которые находят storefront по коду или ID, используют
+тот же HTTP-only Workspace-контекст. До любого вызова branding, catalog, channel,
+domain, feature, update или delete они сверяют принадлежащий StorefrontService
+`WorkspaceId`. Чужой и отсутствующий storefront возвращают одинаковый нейтральный
+`NotFound`, а cache `storefront://config` разделён по Workspace.

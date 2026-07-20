@@ -1,5 +1,6 @@
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -12,6 +13,7 @@ public static class ManageStorefrontCatalogsTool
         "'remove' to unlink, 'set_default' to set the default catalog.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
         StorefrontCatalogManagementService.StorefrontCatalogManagementServiceClient catalogClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -26,23 +28,15 @@ public static class ManageStorefrontCatalogsTool
     {
         apiKeyContext.EnsurePermission(McpPermissions.Write);
 
-        var storefront = await crudClient.GetByCodeAsync(
-            new GetStorefrontByCodeRequest { Code = storefrontCode },
-            cancellationToken: cancellationToken);
-
-        if (storefront.Storefront is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Storefront '{storefrontCode}' not found" },
-                McpJsonDefaults.Options);
-        }
-
-        var storefrontId = storefront.Storefront.Id;
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        var storefront = await scope.GetByCodeAsync(crudClient, storefrontCode, cancellationToken);
+        var storefrontId = storefront.Id;
 
         if (string.Equals(action, "list", StringComparison.OrdinalIgnoreCase))
         {
             var response = await catalogClient.GetCatalogsAsync(
                 new GetCatalogsRequest { StorefrontId = storefrontId },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -83,7 +77,10 @@ public static class ManageStorefrontCatalogsTool
                 request.DisplayName = displayName;
             }
 
-            var response = await catalogClient.AddCatalogAsync(request, cancellationToken: cancellationToken);
+            var response = await catalogClient.AddCatalogAsync(
+                request,
+                scope.Headers,
+                cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
             {
@@ -104,6 +101,7 @@ public static class ManageStorefrontCatalogsTool
 
             var response = await catalogClient.RemoveCatalogAsync(
                 new RemoveCatalogRequest { StorefrontId = storefrontId, CatalogLinkId = new GuidValue(catalogLinkId) },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -124,6 +122,7 @@ public static class ManageStorefrontCatalogsTool
 
             var response = await catalogClient.SetDefaultCatalogAsync(
                 new SetDefaultCatalogRequest { StorefrontId = storefrontId, CatalogLinkId = new GuidValue(catalogLinkId) },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

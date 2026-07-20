@@ -1,6 +1,7 @@
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontChannelManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using DKH.StorefrontService.Contracts.Storefront.Models.Channel.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -12,6 +13,7 @@ public static class ManageStorefrontChannelsTool
         "Actions: 'list' to view channels, 'add' to create, 'update' to modify, 'remove' to delete.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
         StorefrontChannelManagementService.StorefrontChannelManagementServiceClient channelClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -26,23 +28,15 @@ public static class ManageStorefrontChannelsTool
     {
         apiKeyContext.EnsurePermission(McpPermissions.Write);
 
-        var storefront = await crudClient.GetByCodeAsync(
-            new GetStorefrontByCodeRequest { Code = storefrontCode },
-            cancellationToken: cancellationToken);
-
-        if (storefront.Storefront is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Storefront '{storefrontCode}' not found" },
-                McpJsonDefaults.Options);
-        }
-
-        var storefrontId = storefront.Storefront.Id;
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        var storefront = await scope.GetByCodeAsync(crudClient, storefrontCode, cancellationToken);
+        var storefrontId = storefront.Id;
 
         if (string.Equals(action, "list", StringComparison.OrdinalIgnoreCase))
         {
             var response = await channelClient.GetChannelsAsync(
                 new GetChannelsRequest { StorefrontId = storefrontId },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -83,7 +77,10 @@ public static class ManageStorefrontChannelsTool
                 request.DisplayName = displayName;
             }
 
-            var response = await channelClient.AddChannelAsync(request, cancellationToken: cancellationToken);
+            var response = await channelClient.AddChannelAsync(
+                request,
+                scope.Headers,
+                cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
             {
@@ -115,7 +112,10 @@ public static class ManageStorefrontChannelsTool
                 request.DisplayName = displayName;
             }
 
-            var response = await channelClient.UpdateChannelAsync(request, cancellationToken: cancellationToken);
+            var response = await channelClient.UpdateChannelAsync(
+                request,
+                scope.Headers,
+                cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
             {
@@ -136,6 +136,7 @@ public static class ManageStorefrontChannelsTool
 
             var response = await channelClient.RemoveChannelAsync(
                 new RemoveChannelRequest { StorefrontId = storefrontId, ChannelId = new GuidValue(channelId) },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

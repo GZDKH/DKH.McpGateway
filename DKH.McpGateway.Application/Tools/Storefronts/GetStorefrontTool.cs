@@ -1,4 +1,6 @@
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
+using DKH.StorefrontService.Contracts.Storefront.Models.Storefront.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -8,6 +10,7 @@ public static class GetStorefrontTool
     [McpServerTool(Name = "get_storefront"), Description("Get full storefront details including features by storefront ID or code.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient client,
         [Description("Storefront ID (UUID)")] string? storefrontId = null,
         [Description("Storefront code (alternative to ID)")] string? storefrontCode = null,
@@ -19,23 +22,19 @@ public static class GetStorefrontTool
             return JsonSerializer.Serialize(new { error = "Provide either storefrontId or storefrontCode" }, McpJsonDefaults.Options);
         }
 
-        GetStorefrontResponse storefront;
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        StorefrontModel storefront;
 
         if (!string.IsNullOrEmpty(storefrontCode))
         {
-            var byCode = await client.GetByCodeAsync(
-                new GetStorefrontByCodeRequest { Code = storefrontCode },
-                cancellationToken: cancellationToken);
-            storefront = new GetStorefrontResponse { Storefront = byCode.Storefront };
+            storefront = await scope.GetByCodeAsync(client, storefrontCode, cancellationToken);
         }
         else
         {
-            storefront = await client.GetAsync(
-                new GetStorefrontRequest { Id = new GuidValue(storefrontId!) },
-                cancellationToken: cancellationToken);
+            storefront = await scope.GetByIdAsync(client, storefrontId!, cancellationToken);
         }
 
-        var s = storefront.Storefront;
+        var s = storefront;
         var result = new
         {
             id = s.Id,

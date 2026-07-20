@@ -1,6 +1,7 @@
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontFeaturesManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Models.Features.v1;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Storefronts;
 
@@ -13,6 +14,7 @@ public static class ManageStorefrontFeaturesTool
         "'update' to set multiple features at once.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
         StorefrontFeaturesManagementService.StorefrontFeaturesManagementServiceClient featuresClient,
         [Description("Storefront code (e.g. 'my-store')")] string storefrontCode,
@@ -27,23 +29,15 @@ public static class ManageStorefrontFeaturesTool
     {
         apiKeyContext.EnsurePermission(McpPermissions.Write);
 
-        var storefront = await crudClient.GetByCodeAsync(
-            new GetStorefrontByCodeRequest { Code = storefrontCode },
-            cancellationToken: cancellationToken);
-
-        if (storefront.Storefront is null)
-        {
-            return JsonSerializer.Serialize(
-                new { success = false, error = $"Storefront '{storefrontCode}' not found" },
-                McpJsonDefaults.Options);
-        }
-
-        var storefrontId = storefront.Storefront.Id;
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        var storefront = await scope.GetByCodeAsync(crudClient, storefrontCode, cancellationToken);
+        var storefrontId = storefront.Id;
 
         if (string.Equals(action, "get", StringComparison.OrdinalIgnoreCase))
         {
             var response = await featuresClient.GetFeaturesAsync(
                 new GetFeaturesRequest { StorefrontId = storefrontId },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             var f = response.Features;
@@ -72,6 +66,7 @@ public static class ManageStorefrontFeaturesTool
 
             var response = await featuresClient.EnableFeatureAsync(
                 new EnableFeatureRequest { StorefrontId = storefrontId, FeatureName = featureName },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -94,6 +89,7 @@ public static class ManageStorefrontFeaturesTool
 
             var response = await featuresClient.DisableFeatureAsync(
                 new DisableFeatureRequest { StorefrontId = storefrontId, FeatureName = featureName },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new
@@ -109,6 +105,7 @@ public static class ManageStorefrontFeaturesTool
         {
             var current = await featuresClient.GetFeaturesAsync(
                 new GetFeaturesRequest { StorefrontId = storefrontId },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             var features = current.Features ?? new StorefrontFeaturesModel();
@@ -139,6 +136,7 @@ public static class ManageStorefrontFeaturesTool
 
             var response = await featuresClient.UpdateFeaturesAsync(
                 new UpdateFeaturesRequest { StorefrontId = storefrontId, Features = features },
+                scope.Headers,
                 cancellationToken: cancellationToken);
 
             return JsonSerializer.Serialize(new

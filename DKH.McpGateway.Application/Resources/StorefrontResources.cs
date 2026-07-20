@@ -1,6 +1,8 @@
+using DKH.McpGateway.Application.Tools.Storefronts;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontBrandingManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCrud.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontFeaturesManagement.v1;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace DKH.McpGateway.Application.Resources;
@@ -43,6 +45,8 @@ public static class StorefrontResources
     [McpServerResource(Name = "storefront://config", MimeType = "application/json")]
     [Description("Full configuration for a specific storefront by code.")]
     public static async Task<string> GetStorefrontConfigAsync(
+        IApiKeyContext apiKeyContext,
+        IHttpContextAccessor httpContextAccessor,
         StorefrontsCrudService.StorefrontsCrudServiceClient crudClient,
         StorefrontBrandingManagementService.StorefrontBrandingManagementServiceClient brandingClient,
         StorefrontFeaturesManagementService.StorefrontFeaturesManagementServiceClient featuresClient,
@@ -50,23 +54,22 @@ public static class StorefrontResources
         [Description("Storefront code, e.g. 'main'")] string storefrontCode,
         CancellationToken cancellationToken = default)
     {
-        var cacheKey = $"storefront://config:{storefrontCode}";
+        var scope = StorefrontWorkspaceScope.Resolve(apiKeyContext, httpContextAccessor);
+        var cacheKey = $"storefront://config:{scope.WorkspaceId:D}:{storefrontCode}";
         return (await cache.GetOrCreateAsync(cacheKey, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = CacheTtl;
 
-            var storefrontResponse = await crudClient.GetByCodeAsync(
-                new GetStorefrontByCodeRequest { Code = storefrontCode },
-                cancellationToken: cancellationToken);
-
-            var storefront = storefrontResponse.Storefront;
+            var storefront = await scope.GetByCodeAsync(crudClient, storefrontCode, cancellationToken);
 
             var brandingTask = brandingClient.GetBrandingAsync(
                 new GetBrandingRequest { StorefrontId = storefront.Id },
+                scope.Headers,
                 cancellationToken: cancellationToken).ResponseAsync;
 
             var featuresTask = featuresClient.GetFeaturesAsync(
                 new GetFeaturesRequest { StorefrontId = storefront.Id },
+                scope.Headers,
                 cancellationToken: cancellationToken).ResponseAsync;
 
             await Task.WhenAll(brandingTask, featuresTask);
