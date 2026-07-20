@@ -148,7 +148,7 @@ The gateway requires all downstream services to be running. In Docker, `depends_
 
 | Service | Port | Required for |
 | ------- | ---- | ------------ |
-| product-catalog | 5003 | Product, brand, category, tag tools |
+| product-catalog | 5003 | Product, category, tag tools |
 | reference-service | 5004 | Reference, geography tools |
 | order-service | 5007 | Order tools |
 | storefront-service | 5009 | Storefront tools |

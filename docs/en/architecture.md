@@ -24,12 +24,10 @@ DKH.McpGateway/
 │   ├── GrpcEndpointsRegistration.cs  # 51 gRPC client registrations
 │   ├── Tools/
 │   │   ├── Common/McpJsonDefaults.cs # Shared JSON serialization options
-│   │   ├── Products/                 # 9 tools (search, get, manage, list, stats, analytics)
-│   │   ├── Brands/                   # 1 tool (manage brands)
+│   │   ├── Products/                 # 7 tools (search, get, manage, list, stats)
 │   │   ├── Catalogs/                 # 1 tool (manage catalogs)
 │   │   ├── Categories/               # 1 tool (manage categories)
 │   │   ├── Tags/                     # 1 tool (manage tags)
-│   │   ├── Manufacturers/            # 1 tool (manage manufacturers)
 │   │   ├── PackageTypes/             # 1 tool (manage packages)
 │   │   ├── Specifications/           # 3 tools (groups, attributes, options)
 │   │   ├── ProductAttributes/        # 3 tools (groups, attributes, options)

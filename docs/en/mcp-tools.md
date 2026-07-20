@@ -4,25 +4,17 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 
 ## Tools
 
-### Products (9 tools)
+### Products (7 tools)
 
 | Tool | File | Description |
 | ---- | ---- | ----------- |
 | `search_products` | SearchProductsTool.cs | Search products by query with pagination |
 | `get_product` | GetProductTool.cs | Get detailed product information by SEO name |
 | `manage_product` | ManageProductTool.cs | Create, update, delete, get, or list products (action parameter) |
-| `list_brands` | ListBrandsTool.cs | List all available brands |
 | `list_categories` | ListCategoriesTool.cs | List category tree for a catalog |
 | `list_catalogs` | ListCatalogsTool.cs | List all product catalogs |
 | `get_product_stats` | ProductStatsTool.cs | Product catalog statistics |
 | `get_category_distribution` | CategoryDistributionTool.cs | Category product distribution analysis |
-| `get_brand_analytics` | BrandAnalyticsTool.cs | Brand analytics and statistics |
-
-### Brands (1 tool)
-
-| Tool | File | Description |
-| ---- | ---- | ----------- |
-| `manage_brand` | ManageBrandTool.cs | Create, update, or delete brands (action parameter) |
 
 ### Catalogs (1 tool)
 
@@ -41,12 +33,6 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | Tool | File | Description |
 | ---- | ---- | ----------- |
 | `manage_tags` | ManageTagsTool.cs | Create, update, or delete tags (action parameter) |
-
-### Manufacturers (1 tool)
-
-| Tool | File | Description |
-| ---- | ---- | ----------- |
-| `manage_manufacturer` | ManageManufacturerTool.cs | Create, update, delete, get, or list manufacturers (action parameter) |
 
 ### Packages (1 tool)
 
