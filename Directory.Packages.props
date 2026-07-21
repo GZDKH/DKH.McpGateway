@@ -14,7 +14,7 @@
     <PackageVersion Include="DKH.Platform" Version="1.4.0"/>
     <PackageVersion Include="DKH.Platform.Core" Version="1.7.0"/>
     <PackageVersion Include="DKH.Platform.Logging" Version="1.2.1"/>
-    <PackageVersion Include="DKH.Platform.Grpc.Client" Version="1.5.2"/>
+    <PackageVersion Include="DKH.Platform.Grpc.Client" Version="1.5.3"/>
     <PackageVersion Include="DKH.Platform.Http" Version="1.5.0"/>
     <PackageVersion Include="DKH.Platform.Telemetry" Version="1.1.0"/>
     <PackageVersion Include="DKH.Platform.Authentication.Keycloak" Version="1.3.1"/>
