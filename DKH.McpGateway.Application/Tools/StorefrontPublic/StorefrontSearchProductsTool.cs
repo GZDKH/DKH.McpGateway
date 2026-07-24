@@ -13,6 +13,7 @@ namespace DKH.McpGateway.Application.Tools.StorefrontPublic;
 /// searched and the hits are concatenated (single-catalog storefronts keep exact relevance order).
 /// </summary>
 [McpServerToolType]
+[StorefrontPublicTool]
 public static class StorefrontSearchProductsTool
 {
     [McpServerTool(Name = "storefront_search_products"), Description(

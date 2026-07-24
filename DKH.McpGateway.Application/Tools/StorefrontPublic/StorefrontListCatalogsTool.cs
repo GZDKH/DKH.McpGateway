@@ -9,6 +9,7 @@ namespace DKH.McpGateway.Application.Tools.StorefrontPublic;
 /// API key and returns ONLY this storefront's catalogs (per-tenant isolation, ADR-060).
 /// </summary>
 [McpServerToolType]
+[StorefrontPublicTool]
 public static class StorefrontListCatalogsTool
 {
     [McpServerTool(Name = "storefront_list_catalogs"), Description(

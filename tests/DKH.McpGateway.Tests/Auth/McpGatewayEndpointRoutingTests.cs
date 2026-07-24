@@ -9,7 +9,7 @@ namespace DKH.McpGateway.Tests.Auth;
 public sealed class McpGatewayEndpointRoutingTests
 {
     [Fact]
-    public void MapMcpGateway_MapsOnlyCanonicalPrefixAndProtectsEveryRoute()
+    public void MapMcpGateway_MapsOnlyCanonicalPrefixAndGuardsEveryRouteWithIngressPolicy()
     {
         var builder = WebApplication.CreateBuilder();
 #pragma warning disable MCP9004 // Test the intentionally retained trusted-client legacy routes.
@@ -30,6 +30,6 @@ public sealed class McpGatewayEndpointRoutingTests
             .Should().BeEquivalentTo("/mcp/", "/mcp/sse", "/mcp/message");
         endpoints.Should().OnlyContain(endpoint =>
             endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>()
-                .Any(data => data.Policy == McpAuthorizationPolicies.McpAccess));
+                .Any(data => data.Policy == McpAuthorizationPolicies.McpIngress));
     }
 }

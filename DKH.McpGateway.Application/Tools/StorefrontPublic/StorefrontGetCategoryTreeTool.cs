@@ -10,6 +10,7 @@ namespace DKH.McpGateway.Application.Tools.StorefrontPublic;
 /// API key; only the caller storefront's catalogs are walked (ADR-060 isolation).
 /// </summary>
 [McpServerToolType]
+[StorefrontPublicTool]
 public static class StorefrontGetCategoryTreeTool
 {
     [McpServerTool(Name = "storefront_get_category_tree"), Description(

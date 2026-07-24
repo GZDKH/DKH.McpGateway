@@ -1,4 +1,5 @@
 using DKH.McpGateway.Api;
+using DKH.McpGateway.Application.Auth;
 using DKH.Platform.Authentication.Keycloak;
 using DKH.Platform.Authorization;
 using DKH.Platform.Telemetry;
@@ -28,6 +29,10 @@ var platform = Platform
 #pragma warning disable MCP9004 // Legacy SSE transport is obsolete; kept for backward-compatible clients.
             mcp.WithHttpTransport(static options => options.EnableLegacySse = true);
 #pragma warning restore MCP9004
+
+            // Split ingress auth from per-surface authorization: keep storefront keys on the public
+            // storefront_* tools and reserve admin tools/prompts/resources for admin callers (#86).
+            mcp.WithSurfaceAuthorization();
         }
 
         builder.Services.AddApplication();
@@ -72,8 +77,3 @@ if (!useStdio)
 }
 
 await platform.Build().RunAsync();
-
-internal static class McpAuthorizationPolicies
-{
-    public const string McpAccess = "McpAccess";
-}
