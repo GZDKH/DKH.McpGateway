@@ -18,11 +18,17 @@ public static class ConfigureServices
         services.AddHttpContextAccessor();
         services.AddScoped<IApiKeyContext, HttpApiKeyContext>();
         services.AddScoped<IStorefrontMcpGate, StorefrontMcpGate>();
+        services.AddSingleton<McpToolSurface>();
+        services.AddScoped<McpSurfaceGuard>();
         services.AddAuthorizationBuilder()
             .AddPolicy(
                 MerchantResourceAuthorization.PolicyName,
-                policy => policy.AddRequirements(new MerchantResourceRequirement()));
+                policy => policy.AddRequirements(new MerchantResourceRequirement()))
+            .AddPolicy(
+                McpAuthorizationPolicies.McpIngress,
+                policy => policy.AddRequirements(new McpIngressRequirement()));
         services.AddScoped<IAuthorizationHandler, MerchantResourceAuthorizationHandler>();
+        services.AddScoped<IAuthorizationHandler, McpIngressAuthorizationHandler>();
         return services;
     }
 

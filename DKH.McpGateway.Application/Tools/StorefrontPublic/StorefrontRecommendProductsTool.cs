@@ -17,6 +17,7 @@ namespace DKH.McpGateway.Application.Tools.StorefrontPublic;
 /// (single-catalog storefronts keep the backend's exact ordering).
 /// </summary>
 [McpServerToolType]
+[StorefrontPublicTool]
 public static class StorefrontRecommendProductsTool
 {
     [McpServerTool(Name = "storefront_recommend_products"), Description(

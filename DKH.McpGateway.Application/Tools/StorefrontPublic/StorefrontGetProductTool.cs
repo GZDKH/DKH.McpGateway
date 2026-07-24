@@ -13,6 +13,7 @@ namespace DKH.McpGateway.Application.Tools.StorefrontPublic;
 /// Scope.Storefront API key; a product outside the storefront's catalogs is unreachable (ADR-060).
 /// </summary>
 [McpServerToolType]
+[StorefrontPublicTool]
 public static class StorefrontGetProductTool
 {
     [McpServerTool(Name = "storefront_get_product"), Description(

@@ -13,6 +13,7 @@
     <PackageReference Include="FluentAssertions"/>
     <PackageReference Include="NSubstitute"/>
     <PackageReference Include="Grpc.Core.Api"/>
+    <PackageReference Include="Microsoft.AspNetCore.TestHost"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\DKH.McpGateway.Api\DKH.McpGateway.Api.csproj"/>
