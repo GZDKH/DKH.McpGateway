@@ -12,9 +12,9 @@
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.10"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Include="DKH.Platform" Version="1.5.0"/>
-    <PackageVersion Include="DKH.Platform.Core" Version="1.7.0"/>
-    <PackageVersion Include="DKH.Platform.Logging" Version="1.2.3"/>
+    <PackageVersion Include="DKH.Platform" Version="1.5.1"/>
+    <PackageVersion Include="DKH.Platform.Core" Version="1.7.1"/>
+    <PackageVersion Include="DKH.Platform.Logging" Version="1.2.4"/>
     <PackageVersion Include="DKH.Platform.Grpc.Client" Version="1.6.0"/>
     <PackageVersion Include="DKH.Platform.Http" Version="1.5.0"/>
     <PackageVersion Include="DKH.Platform.Telemetry" Version="1.1.0"/>
