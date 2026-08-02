@@ -47,6 +47,9 @@ using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantAttrManageme
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantAttrValueManagement.v1;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.VariantQuery.v1;
 using DKH.ProductRequestService.Contracts.ProductRequest.Api.ProductRequestCrud.v1;
+using DKH.ReferenceService.Contracts.Api.CurrenciesCrud.V1;
+using DKH.ReferenceService.Contracts.Api.QuantityUnitsCrud.V1;
+using DKH.ReferenceService.Contracts.Api.WeightsCrud.V1;
 using DKH.ReferenceService.Contracts.Reference.Api.CityManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
@@ -129,14 +132,17 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<VariantAttrManagementService.VariantAttrManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<VariantAttrValueManagementService.VariantAttrValueManagementServiceClient>();
 
-        // ReferenceService — Management (5004)
+        // ReferenceService — localized reads, canonical CRUD writes, data exchange (5004)
         grpc.AddEndpointFromConfiguration<CountryManagementService.CountryManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<CurrencyManagementService.CurrencyManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<CurrenciesCrudService.CurrenciesCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<LanguageManagementService.LanguageManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<DeliveryTimeManagementService.DeliveryTimeManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<DimensionManagementService.DimensionManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<WeightManagementService.WeightManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<WeightsCrudService.WeightsCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<QuantityUnitManagementService.QuantityUnitManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<QuantityUnitsCrudService.QuantityUnitsCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<PriceLabelManagementService.PriceLabelManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<StateProvinceManagementService.StateProvinceManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<StateProvinceTypeManagementService.StateProvinceTypeManagementServiceClient>();

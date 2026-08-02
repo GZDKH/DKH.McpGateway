@@ -50,7 +50,7 @@ MCP Protocol (stdio/HTTP) → Tools/Resources/Prompts → gRPC Clients → Downs
 
 **Key files:**
 - `ConfigureServices.cs` — `AddMcpGatewayServer()` registers tools, resources, prompts
-- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (97 clients at the recorded baseline)
+- `GrpcEndpointsRegistration.cs` — all gRPC client registrations (100 clients at the recorded baseline)
 - `Tools/Common/McpJsonDefaults.cs` — shared JSON serialization options
 - `Auth/McpToolSurface.cs` and `McpSurfaceGuard.cs` — attribute-based public/admin tool classification and default-closed authorization
 
@@ -137,7 +137,7 @@ The current assembly exposes **356** `[McpServerTool]` methods across **274** `[
 | Service | Port | Clients |
 |---------|------|---------|
 | ProductCatalogService | 5003 | 15 clients (query, CRUD, specs, attrs, variants, data exchange) |
-| ReferenceService | 5004 | 12 clients (query, CRUD, data exchange) |
+| ReferenceService | 5004 | 15 clients (localized management reads, canonical CRUD writes, data exchange) |
 | TelegramBotService | 5001 | 4 clients (management, scheduling, notifications, auth) |
 | TelegramClientService | 5015 | 3 clients (archive, monitoring, sessions) |
 | OrderService | 5007 | 2 clients (CRUD, data exchange) |
@@ -165,7 +165,7 @@ The current assembly exposes **356** `[McpServerTool]` methods across **274** `[
 | ProcurementService | 5030 | 1 client |
 | PrintService | 5029 | 1 client |
 
-`GrpcEndpointsRegistration.cs` and `Platform:Grpc:Endpoints` must remain one-for-one. At this baseline both contain 97 clients. Use the shared config-sync workflow whenever a client is added or renamed.
+`GrpcEndpointsRegistration.cs` and the base `Platform:Grpc:Endpoints` configuration must remain one-for-one. At this baseline both contain 100 clients. Use the shared config-sync workflow whenever a client is added or renamed.
 
 ## Tool Development Rules
 

@@ -70,16 +70,27 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `list_measurements` | ListMeasurementsTool.cs | List weight and dimension units |
 | `list_delivery_times` | ListDeliveryTimesTool.cs | List delivery time options |
 | `manage_country` | ManageCountryTool.cs | Create, update, or delete countries |
-| `manage_currency` | ManageCurrencyTool.cs | Create, update, or delete currencies |
+| `manage_currency` | ManageCurrencyTool.cs | Create, update, delete, get, or list currencies with native authority versions |
 | `manage_language` | ManageLanguageTool.cs | Create, update, or delete languages |
 | `manage_delivery_time` | ManageDeliveryTimeTool.cs | Create, update, or delete delivery times |
 | `manage_city` | ManageCityTool.cs | Create, update, delete, get, or list cities (action parameter) |
 | `manage_dimension` | ManageDimensionTool.cs | Create, update, delete, get, or list dimension units (action parameter) |
 | `manage_price_label` | ManagePriceLabelTool.cs | Create, update, delete, get, or list price labels (action parameter) |
-| `manage_quantity_unit` | ManageQuantityUnitTool.cs | Create, update, delete, get, or list quantity units (action parameter) |
+| `manage_quantity_unit` | ManageQuantityUnitTool.cs | Create, update, delete, get, or list quantity units with native authority versions |
 | `manage_state_province` | ManageStateProvinceTool.cs | Create, update, delete, get, or list states/provinces (action parameter) |
 | `manage_state_province_type` | ManageStateProvinceTypeTool.cs | Create, update, delete, get, or list state/province types (action parameter) |
-| `manage_weight` | ManageWeightTool.cs | Create, update, delete, get, or list weight units (action parameter) |
+| `manage_weight` | ManageWeightTool.cs | Create, update, delete, get, or list weight units with native authority versions |
+
+Currency, quantity-unit, and weight writes use the canonical ReferenceService CRUD APIs.
+Their `get` and `list` actions return both the stable `id` and the native
+`authorityVersion`. An `update` or `delete` must pass that exact observed ID as
+`stableId` and that exact positive version as `expectedAuthorityVersion`. The
+mutation target is never re-resolved from a reusable human-readable code, which
+prevents a deleted-and-recreated item from being mutated accidentally. Missing,
+invalid, zero, or stale identity values are rejected without an automatic overwrite
+or retry. Read the item again after a concurrency conflict and decide explicitly
+whether to submit a new mutation. The localized management APIs remain read-only
+lookup projections for these three tools.
 
 ### Geography (2 tools)
 
