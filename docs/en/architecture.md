@@ -63,7 +63,7 @@ The gateway exposes three types of MCP primitives:
 | Service | Port | Protocol | Client count |
 | ------- | ---- | -------- | ------------ |
 | ProductCatalogService | 5003 | gRPC | 17 clients (query, CRUD, data exchange) |
-| ReferenceService | 5004 | gRPC | 12 clients (query, CRUD, data exchange) |
+| ReferenceService | 5004 | gRPC | 15 clients (localized management reads, canonical CRUD writes, data exchange) |
 | OrderService | 5007 | gRPC | 2 clients (CRUD, data exchange) |
 | CustomerService | 5010 | gRPC | 1 client (data exchange) |
 | StorefrontService | 5009 | gRPC | 6 clients (CRUD, branding, catalogs, channels, domains, features) |

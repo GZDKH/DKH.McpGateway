@@ -1,7 +1,9 @@
 using DKH.McpGateway.Application.Tools.References;
 using Google.Protobuf.WellKnownTypes;
 using CountryMgmt = DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
+using CurrencyCrud = DKH.ReferenceService.Contracts.Api.CurrenciesCrud.V1;
 using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
+using CurrencyModel = DKH.ReferenceService.Contracts.Models.Currency.V1.Currency;
 using LanguageMgmt = DKH.ReferenceService.Contracts.Reference.Api.LanguageManagement.v1;
 
 namespace DKH.McpGateway.Tests.Tools.References;
@@ -241,10 +243,13 @@ public class ManageCurrencyToolTests
     private readonly CurrencyMgmt.CurrencyManagementService.CurrencyManagementServiceClient _client =
         Substitute.For<CurrencyMgmt.CurrencyManagementService.CurrencyManagementServiceClient>();
 
+    private readonly CurrencyCrud.CurrenciesCrudService.CurrenciesCrudServiceClient _crudClient =
+        Substitute.For<CurrencyCrud.CurrenciesCrudService.CurrenciesCrudServiceClient>();
+
     [Fact]
     public async Task Create_HappyPath_ReturnsModelAsync()
     {
-        SetupCreate(new CurrencyMgmt.CurrencyModel { Code = "USD" });
+        SetupCreate(new CurrencyModel { Code = "USD" });
 
         var result = await ExecuteToolAsync("create",
             json: /*lang=json,strict*/ "{\"code\":\"USD\",\"rate\":1.0,\"symbol\":\"$\"}");
@@ -310,20 +315,21 @@ public class ManageCurrencyToolTests
     {
         SetupDelete();
 
-        var result = await ExecuteToolAsync("delete", code: "USD");
+        var result = await ExecuteToolAsync(
+            "delete", stableId: "11111111-1111-1111-1111-111111111111", expectedAuthorityVersion: 7);
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeTrue();
     }
 
     [Fact]
-    public async Task Delete_MissingCode_ReturnsErrorAsync()
+    public async Task Delete_MissingStableId_ReturnsErrorAsync()
     {
-        var result = await ExecuteToolAsync("delete", code: null);
+        var result = await ExecuteToolAsync("delete", stableId: null, expectedAuthorityVersion: 7);
 
         var json = Parse(result);
         json.GetProperty("success").GetBoolean().Should().BeFalse();
-        json.GetProperty("error").GetString().Should().Contain("code is required");
+        json.GetProperty("error").GetString().Should().Contain("stableId");
     }
 
     [Fact]
@@ -342,7 +348,7 @@ public class ManageCurrencyToolTests
         var readOnly = ApiKeyContextMocks.ReadOnly();
 
         var act = () => ManageCurrencyTool.ExecuteAsync(
-            readOnly, _client, action: "create",
+            readOnly, _client, _crudClient, action: "create",
             json: /*lang=json,strict*/ "{\"code\":\"USD\"}");
 
         await act.Should().ThrowAsync<UnauthorizedAccessException>();
@@ -365,17 +371,21 @@ public class ManageCurrencyToolTests
 
     private Task<string> ExecuteToolAsync(
         string action, string? json = null, string? code = null,
-        string? search = null, int? page = null, int? pageSize = null, string? language = null)
+        string? stableId = null, long? expectedAuthorityVersion = null, string? search = null,
+        int? page = null, int? pageSize = null, string? language = null)
         => ManageCurrencyTool.ExecuteAsync(
-            _auth, _client,
+            _auth, _client, _crudClient,
             action: action, json: json, code: code,
+            stableId: stableId,
+            expectedAuthorityVersion: expectedAuthorityVersion,
             search: search, page: page, pageSize: pageSize, language: language);
 
-    private void SetupCreate(CurrencyMgmt.CurrencyModel response)
-        => _client.CreateAsync(
-                Arg.Any<CurrencyMgmt.ManageCurrencyRequest>(),
+    private void SetupCreate(CurrencyModel response)
+        => _crudClient.CreateCurrencyAsync(
+                Arg.Any<CurrencyCrud.CreateCurrencyRequest>(),
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
+            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(
+                new CurrencyCrud.CreateCurrencyResponse { Currency = response }));
 
     private void SetupGet(CurrencyMgmt.CurrencyModel response)
         => _client.GetAsync(
@@ -390,8 +400,8 @@ public class ManageCurrencyToolTests
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
 
     private void SetupDelete()
-        => _client.DeleteAsync(
-                Arg.Any<CurrencyMgmt.DeleteCurrencyRequest>(),
+        => _crudClient.DeleteCurrencyAsync(
+                Arg.Any<CurrencyCrud.DeleteCurrencyRequest>(),
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new Empty()));
 
