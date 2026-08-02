@@ -31,7 +31,7 @@
     <PackageVersion Include="DKH.ProductCatalogService.Contracts" Version="3.32.0"/>
     <PackageVersion Include="DKH.ReferenceService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.OrderService.Contracts" Version="1.9.0"/>
-    <PackageVersion Include="DKH.StorefrontService.Contracts" Version="2.68.0"/>
+    <PackageVersion Include="DKH.StorefrontService.Contracts" Version="2.108.0"/>
     <PackageVersion Include="DKH.CustomerService.Contracts" Version="1.7.0"/>
     <PackageVersion Include="DKH.ReviewService.Contracts" Version="1.6.0"/>
     <PackageVersion Include="DKH.TelegramBotService.Contracts" Version="1.0.0"/>
