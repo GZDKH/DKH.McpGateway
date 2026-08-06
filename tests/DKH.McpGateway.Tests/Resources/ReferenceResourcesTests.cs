@@ -1,7 +1,7 @@
 using DKH.McpGateway.Application.Resources;
 using Microsoft.Extensions.Caching.Memory;
 using CountryMgmt = DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
-using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
+using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v2;
 using LanguageMgmt = DKH.ReferenceService.Contracts.Reference.Api.LanguageManagement.v1;
 
 namespace DKH.McpGateway.Tests.Resources;

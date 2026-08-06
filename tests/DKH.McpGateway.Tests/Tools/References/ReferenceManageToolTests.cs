@@ -2,7 +2,7 @@ using DKH.McpGateway.Application.Tools.References;
 using Google.Protobuf.WellKnownTypes;
 using CountryMgmt = DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
 using CurrencyCrud = DKH.ReferenceService.Contracts.Api.CurrenciesCrud.V1;
-using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
+using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v2;
 using CurrencyModel = DKH.ReferenceService.Contracts.Models.Currency.V1.Currency;
 using LanguageMgmt = DKH.ReferenceService.Contracts.Reference.Api.LanguageManagement.v1;
 
