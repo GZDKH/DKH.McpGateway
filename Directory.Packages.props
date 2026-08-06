@@ -20,7 +20,7 @@
     <PackageVersion Include="DKH.Platform.Telemetry" Version="1.1.0"/>
     <PackageVersion Include="DKH.Platform.Authentication.Keycloak" Version="1.4.0"/>
     <PackageVersion Include="DKH.Platform.Authorization" Version="2.0.0"/>
-    <PackageVersion Include="DKH.Platform.Identity" Version="1.7.3"/>
+    <PackageVersion Include="DKH.Platform.Identity" Version="1.7.4"/>
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="ModelContextProtocol" Version="1.4.1"/>
