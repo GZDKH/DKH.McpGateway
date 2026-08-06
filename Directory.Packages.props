@@ -32,7 +32,7 @@
     <PackageVersion Include="DKH.ReferenceService.Contracts" Version="2.1.1"/>
     <PackageVersion Include="DKH.OrderService.Contracts" Version="1.9.0"/>
     <PackageVersion Include="DKH.StorefrontService.Contracts" Version="2.108.0"/>
-    <PackageVersion Include="DKH.CustomerService.Contracts" Version="1.8.0"/>
+    <PackageVersion Include="DKH.CustomerService.Contracts" Version="1.9.0"/>
     <PackageVersion Include="DKH.ReviewService.Contracts" Version="1.6.0"/>
     <PackageVersion Include="DKH.TelegramBotService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.TelegramClientService.Contracts" Version="1.0.0"/>
