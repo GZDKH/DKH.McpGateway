@@ -1,5 +1,5 @@
 using DKH.ReferenceService.Contracts.Reference.Api.DimensionManagement.v1;
-using DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v2;
 
 namespace DKH.McpGateway.Application.Tools.References;
 

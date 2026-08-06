@@ -2,13 +2,13 @@ using DKH.McpGateway.Application.Tools.References;
 using DKH.Platform.Grpc.Common.Types;
 using Google.Protobuf.WellKnownTypes;
 using CurrencyCrud = DKH.ReferenceService.Contracts.Api.CurrenciesCrud.V1;
-using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
+using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v2;
 using CurrencyModel = DKH.ReferenceService.Contracts.Models.Currency.V1.Currency;
 using QuantityCrud = DKH.ReferenceService.Contracts.Api.QuantityUnitsCrud.V1;
-using QuantityMgmt = DKH.ReferenceService.Contracts.Reference.Api.QuantityUnitManagement.v1;
+using QuantityMgmt = DKH.ReferenceService.Contracts.Reference.Api.QuantityUnitManagement.v2;
 using QuantityModel = DKH.ReferenceService.Contracts.Models.QuantityUnit.V1.QuantityUnit;
 using WeightCrud = DKH.ReferenceService.Contracts.Api.WeightsCrud.V1;
-using WeightMgmt = DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v1;
+using WeightMgmt = DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v2;
 using WeightModel = DKH.ReferenceService.Contracts.Models.Weight.V1.Weight;
 
 namespace DKH.McpGateway.Tests.Tools.References;
@@ -16,6 +16,17 @@ namespace DKH.McpGateway.Tests.Tools.References;
 public class ReferenceAuthorityVersionGuardTests
 {
     private const string StableId = "11111111-1111-1111-1111-111111111111";
+
+    [Fact]
+    public void ManagementReadContracts_UseV2WithoutMutationMethods()
+    {
+        CurrencyMgmt.CurrencyManagementService.Descriptor.Methods.Select(method => method.Name)
+            .Should().Equal("Get", "List");
+        QuantityMgmt.QuantityUnitManagementService.Descriptor.Methods.Select(method => method.Name)
+            .Should().Equal("Get", "List");
+        WeightMgmt.WeightManagementService.Descriptor.Methods.Select(method => method.Name)
+            .Should().Equal("Get", "List");
+    }
 
     [Theory]
     [InlineData(null, 7L, "stableId")]

@@ -1,5 +1,5 @@
 using QuantityCrud = DKH.ReferenceService.Contracts.Api.QuantityUnitsCrud.V1;
-using QuantityMgmt = DKH.ReferenceService.Contracts.Reference.Api.QuantityUnitManagement.v1;
+using QuantityMgmt = DKH.ReferenceService.Contracts.Reference.Api.QuantityUnitManagement.v2;
 
 namespace DKH.McpGateway.Application.Tools.References;
 

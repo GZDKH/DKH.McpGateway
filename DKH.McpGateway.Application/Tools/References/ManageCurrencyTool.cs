@@ -1,5 +1,5 @@
 using CurrencyCrud = DKH.ReferenceService.Contracts.Api.CurrenciesCrud.V1;
-using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
+using CurrencyMgmt = DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v2;
 
 namespace DKH.McpGateway.Application.Tools.References;
 

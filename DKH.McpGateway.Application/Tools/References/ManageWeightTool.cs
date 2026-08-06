@@ -1,5 +1,5 @@
 using WeightCrud = DKH.ReferenceService.Contracts.Api.WeightsCrud.V1;
-using WeightMgmt = DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v1;
+using WeightMgmt = DKH.ReferenceService.Contracts.Reference.Api.WeightManagement.v2;
 
 namespace DKH.McpGateway.Application.Tools.References;
 

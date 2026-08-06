@@ -1,5 +1,5 @@
 using DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
-using DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v1;
+using DKH.ReferenceService.Contracts.Reference.Api.CurrencyManagement.v2;
 using DKH.ReferenceService.Contracts.Reference.Api.LanguageManagement.v1;
 using Microsoft.Extensions.Caching.Memory;
 
