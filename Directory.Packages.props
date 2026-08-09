@@ -34,7 +34,7 @@
     <PackageVersion Include="DKH.StorefrontService.Contracts" Version="2.108.0"/>
     <PackageVersion Include="DKH.CustomerService.Contracts" Version="1.9.0"/>
     <PackageVersion Include="DKH.ReviewService.Contracts" Version="1.7.0"/>
-    <PackageVersion Include="DKH.TelegramBotService.Contracts" Version="1.0.0"/>
+    <PackageVersion Include="DKH.TelegramBotService.Contracts" Version="1.55.0"/>
     <PackageVersion Include="DKH.TelegramClientService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.ApiManagementService.Contracts" Version="1.10.0"/>
     <PackageVersion Include="DKH.InventoryService.Contracts" Version="1.6.0"/>
