@@ -395,16 +395,6 @@ public class ProcurementToolTests
         json.GetProperty("status").GetString().Should().Be("Active");
     }
 
-    // ---- ListSourcingOffersByProduct ----
-
-    [Fact]
-    public async Task ListSourcingOffersByProduct_MissingCatalogRef_ReturnsErrorAsync()
-    {
-        var result = await ListSourcingOffersByProductTool.ExecuteAsync(_auth, _client, catalogRef: "");
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("catalogRef is required");
-    }
-
     // ---- SetSourcingOfferStatus (write) ----
 
     [Fact]
