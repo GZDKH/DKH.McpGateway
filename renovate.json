@@ -1,0 +1,11 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "ASP.NET Core OpenApi 10 requires Microsoft.OpenApi below 3.0.0.",
+      "matchDatasources": ["nuget"],
+      "matchPackageNames": ["Microsoft.OpenApi"],
+      "allowedVersions": "<3.0.0"
+    }
+  ]
+}
