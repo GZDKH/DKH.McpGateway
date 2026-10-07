@@ -1,0 +1,25 @@
+{
+  "decision": "fix",
+  "mode": "discovery-only",
+  "issue": "gzdkh/gateways/DKH.McpGateway#4",
+  "base_revision": "f58f3b5a8c4abd66d6333a04c49b64ceca88fa50",
+  "existing_implementation": {
+    "dependency_pin": "Directory.Packages.props: Microsoft.OpenApi 2.12.2",
+    "consumer": "DKH.McpGateway.Api/DKH.McpGateway.Api.csproj",
+    "failing_mr": "https://gitlab.xnata.com/gzdkh/gateways/DKH.McpGateway/-/merge_requests/152",
+    "failing_mr_head": "166981e3982ce19e505214a3d48dcaa0cbf33e0f",
+    "dependency_constraint": "Microsoft.AspNetCore.OpenApi 10.0.12 requires Microsoft.OpenApi [2.12.0, 3.0.0)",
+    "automation_contract": "https://docs.renovatebot.com/configuration-options/#packagerulesallowedversions"
+  },
+  "unchanged_behavior": "The supported OpenApi 2.12.2 pin and application behavior remain unchanged. Renovate may continue compatible NuGet updates, but must not propose Microsoft.OpenApi 3 until the framework dependency supports it.",
+  "original_mr_resolution": "MR152 changes only the unsupported major version. It cannot provide a compatible nonempty update on the current framework; the coordinator should resolve that MR separately.",
+  "validation": {
+    "renovate_schema": "Official draft-07 schema validation passed",
+    "allowed_versions": "Renovate 43 supports npm-semver fallback: 2.12.2 allowed; 3.0.0 and 3.10.2 rejected",
+    "format": "dotnet format DKH.McpGateway.slnx --verify-no-changes --no-restore passed",
+    "build": "Release build passed",
+    "tests": "939 passed, 0 failed, 0 skipped",
+    "security_review": "Diff contains only the package-specific Renovate rule and discovery evidence; no runtime, authentication, permission or data-exposure changes"
+  },
+  "excluded": ["framework migration", "restore warning suppression", "audit or test gate changes", "authentication changes"]
+}
