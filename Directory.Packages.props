@@ -41,7 +41,7 @@
     <PackageVersion Include="DKH.CartService.Contracts" Version="1.18.0"/>
     <PackageVersion Include="DKH.PaymentService.Contracts" Version="0.18.0"/>
     <PackageVersion Include="DKH.SubscriptionService.Contracts" Version="1.4.0"/>
-    <PackageVersion Include="DKH.SearchService.Contracts" Version="1.9.0"/>
+    <PackageVersion Include="DKH.SearchService.Contracts" Version="1.12.0"/>
     <PackageVersion Include="DKH.DeliveryService.Contracts" Version="1.11.0"/>
     <PackageVersion Include="DKH.LogisticsService.Contracts" Version="3.4.0"/>
     <PackageVersion Include="DKH.WarehouseService.Contracts" Version="1.6.0"/>
@@ -50,7 +50,7 @@
     <PackageVersion Include="DKH.CounterpartyService.Contracts" Version="1.22.0"/>
     <PackageVersion Include="DKH.StaffService.Contracts" Version="0.6.0"/>
     <PackageVersion Include="DKH.EngagementService.Contracts" Version="1.8.0"/>
-    <PackageVersion Include="DKH.AssistantService.Contracts" Version="1.6.0"/>
+    <PackageVersion Include="DKH.AssistantService.Contracts" Version="1.7.0"/>
     <PackageVersion Include="DKH.ProductRequestService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.BroadcastService.Contracts" Version="1.1.0"/>
     <PackageVersion Include="DKH.PrintService.Contracts" Version="0.2.0"/>

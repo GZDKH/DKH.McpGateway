@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "method": "focused-review",
+  "result": "passed",
+  "capability_unavailable": true,
+  "base_sha": "c6e2e8001dfdb738a05c25cd250f2a7396593019",
+  "reviewed_blobs": {
+    "DKH.McpGateway.Application/Resources/CatalogResources.cs": "603a96ad56f0cf3a4a2ab6580c7042bdfd96065b",
+    "DKH.McpGateway.Application/Tools/Assistant/AssistantMapper.cs": "7772759db7841c36f2eeb0859cc128c8d7be476f",
+    "DKH.McpGateway.Application/Tools/Common/ProductSearchProjection.cs": "510e6256f19066e5903a0b796291ac9857a06c0e",
+    "DKH.McpGateway.Application/Tools/Common/ScopedProductSearch.cs": "0d27dc831e031285fb89e254dc5e4c53967913c6",
+    "DKH.McpGateway.Application/Tools/Products/GetProductTool.cs": "6d4ff1bfa35da0e0d3138ecb849f08f151a716c8",
+    "DKH.McpGateway.Application/Tools/Products/SearchProductsTool.cs": "107617a09bb1887562fcc1b11072269d5fd916f8",
+    "DKH.McpGateway.Application/Tools/StorefrontPublic/StorefrontGetProductTool.cs": "bc2ae03ab296036b7c34414ac993f46985f14dd0",
+    "DKH.McpGateway.Application/Tools/StorefrontPublic/StorefrontRecommendProductsTool.cs": "49c3ee593a50f738fe1ccc4ad2bf70cdadc22444",
+    "DKH.McpGateway.Application/Tools/StorefrontPublic/StorefrontSearchProductsTool.cs": "19745dcab09c904a40766b20a760f890bfdd8878",
+    "tests/DKH.McpGateway.Tests/Tools/Assistant/AssistantPresenceReceivingTests.cs": "45934e27b62af1df5821b055e984581cd752ef3f",
+    "tests/DKH.McpGateway.Tests/Tools/Products/GetProductToolTests.cs": "d53471125aff51ca7504ddc19dc548866c0cff36",
+    "tests/DKH.McpGateway.Tests/Tools/Products/LegacyCatalogFinancialReceivingTests.cs": "56f0070a474f207e58fc53389e43b0f94597ca29",
+    "tests/DKH.McpGateway.Tests/Tools/Products/SearchPresenceReceivingTests.cs": "755f31af5ff45b386a618ce8434e285ff097d0f9",
+    "tests/DKH.McpGateway.Tests/Tools/Products/SearchProductsToolTests.cs": "8d21adbee39fc7a97c39c76b0e07aa0d0e6f5d10"
+  },
+  "additional_reviewed_source_blobs": {
+    ".gitlab-ci.yml": "5609a0bd971d9dcfee275dc646c304bb65b05073",
+    "DKH.McpGateway.Application/Tools/Common/ProductSearchProjection.cs": "510e6256f19066e5903a0b796291ac9857a06c0e",
+    "DKH.McpGateway.Application/Tools/Common/ScopedProductSearch.cs": "0d27dc831e031285fb89e254dc5e4c53967913c6",
+    "DKH.McpGateway.Application/Tools/Products/SearchProductsTool.cs": "107617a09bb1887562fcc1b11072269d5fd916f8",
+    "DKH.McpGateway.Application/Tools/StorefrontPublic/StorefrontRecommendProductsTool.cs": "49c3ee593a50f738fe1ccc4ad2bf70cdadc22444",
+    "DKH.McpGateway.Application/Tools/StorefrontPublic/StorefrontSearchProductsTool.cs": "19745dcab09c904a40766b20a760f890bfdd8878",
+    "Directory.Packages.props": "7153f550eec93a75d30bfb886108945fa0254e62",
+    "tests/DKH.McpGateway.Tests/Tools/Products/SearchPresenceReceivingTests.cs": "755f31af5ff45b386a618ce8434e285ff097d0f9",
+    "tests/DKH.McpGateway.Tests/Tools/Products/SearchProductsToolTests.cs": "8d21adbee39fc7a97c39c76b0e07aa0d0e6f5d10",
+    "DKH.McpGateway.Application/Resources/CatalogResources.cs": "603a96ad56f0cf3a4a2ab6580c7042bdfd96065b",
+    "DKH.McpGateway.Application/Tools/Products/GetProductTool.cs": "6d4ff1bfa35da0e0d3138ecb849f08f151a716c8",
+    "DKH.McpGateway.Application/Tools/StorefrontPublic/StorefrontGetProductTool.cs": "bc2ae03ab296036b7c34414ac993f46985f14dd0",
+    "DKH.McpGateway.Application/Tools/Assistant/AssistantMapper.cs": "7772759db7841c36f2eeb0859cc128c8d7be476f",
+    "tests/DKH.McpGateway.Tests/Tools/Products/GetProductToolTests.cs": "d53471125aff51ca7504ddc19dc548866c0cff36",
+    "tests/DKH.McpGateway.Tests/Tools/Products/LegacyCatalogFinancialReceivingTests.cs": "56f0070a474f207e58fc53389e43b0f94597ca29",
+    "tests/DKH.McpGateway.Tests/Tools/Assistant/AssistantPresenceReceivingTests.cs": "45934e27b62af1df5821b055e984581cd752ef3f"
+  },
+  "capability_note": "No eligible GitLab Codex Security diff-scan; available Cloud tools require explicit Cloud request. This is focused source review, no claimed scan.",
+  "checks": [
+    {
+      "result": "passed",
+      "check": "Three actual Search projections preserve existing price/currency/stock boundary, explicit defaults/clearing and quote policy. Actual Assistant unary+stream now use genuine1.7 Has semantics for existing fields incl unchanged optional oldPrice, with no extra financial disclosure. Final targeted87 uses actual tool/protobuf/client paths and genuine SDK12/17 runtime DLL hashes.",
+      "evidence": "docs/audits/search-presence-receiving-28.json; SearchPresenceReceivingTests; AssistantPresenceReceivingTests"
+    },
+    {
+      "result": "passed",
+      "check": "ExistingReadpermission first and storefrontMcpEnabled/visiblecatalog/seedguards remain. Missinggenericcatalogscope and oldpricebounds failbeforeRPC; semanticusesexisting supportedboundedendpoint/samefilter/CT, no rawvectorcontrol,newendpoint ortrustedcaller override.",
+      "evidence": "ScopedProductSearch.cs; SearchProductsTool.cs; StorefrontSearchProductsTool.cs; existingStorefrontScope unchanged; final44includingauth/gate/scope controls"
+    },
+    {
+      "result": "passed",
+      "check": "No credentials orprivatekeys introduced/logged; declaredunitkey/contextfixtures remainnonproduction. No runtimegrant/config/role/data migration. Pinned evidenceCI uses existing canonicalfd2898f5, preserves currentInfrastructureincludes and full test routes.",
+      "evidence": ".gitlab-ci.yml; Directory.Packages.props oneactualSearchSDKpin; source/audits; existingMcpJsonDefaults unchanged"
+    },
+    {
+      "result": "passed",
+      "check": "Three actual Catalog detail receivers suppress unqualified retained Product money and generic variant financial/stock slots, keeping same null-valuedJSON keys and preserving SKU/content/origin/Counterparty resolution/workspace metadata/read permissions/public storefront gate/catalog traversal/cancellation. Actual RED3 then32GREEN including zero and positive legacy inputs; qualified Cart/Commerce financial paths untouched.",
+      "evidence": "LegacyCatalogFinancialReceivingTests; GetProductToolTests; CatalogResourcesTests; actual three public source paths"
+    }
+  ],
+  "independent_review": "Original20 terminal spec efafa3fa/standards cdecdd1a with Root3d9e95a1; final necessary supplemental delta awaiting finite review"
+}

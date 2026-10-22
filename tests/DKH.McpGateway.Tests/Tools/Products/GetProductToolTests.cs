@@ -45,7 +45,7 @@ public class GetProductToolTests
         json.GetProperty("name").GetString().Should().Be("Test Product");
         json.GetProperty("seoName").GetString().Should().Be("test-product");
         json.GetProperty("description").GetString().Should().Be("A test product description");
-        json.GetProperty("currency").GetString().Should().Be("USD");
+        json.GetProperty("currency").ValueKind.Should().Be(JsonValueKind.Null);
     }
 
     [Fact]
@@ -180,8 +180,8 @@ public class GetProductToolTests
         var variants = Parse(result).GetProperty("variants");
         variants.GetArrayLength().Should().Be(1);
         variants[0].GetProperty("sku").GetString().Should().Be("PROD-001-RED");
-        variants[0].GetProperty("priceAdjustment").GetDouble().Should().Be(5.0);
-        variants[0].GetProperty("stockQuantity").GetInt32().Should().Be(10);
+        variants[0].GetProperty("priceAdjustment").ValueKind.Should().Be(JsonValueKind.Null);
+        variants[0].GetProperty("stockQuantity").ValueKind.Should().Be(JsonValueKind.Null);
     }
 
     [Fact]

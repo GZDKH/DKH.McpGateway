@@ -75,18 +75,8 @@ public static class StorefrontRecommendProductsTool
                 .OrderBy(static r => r.VectorDistance)
                 .DistinctBy(static r => r.Product.Id)
                 .Take(maxResults)
-                .Select(static r => new
-                {
-                    id = r.Product.Id,
-                    code = r.Product.Code,
-                    name = r.Product.Name,
-                    seoName = string.IsNullOrEmpty(r.Product.SeoName) ? r.Product.Code : r.Product.SeoName,
-                    price = r.Product.CallForPrice ? (double?)null : (double)r.Product.Price,
-                    currency = string.IsNullOrEmpty(r.Product.Currency) ? null : r.Product.Currency,
-                    brand = string.IsNullOrEmpty(r.Product.Brand) ? null : r.Product.Brand,
-                    inStock = r.Product.InStock,
-                    distance = r.VectorDistance,
-                })
+                .Select(static recommendation => ProductSearchProjection.Create(
+                    recommendation.Product, recommendation.VectorDistance))
                 .ToList(),
         };
 

@@ -10,7 +10,7 @@ namespace DKH.McpGateway.Application.Tools.Products;
 [McpServerToolType]
 public static class SearchProductsTool
 {
-    [McpServerTool(Name = "search_products"), Description("Search products in the catalog with optional filters for category, brand, and price range. Supports semantic search for natural language queries.")]
+    [McpServerTool(Name = "search_products"), Description("Search products within an explicit catalog scope, with optional brand/language filters and bounded semantic search. Financial filters are unsupported.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
         ProductSearchService.ProductSearchServiceClient client,
@@ -18,37 +18,30 @@ public static class SearchProductsTool
         [Description("Catalog SEO name (e.g. 'main-catalog')")] string? catalogSeoName = null,
         [Description("Language code (e.g. 'en', 'ru')")] string? languageCode = null,
         [Description("Filter by brand SEO names (comma-separated)")] string? brandFilter = null,
-        [Description("Minimum price filter")] double? priceMin = null,
-        [Description("Maximum price filter")] double? priceMax = null,
+        [Description("Legacy minimum price bound (unsupported; omit)")] double? priceMin = null,
+        [Description("Legacy maximum price bound (unsupported; omit)")] double? priceMax = null,
         [Description("Enable semantic search (vector-based natural language matching)")] bool semanticSearch = false,
         [Description("Page number (1-based)")] int page = 1,
         [Description("Page size (max 100)")] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
         apiKeyContext.EnsurePermission(McpPermissions.Read);
+        if (priceMin.HasValue || priceMax.HasValue)
+        {
+            throw new ArgumentException("Financial price filters are unsupported by content discovery; omit the legacy price bounds.");
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(catalogSeoName);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
         var filterBy = TypesenseFilterBuilder.Create()
             .CatalogSeo(catalogSeoName)
             .LanguageCode(languageCode)
             .Brands(brandFilter?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            .PriceRange(priceMin, priceMax)
             .Build();
 
-        var request = new SearchProductsRequest
-        {
-            Query = query,
-            FilterBy = filterBy,
-            Page = page,
-            PerPage = pageSize,
-        };
-
-        if (semanticSearch)
-        {
-            request.VectorQuery = $"embedding:([], k:{pageSize})";
-        }
-
-        var response = await client.SearchProductsAsync(request, cancellationToken: cancellationToken);
+        var response = await ScopedProductSearch.ExecuteAsync(
+            client, query, filterBy, page, pageSize, semanticSearch, cancellationToken);
 
         var result = new
         {
@@ -56,17 +49,7 @@ public static class SearchProductsTool
             page,
             pageSize,
             searchTimeMs = response.SearchTimeMs,
-            products = response.Hits.Select(static h => new
-            {
-                id = h.Document.Id,
-                code = h.Document.Code,
-                name = h.Document.Name,
-                seoName = string.IsNullOrEmpty(h.Document.SeoName) ? h.Document.Code : h.Document.SeoName,
-                price = h.Document.CallForPrice ? (double?)null : (double)h.Document.Price,
-                currency = string.IsNullOrEmpty(h.Document.Currency) ? null : h.Document.Currency,
-                brand = string.IsNullOrEmpty(h.Document.Brand) ? null : h.Document.Brand,
-                inStock = h.Document.InStock,
-            }),
+            products = response.Products.Select(static product => ProductSearchProjection.Create(product)),
         };
 
         return JsonSerializer.Serialize(result, McpJsonDefaults.Options);

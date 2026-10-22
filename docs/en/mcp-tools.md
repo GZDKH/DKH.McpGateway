@@ -16,6 +16,39 @@ Complete reference of all MCP capabilities exposed by DKH.McpGateway.
 | `get_product_stats` | ProductStatsTool.cs | Product catalog statistics |
 | `get_category_distribution` | CategoryDistributionTool.cs | Category product distribution analysis |
 
+### Scoped search and missing discovery values
+
+`search_products`, `storefront_search_products` and
+`storefront_recommend_products` consume genuine Search Contracts1.12 presence.
+Their existing `price`, `currency` and `inStock` JSON properties are null when
+omitted by the producer. Explicit zero, empty currency and false remain supplied
+values. The existing quote policy still withholds display price when the supplied
+CallForPrice flag is true. Original price, variant ranges and quote flag remain
+unexposed; a new SDK does not expand this tool's financial disclosure surface.
+Content IDs, SEO fallback, brand and recommendation distance/ranking/dedup remain.
+These discovery values do not establish commercial money, reservation or purchase
+permission.
+
+Generic search requires an explicit nonempty `catalogSeoName`; it never invents a
+catalog. Existing read permission remains first. Public storefront tools retain
+the bound storefront/McpEnabled gate, visible catalog resolution and recommendation
+seed isolation. No visible catalogs means no unscoped fallback query.
+
+Legacy `priceMin`/`priceMax` inputs are recognized only to return an explicit
+unsupported-control error before downstream search. They are never silently
+ignored or emitted as financial filters. Keyword search uses the existing scoped
+`SearchProducts` RPC. `semanticSearch=true` uses `HybridSearch` with SEMANTIC mode,
+the same exact catalog/content filter and caller cancellation. Page size is1..100;
+semantic page windows cannot exceed100results, candidate counts stay within100 and
+per-engine timeout is350ms. No raw vector query is emitted. Invalid bounds fail
+beforeRPC.
+
+Qualify all receiving services before Search192's semantic rollout; its compatible
+optional shared storage precedes Worker100's NULL-producing writes. Local typed
+tool/protobuf/JSON tests, full prepush/sourceCI and actual main/runtime/cleanup are
+separate gates. This MCP change does not close broader provisioning/security plans
+or any Catalog original.
+
 ### Catalogs (1 tool)
 
 | Tool | File | Description |
@@ -489,3 +522,9 @@ Analytics prompt templates that guide AI through multi-step analysis workflows.
 | `data_quality_check` | DataQualityCheckPrompt.cs | Data completeness and quality check |
 
 *Last updated: July 2026*
+
+## Catalog and assistant financial receiving
+
+`catalog://products`, `get_product` and `storefront_get_product` keep their existing price/currency JSON keys as null: retained Catalog Product values do not establish a qualified commercial offer. Generic variant priceAdjustment/stockQuantity also remain null; SKU and product content remain intact. Existing workspace/read checks and storefront gate/catalog traversal are preserved. Other services' qualified commercial prices are unchanged.
+
+Unary and stream assistant tools require genuine Assistant Contracts1.7.0 to distinguish missing price/currency/inStock from explicit defaults. Existing optional oldPrice and content fields remain. The necessary SDK predecessor is [Assistant27](https://gitlab.xnata.com/gzdkh/services/DKH.AssistantService/-/issues/27); its publication alone does not prove actual producer or cohort readiness.

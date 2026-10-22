@@ -44,33 +44,11 @@ public static class StorefrontSearchProductsTool
                 .LanguageCode(languageCode)
                 .Build();
 
-            var request = new SearchProductsRequest
-            {
-                Query = query,
-                FilterBy = filterBy,
-                Page = 1,
-                PerPage = pageSize,
-            };
-
-            if (semanticSearch)
-            {
-                request.VectorQuery = $"embedding:([], k:{pageSize})";
-            }
-
-            var response = await searchClient.SearchProductsAsync(request, cancellationToken: cancellationToken);
+            var response = await ScopedProductSearch.ExecuteAsync(
+                searchClient, query, filterBy, 1, pageSize, semanticSearch, cancellationToken);
 
             totalFound += response.Found;
-            products.AddRange(response.Hits.Select(static h => new
-            {
-                id = h.Document.Id,
-                code = h.Document.Code,
-                name = h.Document.Name,
-                seoName = string.IsNullOrEmpty(h.Document.SeoName) ? h.Document.Code : h.Document.SeoName,
-                price = h.Document.CallForPrice ? (double?)null : (double)h.Document.Price,
-                currency = string.IsNullOrEmpty(h.Document.Currency) ? null : h.Document.Currency,
-                brand = string.IsNullOrEmpty(h.Document.Brand) ? null : h.Document.Brand,
-                inStock = h.Document.InStock,
-            }));
+            products.AddRange(response.Products.Select(static product => ProductSearchProjection.Create(product)));
         }
 
         var result = new
