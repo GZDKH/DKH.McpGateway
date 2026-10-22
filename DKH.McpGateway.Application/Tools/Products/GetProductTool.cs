@@ -42,6 +42,8 @@ public static class GetProductTool
         var (brandName, manufacturerName) = await ProductCounterpartyNameResolver.ResolveAsync(
             product, counterpartyClient, languageCode, cancellationToken);
 
+        // Catalog content does not establish a qualified offer or availability.
+        // Preserve the existing financial JSON slots as unknown.
         var result = new
         {
             id = product.Id,
@@ -49,8 +51,8 @@ public static class GetProductTool
             name = product.Name,
             seoName = product.SeoName,
             description = product.Description,
-            price = product.CallForPrice ? (double?)null : product.Price,
-            currency = product.CurrencyCode,
+            price = (double?)null,
+            currency = (string?)null,
             brand = brandName,
             manufacturer = manufacturerName,
             categories = product.Categories.Select(static c => new { name = c.CategoryName, seoName = c.CategorySeoName }),
@@ -68,8 +70,8 @@ public static class GetProductTool
             variants = product.VariantCombinations.Select(static v => new
             {
                 sku = v.Sku,
-                priceAdjustment = v.PriceAdjustment,
-                stockQuantity = v.StockQuantity,
+                priceAdjustment = (double?)null,
+                stockQuantity = (int?)null,
             }),
             origin = product.Origin is not null && !string.IsNullOrEmpty(product.Origin.CountryCode)
                 ? new

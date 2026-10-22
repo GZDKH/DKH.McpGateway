@@ -76,15 +76,14 @@ public class SearchProductsToolTests
     }
 
     [Fact]
-    public async Task SearchProducts_WithPriceRange_SetsFilterByAsync()
+    public async Task SearchProducts_WithPriceRange_RefusesBeforeSearchAsync()
     {
         SetupSearch(new SearchProductsResponse { Found = 0 });
+        var execute = () => ExecuteToolAsync("test", priceMin: 10.0, priceMax: 100.0);
 
-        await ExecuteToolAsync("test", priceMin: 10.0, priceMax: 100.0);
+        await execute.Should().ThrowAsync<ArgumentException>();
 
-        _ = _client.Received(1).SearchProductsAsync(
-            Arg.Is<SearchProductsRequest>(r =>
-                r.FilterBy.Contains("price:[10..100]")),
+        _ = _client.DidNotReceive().SearchProductsAsync(Arg.Any<SearchProductsRequest>(),
             Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
@@ -113,15 +112,18 @@ public class SearchProductsToolTests
     }
 
     [Fact]
-    public async Task SearchProducts_WithSemanticSearch_SetsVectorQueryAsync()
+    public async Task SearchProducts_WithSemanticSearch_UsesBoundedSemanticRpcAsync()
     {
-        SetupSearch(new SearchProductsResponse { Found = 0 });
+        _client.HybridSearchAsync(Arg.Any<HybridSearchRequest>(), Arg.Any<Metadata>(),
+                Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new HybridSearchResponse { Found = 0 }));
 
         await ExecuteToolAsync("natural language query", semanticSearch: true);
 
-        _ = _client.Received(1).SearchProductsAsync(
-            Arg.Is<SearchProductsRequest>(r =>
-                r.VectorQuery.Contains("embedding:([]")),
+        _ = _client.Received(1).HybridSearchAsync(Arg.Is<HybridSearchRequest>(request =>
+                request.Mode == SearchMode.Semantic && request.FilterBy.Contains("catalog_seo:=`catalog-a`")),
+            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
+        _ = _client.DidNotReceive().SearchProductsAsync(Arg.Any<SearchProductsRequest>(),
             Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
     }
 
@@ -179,7 +181,7 @@ public class SearchProductsToolTests
 
     private Task<string> ExecuteToolAsync(
         string query,
-        string? catalogSeoName = null,
+        string? catalogSeoName = "catalog-a",
         string? languageCode = null,
         string? brandFilter = null,
         double? priceMin = null,

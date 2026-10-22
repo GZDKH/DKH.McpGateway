@@ -98,14 +98,16 @@ public static class CatalogResources
         var (brandName, manufacturerName) = await ProductCounterpartyNameResolver.ResolveAsync(
             product, counterpartyClient, languageCode, cancellationToken);
 
+        // Catalog content does not establish a qualified offer or availability.
+        // Preserve the existing financial JSON slots as unknown.
         return JsonSerializer.Serialize(new
         {
             name = product.Name,
             seoName = product.SeoName,
             code = product.Code,
             description = product.Description,
-            price = product.CallForPrice ? (double?)null : product.Price,
-            currency = product.CurrencyCode,
+            price = (double?)null,
+            currency = (string?)null,
             brand = brandName,
             manufacturer = manufacturerName,
             categories = product.Categories.Select(static c => new { name = c.CategoryName, seoName = c.CategorySeoName }),
