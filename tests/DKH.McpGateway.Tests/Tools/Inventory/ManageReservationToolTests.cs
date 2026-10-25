@@ -1,337 +1,235 @@
-using DKH.InventoryService.Contracts.Inventory.Api.StockReservation.v1;
-using DKH.InventoryService.Contracts.Inventory.Models.Reservation.v1;
+using DKH.InventoryService.Contracts.Inventory.Api.StockReservation.v2;
+using DKH.InventoryService.Contracts.Inventory.Models.Reservation.v2;
 using DKH.McpGateway.Application.Tools.Inventory;
-using DKH.Platform.Grpc.Common.Types;
-using Google.Protobuf.WellKnownTypes;
+using Google.Protobuf;
 
 namespace DKH.McpGateway.Tests.Tools.Inventory;
 
-public class ManageReservationToolTests
+public sealed class ManageReservationToolTests
 {
-    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
-
-    private readonly StockReservationService.StockReservationServiceClient _client =
-        Substitute.For<StockReservationService.StockReservationServiceClient>();
-
-    private static readonly string ProductId = Guid.NewGuid().ToString();
-    private static readonly string WarehouseId = Guid.NewGuid().ToString();
-    private static readonly string ReservationId = Guid.NewGuid().ToString();
-    private static readonly string CartId = "cart-123";
-
-    [Fact]
-    public async Task Reserve_HappyPath_ReturnsReservationAsync()
+    [Theory]
+    [InlineData("reserve", "ReserveExactStock", "reserve")]
+    [InlineData("get", "GetExactReservation", "get")]
+    [InlineData("get_operation", "GetExactReservationOperation", "release")]
+    [InlineData("release", "ReleaseExactReservation", "release")]
+    [InlineData("bind_order", "BindExactReservationOrderLine", "bind_order")]
+    [InlineData("confirm", "ConfirmExactReservation", "dispatch")]
+    public async Task ExactNativeOperations_PreserveOriginalBytesAndCallerSuppliedIdentityAsync(string action, string rpc, string kind)
     {
-        SetupReserveStock(new StockReservationModel
-        {
-            ReservationId = new GuidValue(ReservationId),
-            ProductId = new GuidValue(ProductId),
-            WarehouseId = new GuidValue(WarehouseId),
-            Quantity = 5,
-            Status = ReservationStatusModel.Active,
-            CreatedAt = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow),
-            ExpiresAt = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow.AddMinutes(30)),
-        });
-
-        var result = await ExecuteToolAsync("reserve",
-            productId: ProductId, warehouseId: WarehouseId, quantity: 5);
-
-        result.Should().Contain(ReservationId);
-    }
-
-    [Fact]
-    public async Task Reserve_WithOptionalFields_SetsCartIdAndTtlAsync()
-    {
-        SetupReserveStock(new StockReservationModel
-        {
-            ReservationId = new GuidValue(ReservationId),
-            ProductId = new GuidValue(ProductId),
-            WarehouseId = new GuidValue(WarehouseId),
-            Quantity = 3,
-            CartId = CartId,
-        });
-
-        await ExecuteToolAsync("reserve",
-            productId: ProductId, warehouseId: WarehouseId, quantity: 3,
-            cartId: CartId, ttlMinutes: 60);
-
-        _ = _client.Received(1).ReserveStockAsync(
-            Arg.Is<ReserveStockRequest>(r =>
-                r.CartId == CartId &&
-                r.TtlMinutes == 60 &&
-                r.Quantity == 3),
-            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task Reserve_MissingProductId_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("reserve",
-            warehouseId: WarehouseId, quantity: 5);
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("productId is required");
-    }
-
-    [Fact]
-    public async Task Reserve_MissingWarehouseId_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("reserve",
-            productId: ProductId, quantity: 5);
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("warehouseId is required");
-    }
-
-    [Fact]
-    public async Task Reserve_InvalidQuantity_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("reserve",
-            productId: ProductId, warehouseId: WarehouseId, quantity: 0);
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("quantity must be a positive integer");
-    }
-
-    [Fact]
-    public async Task Reserve_ReadOnly_ThrowsUnauthorizedAsync()
-    {
-        var act = () => ManageReservationTool.ExecuteAsync(
-            ApiKeyContextMocks.ReadOnly(), _client, "reserve",
-            productId: ProductId, warehouseId: WarehouseId, quantity: 5);
-
-        await act.Should().ThrowAsync<UnauthorizedAccessException>();
-    }
-
-    [Fact]
-    public async Task Release_HappyPath_ReturnsOkAsync()
-    {
-        SetupReleaseReservation();
-
-        var result = await ExecuteToolAsync("release", reservationId: ReservationId);
-
-        Parse(result).GetProperty("success").GetBoolean().Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task Release_MissingReservationId_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("release");
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("reservationId is required");
-    }
-
-    [Fact]
-    public async Task Release_ReadOnly_ThrowsUnauthorizedAsync()
-    {
-        var act = () => ManageReservationTool.ExecuteAsync(
-            ApiKeyContextMocks.ReadOnly(), _client, "release",
-            reservationId: ReservationId);
-
-        await act.Should().ThrowAsync<UnauthorizedAccessException>();
-    }
-
-    [Fact]
-    public async Task Confirm_HappyPath_ReturnsOkAsync()
-    {
-        SetupConfirmReservation();
-
-        var result = await ExecuteToolAsync("confirm", reservationId: ReservationId);
-
-        Parse(result).GetProperty("success").GetBoolean().Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task Confirm_MissingReservationId_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("confirm");
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("reservationId is required");
-    }
-
-    [Fact]
-    public async Task Confirm_ReadOnly_ThrowsUnauthorizedAsync()
-    {
-        var act = () => ManageReservationTool.ExecuteAsync(
-            ApiKeyContextMocks.ReadOnly(), _client, "confirm",
-            reservationId: ReservationId);
-
-        await act.Should().ThrowAsync<UnauthorizedAccessException>();
-    }
-
-    [Fact]
-    public async Task Get_HappyPath_ReturnsReservationAsync()
-    {
-        SetupGetReservation(new StockReservationModel
-        {
-            ReservationId = new GuidValue(ReservationId),
-            ProductId = new GuidValue(ProductId),
-            WarehouseId = new GuidValue(WarehouseId),
-            Quantity = 5,
-            Status = ReservationStatusModel.Active,
-            CreatedAt = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow),
-            ExpiresAt = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow.AddMinutes(30)),
-        });
-
-        var result = await ExecuteToolAsync("get", reservationId: ReservationId);
-
-        result.Should().Contain(ReservationId);
-    }
-
-    [Fact]
-    public async Task Get_MissingReservationId_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("get");
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("reservationId is required");
-    }
-
-    [Fact]
-    public async Task List_HappyPath_ReturnsPagedResultAsync()
-    {
-        SetupListReservations(new ListReservationsResponse
-        {
-            Items =
-            {
-                new StockReservationModel
-                {
-                    ReservationId = new GuidValue(ReservationId),
-                    ProductId = new GuidValue(ProductId),
-                    WarehouseId = new GuidValue(WarehouseId),
-                    Quantity = 5,
-                    Status = ReservationStatusModel.Active,
-                    CreatedAt = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow),
-                    ExpiresAt = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow.AddMinutes(30)),
-                },
-            },
-            Metadata = new PaginationMetadata { TotalCount = 1, CurrentPage = 1, PageSize = 20 },
-        });
-
-        var result = await ExecuteToolAsync("list");
-
-        var json = Parse(result);
-        json.GetProperty("totalCount").GetInt32().Should().Be(1);
-        json.GetProperty("items").GetArrayLength().Should().Be(1);
-    }
-
-    [Fact]
-    public async Task List_WithFilters_SetsFilterFieldsAsync()
-    {
-        SetupListReservations(new ListReservationsResponse
-        {
-            Metadata = new PaginationMetadata { TotalCount = 0, CurrentPage = 2, PageSize = 10 },
-        });
-
-        await ExecuteToolAsync("list", cartId: CartId, status: "active", page: 2, pageSize: 10);
-
-        _ = _client.Received(1).ListReservationsAsync(
-            Arg.Is<ListReservationsRequest>(r =>
-                r.CartId == CartId &&
-                r.Status == ReservationStatusModel.Active &&
-                r.Pagination.Page == 2 &&
-                r.Pagination.PageSize == 10),
-            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task UnknownAction_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("invalid");
-
-        var json = Parse(result);
-        json.GetProperty("success").GetBoolean().Should().BeFalse();
-        json.GetProperty("error").GetString().Should().Contain("Unknown action");
+        var f = new InventoryToolFixture();
+        var request = Request(action);
+        var requestBytes = request.ToByteArray();
+        f.Transport.RespondAsync = (_, _) => Task.FromResult<object>(action == "get"
+            ? InventoryToolFixture.Reservation()
+            : InventoryToolFixture.Operation(kind, action == "reserve" ? InventoryToolFixture.ReserveId : InventoryToolFixture.MutationId));
+        var output = await f.ReservationAsync(action, request);
+        output.Should().Contain(InventoryToolFixture.HoldId);
+        f.Transport.Calls.Should().ContainSingle();
+        var call = f.Transport.Calls[0];
+        call.Path.Should().Be("/proto.inventory.api.stock_reservation.v2.StockReservationService/" + rpc);
+        call.Bytes.Should().Equal(requestBytes);
+        call.Options.Headers!.Single(x => x.Key == "x-workspace-id").Value.Should().Be(InventoryToolFixture.WorkspaceId);
+        request.ToByteArray().Should().Equal(requestBytes);
     }
 
     [Theory]
-    [InlineData("RESERVE")]
-    [InlineData("Reserve")]
-    [InlineData("RELEASE")]
-    [InlineData("LIST")]
-    public async Task Action_IsCaseInsensitiveAsync(string action)
+    [InlineData("release")]
+    [InlineData("bind_order")]
+    [InlineData("confirm")]
+    public async Task MutationMissingOrZeroCas_IsNotGuessedAsync(string action)
     {
-        SetupReserveStock(new StockReservationModel
-        {
-            ReservationId = new GuidValue(ReservationId),
-            ProductId = new GuidValue(ProductId),
-            WarehouseId = new GuidValue(WarehouseId),
-            Quantity = 1,
-            CreatedAt = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow),
-            ExpiresAt = Timestamp.FromDateTimeOffset(DateTimeOffset.UtcNow.AddMinutes(30)),
-        });
-        SetupReleaseReservation();
-        SetupListReservations(new ListReservationsResponse
-        {
-            Metadata = new PaginationMetadata { TotalCount = 0, CurrentPage = 1, PageSize = 20 },
-        });
+        var f = new InventoryToolFixture();
+        var json = JsonFormatter.Default.Format(Request(action)).Replace("\"expectedHoldRevision\": \"7\"", "\"expectedHoldRevision\": \"0\"", StringComparison.Ordinal);
+        var act = () => ManageReservationTool.ExecuteAsync(f.Auth, f.Client, f.Accessor, action, json);
+        await act.Should().ThrowAsync<RpcException>().Where(e => e.StatusCode == StatusCode.InvalidArgument);
+        f.Transport.Calls.Should().BeEmpty();
+    }
 
-        var result = await ExecuteToolAsync(action,
-            productId: ProductId, warehouseId: WarehouseId, quantity: 1,
-            reservationId: ReservationId);
+    [Theory]
+    [InlineData("release")]
+    [InlineData("bind_order")]
+    public async Task Int64Revision_IsPassedLosslesslyAsNativeWireValueAsync(string action)
+    {
+        var f = new InventoryToolFixture();
+        var request = Request(action);
+        if (request is ReleaseExactReservationRequest release)
+        {
+            release.Command.ExpectedHoldRevision = long.MaxValue;
+        }
 
-        result.Should().NotContain("Unknown action");
+        if (request is BindExactReservationOrderLineRequest bind)
+        {
+            bind.Command.ExpectedHoldRevision = long.MaxValue;
+            bind.OrderSource.AggregateRevision = long.MaxValue;
+        }
+
+        f.Transport.RespondAsync = (_, _) => Task.FromResult<object>(InventoryToolFixture.Operation(action == "bind_order" ? "bind_order" : "release"));
+        await f.ReservationAsync(action, request);
+        f.Transport.Calls.Single().Bytes.Should().Equal(request.ToByteArray());
+    }
+
+    [Theory]
+    [InlineData("expectedHoldRevision")]
+    [InlineData("expected_hold_revision")]
+    public async Task NumericInt64Cas_IsRejectedInsteadOfRoundedAsync(string field)
+    {
+        var f = new InventoryToolFixture();
+        var json = JsonFormatter.Default.Format(Request("release")).Replace("\"expectedHoldRevision\": \"7\"", "\"" + field + "\": 9223372036854775807", StringComparison.Ordinal);
+        await ((Func<Task>)(async () => await ManageReservationTool.ExecuteAsync(f.Auth, f.Client, f.Accessor, "release", json))).Should().ThrowAsync<RpcException>().Where(e => e.StatusCode == StatusCode.InvalidArgument);
+        f.Transport.Calls.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task GrpcUnavailable_ThrowsRpcExceptionAsync()
+    public async Task ReserveWithMutationCas_IsRejectedAsync()
     {
-        _client.ReserveStockAsync(
-                Arg.Any<ReserveStockRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<StockReservationModel>(
-                StatusCode.Unavailable, "Service unavailable"));
-
-        var act = () => ExecuteToolAsync("reserve",
-            productId: ProductId, warehouseId: WarehouseId, quantity: 5);
-
-        await act.Should().ThrowAsync<RpcException>()
-            .Where(e => e.StatusCode == StatusCode.Unavailable);
+        var f = new InventoryToolFixture();
+        var request = (ReserveExactStockRequest)Request("reserve");
+        request.Command.ExpectedHoldRevision = 7;
+        await ((Func<Task>)(async () => await f.ReservationAsync("reserve", request))).Should().ThrowAsync<RpcException>();
+        f.Transport.Calls.Should().BeEmpty();
     }
 
-    private Task<string> ExecuteToolAsync(
-        string action,
-        string? reservationId = null,
-        string? productId = null,
-        string? variantId = null,
-        string? warehouseId = null,
-        int? quantity = null,
-        string? cartId = null,
-        int? ttlMinutes = null,
-        string? status = null,
-        int? page = null,
-        int? pageSize = null)
-        => ManageReservationTool.ExecuteAsync(
-            _auth, _client,
-            action: action, reservationId: reservationId,
-            productId: productId, variantId: variantId, warehouseId: warehouseId,
-            quantity: quantity, cartId: cartId, ttlMinutes: ttlMinutes,
-            status: status, page: page, pageSize: pageSize);
+    [Fact]
+    public async Task ReserveCannotReplaceOriginalOperationIdAsync()
+    {
+        var f = new InventoryToolFixture();
+        var request = (ReserveExactStockRequest)Request("reserve");
+        request.Command.OperationId = new(InventoryToolFixture.MutationId);
+        await ((Func<Task>)(async () => await f.ReservationAsync("reserve", request))).Should().ThrowAsync<RpcException>();
+        f.Transport.Calls.Should().BeEmpty();
+    }
 
-    private void SetupReserveStock(StockReservationModel response)
-        => _client.ReserveStockAsync(
-                Arg.Any<ReserveStockRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
+    [Theory]
+    [InlineData("frame")]
+    [InlineData("digest")]
+    [InlineData("workspace")]
+    [InlineData("owner")]
+    [InlineData("quantity")]
+    public async Task InvalidOriginal_DoesNotGenerateCartOrScopeAsync(string mutation)
+    {
+        var f = new InventoryToolFixture();
+        var request = (ReserveExactStockRequest)Request("reserve");
+        switch (mutation)
+        {
+            case "frame":
+                request.Original.OriginalCartFrame = ByteString.CopyFromUtf8("changed");
+                break;
+            case "digest":
+                request.Original.CartFrameSha256 = new string('b', 64);
+                break;
+            case "workspace":
+                request.Original.StockScope.WorkspaceId = new(Guid.NewGuid().ToString());
+                break;
+            case "owner":
+                request.Original.StockScope.OwnerCounterpartyId = null;
+                break;
+            case "quantity":
+                request.Original.Quantity = 0;
+                break;
+        }
 
-    private void SetupReleaseReservation()
-        => _client.ReleaseReservationAsync(
-                Arg.Any<ReleaseReservationRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new Empty()));
+        await ((Func<Task>)(async () => await f.ReservationAsync("reserve", request))).Should().ThrowAsync<RpcException>();
+        f.Transport.Calls.Should().BeEmpty();
+    }
 
-    private void SetupConfirmReservation()
-        => _client.ConfirmReservationAsync(
-                Arg.Any<ConfirmReservationRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new Empty()));
+    [Theory]
+    [InlineData(/*lang=json,strict*/ "{\"productId\": \"legacy-product\"}")]
+    [InlineData(/*lang=json,strict*/ "{\"ttlMinutes\": 20}")]
+    [InlineData("{broken")]
+    public async Task LegacyUnknownOrMalformedJson_IsRejectedWithoutRpcAsync(string json)
+    {
+        var f = new InventoryToolFixture();
+        await ((Func<Task>)(async () => await ManageReservationTool.ExecuteAsync(f.Auth, f.Client, f.Accessor, "reserve", json))).Should().ThrowAsync<RpcException>();
+        f.Transport.Calls.Should().BeEmpty();
+    }
 
-    private void SetupGetReservation(StockReservationModel response)
-        => _client.GetReservationAsync(
-                Arg.Any<GetReservationRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
+    [Theory]
+    [InlineData("list")]
+    [InlineData("expire")]
+    public async Task UnsupportedActions_MakeNoLegacyOrExpiryCallAsync(string action)
+    {
+        var f = new InventoryToolFixture();
+        (await ManageReservationTool.ExecuteAsync(f.Auth, f.Client, f.Accessor, action)).Should().Contain("retired");
+        f.Transport.Calls.Should().BeEmpty();
+    }
 
-    private void SetupListReservations(ListReservationsResponse response)
-        => _client.ListReservationsAsync(
-                Arg.Any<ListReservationsRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
+    [Theory]
+    [InlineData("operation")]
+    [InlineData("hold")]
+    [InlineData("cart")]
+    [InlineData("stockOwner")]
+    public async Task UnjoinedNativeOutcome_IsNotDisclosedAsync(string mutation)
+    {
+        var f = new InventoryToolFixture();
+        var response = InventoryToolFixture.Operation();
+        switch (mutation)
+        {
+            case "operation":
+                response.OperationId = new(Guid.NewGuid().ToString());
+                break;
+            case "hold":
+                response.Reservation.HoldId = new(Guid.NewGuid().ToString());
+                break;
+            case "cart":
+                response.Reservation.CartId = "different-cart";
+                break;
+            case "stockOwner":
+                response.Reservation.StockScope.OwnerCounterpartyId = new(Guid.NewGuid().ToString());
+                break;
+        }
 
-    private static JsonElement Parse(string json) => JsonDocument.Parse(json).RootElement;
+        f.Transport.RespondAsync = (_, _) => Task.FromResult<object>(response);
+        await ((Func<Task>)(async () => await f.ReservationAsync("release", Request("release")))).Should().ThrowAsync<RpcException>().Where(e => e.StatusCode == StatusCode.DataLoss);
+    }
+
+    [Theory]
+    [InlineData(StatusCode.NotFound)]
+    [InlineData(StatusCode.PermissionDenied)]
+    [InlineData(StatusCode.Unavailable)]
+    public async Task AmbiguousOrDeniedMutation_IsNotRetriedOrReportedReleasedAsync(StatusCode status)
+    {
+        var f = new InventoryToolFixture();
+        f.Transport.RespondAsync = (_, _) => Task.FromException<object>(new RpcException(new Status(status, "controlled original outcome")));
+        await ((Func<Task>)(async () => await f.ReservationAsync("release", Request("release")))).Should().ThrowAsync<RpcException>().Where(e => e.StatusCode == status);
+        f.Transport.Calls.Should().ContainSingle();
+    }
+
+    internal static IMessage Request(string action)
+    {
+        var original = InventoryToolFixture.Original();
+        var command = new ExactReservationCommandModel { OperationId = new(InventoryToolFixture.MutationId), ExpectedHoldRevision = 7 };
+        return action switch
+        {
+            "reserve" => new ReserveExactStockRequest { Original = original, Command = new() { OperationId = original.OriginalReserveOperationId.Clone() } },
+            "get" => new GetExactReservationRequest { Original = original },
+            "get_operation" => new GetExactReservationOperationRequest { Original = original, OperationId = new(InventoryToolFixture.MutationId) },
+            "release" => new ReleaseExactReservationRequest { Original = original, HoldId = new(InventoryToolFixture.HoldId), Command = command },
+            "bind_order" => new BindExactReservationOrderLineRequest
+            {
+                Original = original,
+                HoldId = new(InventoryToolFixture.HoldId),
+                Command = command,
+                SelectedSourceLineId = new("fd0f47ae-5ecf-408c-a5d8-357b583f0f28"),
+                OrderSource = new()
+                {
+                    EventId = new("47838f88-8954-4fb6-9f8f-3e5c5295caa3"),
+                    WorkspaceId = new("34974343-85e3-4133-9ce6-b642f3747240"),
+                    StorefrontId = new("91b93539-1c01-4ebf-be3e-653443bb986a"),
+                    OrderId = new("2b610b3a-0279-495e-bab0-267a00698bb2"),
+                    AggregateRevision = 13,
+                    PayloadDigest = "original-payload",
+                    MessageDigest = "original-message"
+                },
+            },
+            "confirm" => new ConfirmExactReservationRequest
+            {
+                Original = original,
+                HoldId = new(InventoryToolFixture.HoldId),
+                Command = command,
+                OrderLineBindingId = new("326702ba-1efc-4a7a-8910-18adc20b72c7"),
+                Allocations = { new ExactReservationDispatchModel { AllocationId = new("e8edbb19-6a78-4f86-9cc3-130088003759"), Quantity = 1 } },
+            },
+            _ => throw new ArgumentException("Unknown controlled request.", nameof(action)),
+        };
+    }
 }

@@ -1,0 +1,7 @@
+# Cut over the complete MCP stock-tool family
+
+Decision: integrate the genuine Inventory 1.19 owner contract and retire unrepresentable v1 operations. Owning issue: gzdkh/gateways/DKH.McpGateway#29; dependency gzdkh/services/DKH.InventoryService#5, parent AgentRules#136.
+
+Discovery at main7d341907: QueryStockTool, ManageReservationTool, ManageStockTool and ManageStockAlertTool call four Inventory v1 clients; Directory.Packages.props pins1.6.0. No active Mcp lease/overlapping feature MR; issue19 concerns ProductRequest. Existing PlatformUserIdentityPropagationInterceptor forwards the admitted HTTP bearer. Existing ProductCatalogWorkspaceRequestContext establishes HTTP MCP-admin selected workspace but has no final caller fence. Inventory1.19 supports exact stock availability and exact original-Cart reservation operations. Generic stock pages/direct adjustments/alerts have no faithful replacement. The verified producer handoff is SHA36ddc35044a5f6edde74113e1a32f22fdc32c9dd56702c1cee7ac8414c24817a.
+
+Preserve useful tool names but explicitly change their input contract to the native exact scope/original typed requests. Never infer owner/warehouse/Sellable from Product/Variant. No production configuration grant/profile activation, Inventory mutation probe, schema/SDK authoring, new protocol, source journal or original140 acceptance. One cohesive service MR, independently reviewed and normally verified before push; coordinator owns merge.
