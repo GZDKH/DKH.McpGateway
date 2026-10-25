@@ -21,10 +21,7 @@ using DKH.DeliveryService.Contracts.Delivery.Api.CustomsLink.v1;
 using DKH.DeliveryService.Contracts.Delivery.Api.DeliveryCrud.v1;
 using DKH.DeliveryService.Contracts.Delivery.Api.Dispatch.v1;
 using DKH.DeliveryService.Contracts.Delivery.Api.Settlements.v1;
-using DKH.InventoryService.Contracts.Inventory.Api.LowStockAlert.v1;
-using DKH.InventoryService.Contracts.Inventory.Api.StockManagement.v1;
-using DKH.InventoryService.Contracts.Inventory.Api.StockQuery.v1;
-using DKH.InventoryService.Contracts.Inventory.Api.StockReservation.v1;
+using DKH.InventoryService.Contracts.Inventory.Api.StockReservation.v2;
 using DKH.LogisticsService.Contracts.Services.v1;
 using DKH.MediaService.Contracts.Api.V1;
 using DKH.OrderService.Contracts.Order.Api.OrderCrud.v1;
@@ -188,11 +185,8 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<CartCrudService.CartCrudServiceClient>();
         grpc.AddEndpointFromConfiguration<CartClaimService.CartClaimServiceClient>();
 
-        // InventoryService (5013)
-        grpc.AddEndpointFromConfiguration<StockQueryService.StockQueryServiceClient>();
-        grpc.AddEndpointFromConfiguration<StockManagementService.StockManagementServiceClient>();
+        // InventoryService exact-owned-stock (5014)
         grpc.AddEndpointFromConfiguration<StockReservationService.StockReservationServiceClient>();
-        grpc.AddEndpointFromConfiguration<LowStockAlertService.LowStockAlertServiceClient>();
 
         // PaymentService (5028) — read-only payment + payment-plan queries
         grpc.AddEndpointFromConfiguration<Payments.PaymentsClient>();

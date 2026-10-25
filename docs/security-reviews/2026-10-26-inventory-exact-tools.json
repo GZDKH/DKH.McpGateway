@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "method": "focused-review",
+  "result": "passed",
+  "capability_unavailable": true,
+  "base_sha": "7d341907204d20b3cc79e889bff7ac37cf19be46",
+  "reviewed_blobs": {
+    "DKH.McpGateway.Api/appsettings.Development.json": "72202f7aae2875e85a22368696f63d59c61610eb",
+    "DKH.McpGateway.Api/appsettings.Docker.json": "ef83abc57e6da146067b28bcac55f78cfda03360",
+    "DKH.McpGateway.Api/appsettings.json": "d142ab9f40ba0f2e38cc7afce20a72ef46bfa1ae",
+    "DKH.McpGateway.Application/DKH.McpGateway.Application.csproj": "132c9396782f24216aa4a12133c6886c080aa155",
+    "DKH.McpGateway.Application/GrpcEndpointsRegistration.cs": "c0cf0de0ea83cd19008fec4f83e78d4e8978080e",
+    "DKH.McpGateway.Application/Tools/Inventory/ManageReservationTool.cs": "60aef14f1adb7bd1ea505dd0c2b69fe8e3f0301a",
+    "DKH.McpGateway.Application/Tools/Inventory/ManageStockAlertTool.cs": "db1b60b573136fc641893e702d3f564f425ceb40",
+    "DKH.McpGateway.Application/Tools/Inventory/ManageStockTool.cs": "bb1ad086c9d3a0ad455bd69e510cc356d860c46d",
+    "DKH.McpGateway.Application/Tools/Inventory/QueryStockTool.cs": "a9db8be462c43bec56666ccedffb3400b109d227",
+    "DKH.McpGateway.Application/Tools/Inventory/StockInput.cs": "656353d8165d60e7d3fdd96f5c4152d7de7736b3",
+    "DKH.McpGateway.Application/Tools/Inventory/StockRequestContext.cs": "56377974de3e49c4c2646b74d61e6511a771a9ba",
+    "docs/verification/2026-10-26-inventory-exact-tools.json": "bc7367428e8e35d5b506eeff81182238e8f25342",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/InventoryCallInvoker.cs": "0ed4f5f3afde2ce5c30adbf1ab64ce6f156d11bc",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/InventoryHttpRetirementTests.cs": "cd8f1e636da170824f413b31f997b267955341f7",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/InventoryIdentityAndRegistrationTests.cs": "1a5cbde40ae7b41f65b2ce897bdc82b6903b0d7e",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/InventoryToolFixture.cs": "a06cd9dd00cbd7b912d585ab436f26f011c9432a",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/ManageReservationToolTests.cs": "81ee5896da629d5ae9b228d82786423aed574dd1",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/ManageStockAlertToolTests.cs": "542e68da52ac7e450ae67dd546fa38ff78f16831",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/ManageStockToolTests.cs": "0799d5005bab3528218d82d8148de1366af9439d",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/QueryStockToolTests.cs": "f7f9b52d105357891dc99368f08005223062a912",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/StockCallerLifetimeTests.cs": "ee40f0fe52061c946d96ad071d14d4802233dc72",
+    "tests/DKH.McpGateway.Tests/Tools/Inventory/StockHumanAdmissionTests.cs": "d76c9075bc0c65f0aec02514598e7865cc3fe923"
+  },
+  "checks": [
+    {
+      "result": "passed",
+      "evidence": "Actual changed stock tools no longer import/invoke Inventory v1. Existing endpoint name retains v2; inherited endpoint config and exact DI registration exercised in current1008 tests."
+    },
+    {
+      "result": "passed",
+      "evidence": "StockCallerLifetimeTests and InventoryIdentityAndRegistrationTests in full1008 TRX bind original HTTP principal/claims/bearer/workspace/expiry/cancellation and dispose/error boundary; real Platform interceptor forwards literal original bearer. These are controlled caller inputs, not signed native JWT or mandate proof."
+    },
+    {
+      "result": "passed",
+      "evidence": "ManageReservationToolTests in full1008 TRX preserve genuine typed request wire/frame/SHA/op/CAS, unknown/malformed rejection, native error/no-retry and cross-original/hold/scope refusal. Full independent native authority remains Inventory-owned."
+    },
+    {
+      "result": "passed",
+      "evidence": "InventoryHttpRetirementTests exercise actual MCP HTTP discovery/invocation and storefront denial with no Inventory client in host; no v1 fallback, stock writes, new grants/credentials/profiles or production data probes."
+    },
+    {
+      "result": "passed",
+      "evidence": "docs/verification/2026-10-26-inventory-exact-tools.json records exact current unfiltered1008 passed0other and rawSHA/fourway joins, all994 prior cases+14causal human refusals. Initial negatives retained externally."
+    },
+    {
+      "result": "passed",
+      "evidence": "Same14 service-account/unnamed cases reached controlled native calls=1 before SPEC-P2-HUMAN-ADMISSION fix; current same14 refuse before any RPC and full1008 passes. Platform current identity + existing native Human shape are classification only, not stock-owner authorization."
+    },
+    {
+      "result": "passed",
+      "evidence": "Normal genuine Common1.2.3 archive6e077/sourcefedc/targetc050 received; automatic production bootstrap compiled into Application, no local vendor toggle/test serialization. Producer package available does not claim whole producer main47733 success."
+    }
+  ],
+  "independent_review": {
+    "source_only": true,
+    "reviews": [
+      {
+        "path": "/Users/itprodavets/.local/state/gzdkh/mcp-inventory119-cutover-01a166de-20261026/coherent-source-r2-human-common/spec-review.json",
+        "sha256": "6f7d6d2b3cc09c80c13996e57a6d2b42fa78a590c2417883252982debadd3ed4",
+        "verdict": "PASS_SOURCE_ONLY"
+      },
+      {
+        "path": "/Users/itprodavets/.local/state/gzdkh/mcp-inventory119-cutover-01a166de-20261026/coherent-source-r2-human-common/standards-review.json",
+        "sha256": "68f02b2d5e7df431ac21d245cc1ee032e107c8584080498a903d3a2289efee6d",
+        "verdict": "PASS_SOURCE_ONLY"
+      }
+    ],
+    "no_native_authority_or_runtime_acceptance": true
+  },
+  "native_runtime_acceptance": "Not claimed; current native stock-owner grants/profiles/runtime remain separate.",
+  "configuration": "Development URL real5013\u21925014 causal2P1F\u2192same3P/current994P. Infrastructure companion legacy-key deletion pending with Root; no new key/identity/grant/profile."
+}

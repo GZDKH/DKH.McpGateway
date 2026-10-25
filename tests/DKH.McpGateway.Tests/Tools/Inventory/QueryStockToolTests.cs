@@ -1,242 +1,87 @@
-using DKH.InventoryService.Contracts.Inventory.Api.StockQuery.v1;
-using DKH.InventoryService.Contracts.Inventory.Models.Stock.v1;
+using DKH.InventoryService.Contracts.Inventory.Api.StockReservation.v2;
+using DKH.InventoryService.Contracts.Inventory.Models.Reservation.v2;
 using DKH.McpGateway.Application.Tools.Inventory;
-using DKH.Platform.Grpc.Common.Types;
 
 namespace DKH.McpGateway.Tests.Tools.Inventory;
 
-public class QueryStockToolTests
+public sealed class QueryStockToolTests
 {
-    private readonly IApiKeyContext _auth = ApiKeyContextMocks.FullAccess();
-
-    private readonly StockQueryService.StockQueryServiceClient _client =
-        Substitute.For<StockQueryService.StockQueryServiceClient>();
-
-    private static readonly string ProductId = Guid.NewGuid().ToString();
-    private static readonly string VariantId = Guid.NewGuid().ToString();
-    private static readonly string WarehouseId = Guid.NewGuid().ToString();
-
-    [Fact]
-    public async Task GetLevel_HappyPath_ReturnsStockLevelAsync()
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(3, true)]
+    public async Task CheckAvailability_PreservesGenuineZeroAndExactScopeAsync(int available, bool expected)
     {
-        SetupGetStockLevel(new StockLevelModel
+        var f = new InventoryToolFixture();
+        f.Transport.RespondAsync = (_, _) => Task.FromResult<object>(new ExactStockAvailabilityModel
         {
-            ProductId = new GuidValue(ProductId),
-            WarehouseId = new GuidValue(WarehouseId),
-            QuantityOnHand = 50,
-            QuantityAvailable = 45,
-            ReorderLevel = 10,
+            StockScope = InventoryToolFixture.Scope(),
+            AvailableQuantity = available,
+            AvailabilityDigest = "opaque-owner-digest",
+            StockId = new(InventoryToolFixture.HoldId),
         });
-
-        var result = await ExecuteToolAsync("get_level", productId: ProductId);
-
-        result.Should().Contain(ProductId);
-        result.Should().Contain("45");
-    }
-
-    [Fact]
-    public async Task GetLevel_WithVariantId_SetsVariantOnRequestAsync()
-    {
-        SetupGetStockLevel(new StockLevelModel
-        {
-            ProductId = new GuidValue(ProductId),
-            WarehouseId = new GuidValue(WarehouseId),
-            QuantityAvailable = 50,
-        });
-
-        await ExecuteToolAsync("get_level", productId: ProductId, variantId: VariantId, warehouseId: WarehouseId);
-
-        _ = _client.Received(1).GetStockLevelAsync(
-            Arg.Is<GetStockLevelRequest>(r =>
-                r.ProductId.Value == ProductId &&
-                r.VariantId.Value == VariantId),
-            Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task GetLevel_MissingProductId_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("get_level");
-
-        var json = Parse(result);
-        json.GetProperty("success").GetBoolean().Should().BeFalse();
-        json.GetProperty("error").GetString().Should().Contain("productId is required");
-    }
-
-    [Fact]
-    public async Task GetLevels_HappyPath_ReturnsItemsAndCountAsync()
-    {
-        var response = new GetStockLevelsResponse();
-        response.Items.Add(new StockLevelModel
-        {
-            StockId = new GuidValue(Guid.NewGuid().ToString()),
-            ProductId = new GuidValue(ProductId),
-            WarehouseId = new GuidValue(WarehouseId),
-            QuantityAvailable = 42,
-        });
-        SetupGetStockLevels(response);
-
-        var result = await ExecuteToolAsync("get_levels",
-            json: "{\"items\":[{\"productId\":{\"value\":\"" + ProductId + "\"}}]}");
-
-        var parsed = Parse(result);
-        parsed.GetProperty("count").GetInt32().Should().Be(1);
-        parsed.GetProperty("items").GetArrayLength().Should().Be(1);
-    }
-
-    [Fact]
-    public async Task GetLevels_MissingJson_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("get_levels");
-
-        var json = Parse(result);
-        json.GetProperty("success").GetBoolean().Should().BeFalse();
-        json.GetProperty("error").GetString().Should().Contain("json is required");
-    }
-
-    [Fact]
-    public async Task CheckAvailability_HappyPath_ReturnsAvailabilityAsync()
-    {
-        SetupCheckAvailability(new CheckAvailabilityResponse
-        {
-            IsAvailable = true,
-            QuantityAvailable = 100,
-        });
-
-        var result = await ExecuteToolAsync("check_availability",
-            productId: ProductId, warehouseId: WarehouseId, quantity: 10);
-
-        var json = Parse(result);
-        json.GetProperty("isAvailable").GetBoolean().Should().BeTrue();
-        json.GetProperty("quantityAvailable").GetInt32().Should().Be(100);
-    }
-
-    [Fact]
-    public async Task CheckAvailability_NotAvailable_ReturnsFalseAsync()
-    {
-        SetupCheckAvailability(new CheckAvailabilityResponse
-        {
-            IsAvailable = false,
-            QuantityAvailable = 3,
-        });
-
-        var result = await ExecuteToolAsync("check_availability",
-            productId: ProductId, warehouseId: WarehouseId, quantity: 10);
-
-        var json = Parse(result);
-        json.GetProperty("isAvailable").GetBoolean().Should().BeFalse();
-        json.GetProperty("quantityAvailable").GetInt32().Should().Be(3);
-    }
-
-    [Fact]
-    public async Task CheckAvailability_MissingProductId_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("check_availability",
-            warehouseId: WarehouseId, quantity: 10);
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("productId is required");
-    }
-
-    [Fact]
-    public async Task CheckAvailability_MissingWarehouseId_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("check_availability",
-            productId: ProductId, quantity: 10);
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("warehouseId is required");
-    }
-
-    [Fact]
-    public async Task CheckAvailability_InvalidQuantity_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("check_availability",
-            productId: ProductId, warehouseId: WarehouseId, quantity: 0);
-
-        Parse(result).GetProperty("error").GetString().Should().Contain("quantity must be a positive integer");
-    }
-
-    [Fact]
-    public async Task UnknownAction_ReturnsErrorAsync()
-    {
-        var result = await ExecuteToolAsync("invalid_action");
-
-        var json = Parse(result);
-        json.GetProperty("success").GetBoolean().Should().BeFalse();
-        json.GetProperty("error").GetString().Should().Contain("Unknown action");
+        var result = JsonDocument.Parse(await f.QueryAsync("check_availability", 2)).RootElement;
+        result.GetProperty("availableQuantity").GetInt32().Should().Be(available);
+        result.GetProperty("isAvailable").GetBoolean().Should().Be(expected);
+        f.Transport.Calls.Should().ContainSingle();
+        var call = f.Transport.Calls[0];
+        call.Path.Should().Be("/proto.inventory.api.stock_reservation.v2.StockReservationService/GetExactStockAvailability");
+        ((GetExactStockAvailabilityRequest)call.Request).StockScope.Should().Be(InventoryToolFixture.Scope());
+        call.Options.Headers!.Single(x => x.Key == "x-workspace-id").Value.Should().Be(InventoryToolFixture.WorkspaceId);
+        call.Options.Deadline.Should().BeBefore(DateTime.UtcNow.AddHours(2));
     }
 
     [Theory]
-    [InlineData("GET_LEVEL")]
-    [InlineData("Get_Level")]
-    [InlineData("CHECK_AVAILABILITY")]
-    public async Task Action_IsCaseInsensitiveAsync(string action)
+    [InlineData("get_level")]
+    [InlineData("get_levels")]
+    public async Task LegacyProductQueries_AreExplicitlyRetiredWithoutNativeCallAsync(string action)
     {
-        SetupGetStockLevel(new StockLevelModel
-        {
-            ProductId = new GuidValue(ProductId),
-            WarehouseId = new GuidValue(WarehouseId),
-        });
-        SetupCheckAvailability(new CheckAvailabilityResponse { IsAvailable = true, QuantityAvailable = 10 });
+        var f = new InventoryToolFixture();
+        (await f.QueryAsync(action)).Should().Contain("retired");
+        f.Transport.Calls.Should().BeEmpty();
+    }
 
-        var result = await ExecuteToolAsync(action,
-            productId: ProductId, warehouseId: WarehouseId, quantity: 1);
-
-        result.Should().NotContain("Unknown action");
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("not-a-guid")]
+    [InlineData("00000000-0000-0000-0000-000000000000")]
+    public async Task MissingOrInvalidOwner_DoesNotInferOwnerAsync(string? owner)
+    {
+        var f = new InventoryToolFixture();
+        var act = () => QueryStockTool.ExecuteAsync(f.Auth, f.Client, f.Accessor, "availability",
+            InventoryToolFixture.WorkspaceId, owner, InventoryToolFixture.WarehouseId, InventoryToolFixture.SellableId);
+        await act.Should().ThrowAsync<RpcException>().Where(e => e.StatusCode == StatusCode.InvalidArgument);
+        f.Transport.Calls.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task Unauthenticated_ThrowsUnauthorizedAsync()
+    public async Task CrossWorkspace_DoesNotCallInventoryAsync()
     {
-        var act = () => QueryStockTool.ExecuteAsync(
-            ApiKeyContextMocks.Unauthenticated(), _client, "get_level", productId: ProductId);
-
-        await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        var f = new InventoryToolFixture();
+        f.Http.Request.Headers["X-Workspace-Id"] = Guid.NewGuid().ToString();
+        await ((Func<Task>)(async () => await f.QueryAsync())).Should().ThrowAsync<RpcException>();
+        f.Transport.Calls.Should().BeEmpty();
     }
 
     [Fact]
-    public async Task GrpcUnavailable_ThrowsRpcExceptionAsync()
+    public async Task ForeignOwnerResponse_IsNotDisclosedAsync()
     {
-        _client.GetStockLevelAsync(
-                Arg.Any<GetStockLevelRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<StockLevelModel>(
-                StatusCode.Unavailable, "Service unavailable"));
-
-        var act = () => ExecuteToolAsync("get_level", productId: ProductId);
-
-        await act.Should().ThrowAsync<RpcException>()
-            .Where(e => e.StatusCode == StatusCode.Unavailable);
+        var f = new InventoryToolFixture();
+        var scope = InventoryToolFixture.Scope();
+        scope.OwnerCounterpartyId = new(Guid.NewGuid().ToString());
+        f.Transport.RespondAsync = (_, _) => Task.FromResult<object>(new ExactStockAvailabilityModel { StockScope = scope, AvailableQuantity = 17 });
+        await ((Func<Task>)(async () => await f.QueryAsync())).Should().ThrowAsync<RpcException>().Where(e => e.StatusCode == StatusCode.DataLoss);
     }
 
-    private Task<string> ExecuteToolAsync(
-        string action,
-        string? productId = null,
-        string? variantId = null,
-        string? warehouseId = null,
-        int? quantity = null,
-        string? json = null)
-        => QueryStockTool.ExecuteAsync(
-            _auth, _client,
-            action: action, productId: productId, variantId: variantId,
-            warehouseId: warehouseId, quantity: quantity, json: json);
-
-    private void SetupGetStockLevel(StockLevelModel response)
-        => _client.GetStockLevelAsync(
-                Arg.Any<GetStockLevelRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
-
-    private void SetupGetStockLevels(GetStockLevelsResponse response)
-        => _client.GetStockLevelsAsync(
-                Arg.Any<GetStockLevelsRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
-
-    private void SetupCheckAvailability(CheckAvailabilityResponse response)
-        => _client.CheckAvailabilityAsync(
-                Arg.Any<CheckAvailabilityRequest>(),
-                Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(response));
-
-    private static JsonElement Parse(string json) => JsonDocument.Parse(json).RootElement;
+    [Theory]
+    [InlineData(StatusCode.NotFound)]
+    [InlineData(StatusCode.PermissionDenied)]
+    [InlineData(StatusCode.Unavailable)]
+    public async Task NativeRefusal_IsNotInventedZeroOrSuccessAsync(StatusCode status)
+    {
+        var f = new InventoryToolFixture();
+        f.Transport.RespondAsync = (_, _) => Task.FromException<object>(new RpcException(new Status(status, "controlled native refusal")));
+        await ((Func<Task>)(async () => await f.QueryAsync())).Should().ThrowAsync<RpcException>().Where(e => e.StatusCode == status);
+        f.Transport.Calls.Should().ContainSingle();
+    }
 }

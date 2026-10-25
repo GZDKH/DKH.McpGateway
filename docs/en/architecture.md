@@ -70,7 +70,7 @@ The gateway exposes three types of MCP primitives:
 | ReviewService | 5011 | gRPC | 3 clients (query, CRUD, data exchange) |
 | TelegramBotService | 5001 | gRPC | 4 clients (management, scheduling, notifications, auth) |
 | ApiManagementService | 5012 | gRPC | 2 clients (API key query, usage tracking) |
-| InventoryService | 5014 | gRPC | 4 clients (stock query, management, reservations, alerts) |
+| InventoryService | 5014 | gRPC | 1 client (exact-owned-stock availability/reservations; legacy generic operations retired) |
 
 ## Request flow
 

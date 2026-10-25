@@ -1,4 +1,7 @@
-using DKH.InventoryService.Contracts.Inventory.Api.StockQuery.v1;
+using DKH.InventoryService.Contracts.Inventory.Api.StockReservation.v2;
+using DKH.InventoryService.Contracts.Inventory.Models.Reservation.v2;
+using Grpc.Core;
+using Microsoft.AspNetCore.Http;
 
 namespace DKH.McpGateway.Application.Tools.Inventory;
 
@@ -6,115 +9,61 @@ namespace DKH.McpGateway.Application.Tools.Inventory;
 public static class QueryStockTool
 {
     [McpServerTool(Name = "query_stock"), Description(
-        "Query stock levels and availability. " +
-        "Actions: 'get_level' (single product), 'get_levels' (bulk by product IDs JSON), 'check_availability'. " +
-        "For get_level: provide productId, optional variantId, warehouseId. " +
-        "For get_levels: provide productIds JSON array of {productId, variantId?, warehouseId?}. " +
-        "For check_availability: provide productId, warehouseId, quantity, optional variantId.")]
+        "Read exact current stock availability. Actions: availability or check_availability. " +
+        "Requires actual stock workspaceId, ownerCounterpartyId, warehouseId and sellableUnitId, " +
+        "original HTTP HUMAN bearer and X-Workspace-Id. Native current owner mandate is independent. " +
+        "Product/Variant lookup and generic on-hand/reserved pages are retired; never infer stock scope.")]
     public static async Task<string> ExecuteAsync(
         IApiKeyContext apiKeyContext,
-        StockQueryService.StockQueryServiceClient client,
-        [Description("Action: get_level, get_levels, or check_availability")] string action,
-        [Description("Product ID (GUID)")] string? productId = null,
-        [Description("Variant ID (GUID, optional)")] string? variantId = null,
-        [Description("Warehouse ID (GUID)")] string? warehouseId = null,
-        [Description("Quantity to check (for check_availability)")] int? quantity = null,
-        [Description("JSON array of product queries (for get_levels)")] string? json = null,
+        StockReservationService.StockReservationServiceClient client,
+        IHttpContextAccessor httpContextAccessor,
+        [Description("Action: availability or check_availability; old get_level/get_levels are retired")] string action,
+        [Description("Actual stock-owner Workspace GUID, matching selected X-Workspace-Id")] string? workspaceId = null,
+        [Description("Actual stock-owner counterparty GUID")] string? ownerCounterpartyId = null,
+        [Description("Actual stock warehouse GUID")] string? warehouseId = null,
+        [Description("Actual exact SellableUnit GUID, never Product/Variant/CatalogSellable ID")] string? sellableUnitId = null,
+        [Description("Positive requested quantity for check_availability")] int? quantity = null,
         CancellationToken cancellationToken = default)
     {
-        apiKeyContext.EnsurePermission(McpPermissions.Read);
-
-        return action.ToLowerInvariant() switch
+        using var context = StockRequestContext.Capture(apiKeyContext, httpContextAccessor, McpPermissions.Read, cancellationToken);
+        var operation = action.ToLowerInvariant();
+        if (operation is "get_level" or "get_levels")
         {
-            "get_level" => await GetLevelAsync(client, productId, variantId, warehouseId, cancellationToken),
-            "get_levels" => await GetLevelsAsync(client, json, cancellationToken),
-            "check_availability" => await CheckAvailabilityAsync(client, productId, variantId, warehouseId, quantity, cancellationToken),
-            _ => McpProtoHelper.FormatError($"Unknown action '{action}'. Use: get_level, get_levels, or check_availability"),
+            return McpProtoHelper.FormatError(StockInput.RetiredMessage);
+        }
+
+        if (operation is not ("availability" or "check_availability"))
+        {
+            return McpProtoHelper.FormatError("Unknown action. Use availability or check_availability with the exact stock scope.");
+        }
+
+        var scope = new ExactStockScopeModel
+        {
+            WorkspaceId = new GuidValue(StockInput.RequiredGuid(workspaceId, "workspaceId").ToString("D")),
+            OwnerCounterpartyId = new GuidValue(StockInput.RequiredGuid(ownerCounterpartyId, "ownerCounterpartyId").ToString("D")),
+            WarehouseId = new GuidValue(StockInput.RequiredGuid(warehouseId, "warehouseId").ToString("D")),
+            SellableUnitId = new GuidValue(StockInput.RequiredGuid(sellableUnitId, "sellableUnitId").ToString("D")),
         };
-    }
-
-    private static async Task<string> GetLevelAsync(
-        StockQueryService.StockQueryServiceClient client,
-        string? productId, string? variantId, string? warehouseId, CancellationToken ct)
-    {
-        if (string.IsNullOrWhiteSpace(productId))
+        StockInput.RequireScope(scope, context);
+        if (operation == "check_availability" && (!quantity.HasValue || quantity.Value <= 0))
         {
-            return McpProtoHelper.FormatError("productId is required for get_level");
+            throw StockInput.Invalid("quantity must be a positive integer for check_availability.");
         }
 
-        var request = new GetStockLevelRequest
+        var response = await context.InvokeAsync((headers, deadline, token) => client.GetExactStockAvailabilityAsync(
+            new GetExactStockAvailabilityRequest { StockScope = scope }, headers, deadline, token));
+        if (!StockInput.SameScope(response.StockScope, scope) || response.AvailableQuantity < 0)
         {
-            ProductId = new GuidValue(productId),
-        };
-
-        if (!string.IsNullOrWhiteSpace(variantId))
-        {
-            request.VariantId = new GuidValue(variantId);
+            throw new RpcException(new Status(StatusCode.DataLoss, "Inventory availability did not match the requested exact stock scope."));
         }
 
-        if (!string.IsNullOrWhiteSpace(warehouseId))
-        {
-            request.WarehouseId = new GuidValue(warehouseId);
-        }
-
-        var result = await client.GetStockLevelAsync(request, cancellationToken: ct);
-        return McpProtoHelper.Formatter.Format(result);
-    }
-
-    private static async Task<string> GetLevelsAsync(
-        StockQueryService.StockQueryServiceClient client,
-        string? json, CancellationToken ct)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return McpProtoHelper.FormatError("json is required for get_levels");
-        }
-
-        var request = McpProtoHelper.Parser.Parse<GetStockLevelsRequest>(json);
-        var result = await client.GetStockLevelsAsync(request, cancellationToken: ct);
         return JsonSerializer.Serialize(new
         {
-            items = result.Items.Select(i => JsonSerializer.Deserialize<JsonElement>(McpProtoHelper.Formatter.Format(i))),
-            count = result.Items.Count,
-        }, McpJsonDefaults.Options);
-    }
-
-    private static async Task<string> CheckAvailabilityAsync(
-        StockQueryService.StockQueryServiceClient client,
-        string? productId, string? variantId, string? warehouseId, int? quantity, CancellationToken ct)
-    {
-        if (string.IsNullOrWhiteSpace(productId))
-        {
-            return McpProtoHelper.FormatError("productId is required for check_availability");
-        }
-
-        if (string.IsNullOrWhiteSpace(warehouseId))
-        {
-            return McpProtoHelper.FormatError("warehouseId is required for check_availability");
-        }
-
-        if (!quantity.HasValue || quantity.Value <= 0)
-        {
-            return McpProtoHelper.FormatError("quantity must be a positive integer for check_availability");
-        }
-
-        var request = new CheckAvailabilityRequest
-        {
-            ProductId = new GuidValue(productId),
-            WarehouseId = new GuidValue(warehouseId),
-            Quantity = quantity.Value,
-        };
-
-        if (!string.IsNullOrWhiteSpace(variantId))
-        {
-            request.VariantId = new GuidValue(variantId);
-        }
-
-        var result = await client.CheckAvailabilityAsync(request, cancellationToken: ct);
-        return JsonSerializer.Serialize(new
-        {
-            isAvailable = result.IsAvailable,
-            quantityAvailable = result.QuantityAvailable,
+            stockScope = JsonSerializer.Deserialize<JsonElement>(StockInput.Formatter.Format(response.StockScope)),
+            stockId = response.StockId?.Value,
+            availableQuantity = response.AvailableQuantity,
+            availabilityDigest = response.AvailabilityDigest,
+            isAvailable = operation == "check_availability" ? response.AvailableQuantity >= quantity!.Value : (bool?)null,
         }, McpJsonDefaults.Options);
     }
 }

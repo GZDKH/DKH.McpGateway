@@ -197,12 +197,14 @@ TelegramClient tools expose the DKH.TelegramClientService message archive, media
 
 ### Inventory (4 tools)
 
-| Tool | File | Description |
-| ---- | ---- | ----------- |
-| `query_stock` | QueryStockTool.cs | Query stock levels and check availability (action parameter) |
-| `manage_stock` | ManageStockTool.cs | Set, adjust, or get warehouse stock levels (action parameter) |
-| `manage_reservation` | ManageReservationTool.cs | Reserve, release, confirm, get, or list stock reservations (action parameter) |
-| `manage_stock_alert` | ManageStockAlertTool.cs | List, configure, or acknowledge low stock alerts (action parameter) |
+| Tool | File | Current contract |
+| ---- | ---- | ---------------- |
+| `query_stock` | QueryStockTool.cs | Exact-owned-stock availability/check with explicit workspace/owner/warehouse/Sellable; generic Product/Variant reads retired |
+| `manage_reservation` | ManageReservationTool.cs | Genuine original-Cart reserve/get/get-operation/release/bind-order/partial-dispatch with caller-supplied operation identity and native CAS |
+| `manage_stock` | ManageStockTool.cs | Explicit retired/unsupported response; no direct adjustments or generic warehouse page RPC |
+| `manage_stock_alert` | ManageStockAlertTool.cs | Explicit retired/unsupported response; no v1 alert RPC |
+
+See [exact Inventory MCP tools](inventory-exact-tools.md) for native JSON input shapes, original HUMAN propagation, independent owner authority and recovery limits.
 
 ### Cart (4 tools)
 
