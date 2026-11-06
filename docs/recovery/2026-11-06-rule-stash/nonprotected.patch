@@ -1,0 +1,227 @@
+diff --git a/.codex/rules/build-before-commit.md b/.codex/rules/build-before-commit.md
+index 2fc3ec9a1f74a4a172667f89269f0d0dca7dec4f..cb13385557978c444c711c9a3207822a6909839d 120000
+--- a/.codex/rules/build-before-commit.md
++++ b/.codex/rules/build-before-commit.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.codex/shared-rules/build-dotnet.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/build-gates.md
+\ No newline at end of file
+diff --git a/.codex/rules/commits.md b/.codex/rules/commits.md
+index 22bab0e4c464b3858a59b386671f20cecbef3d03..16712b2abccdbdb99fc95f29bb9cc9aff1982f0e 120000
+--- a/.codex/rules/commits.md
++++ b/.codex/rules/commits.md
+@@ -1 +1 @@
+-../../../../../libraries/DKH.Architecture/.codex/shared-rules/commits.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/commits.md
+\ No newline at end of file
+diff --git a/.codex/rules/contracts.md b/.codex/rules/contracts.md
+index 0133b82909bcce34a808783806a8b9868d2fd1c9..cae0d626911ee1d2e5c537afb5a7d056bac3f6d8 120000
+--- a/.codex/rules/contracts.md
++++ b/.codex/rules/contracts.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.codex/shared-rules/contracts.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/contracts.md
+\ No newline at end of file
+diff --git a/.codex/rules/docs-after-impl.md b/.codex/rules/docs-after-impl.md
+index bdc26aa133ccc5ecf0ded8e7f813a33dbbc86621..651a29126f5aa5cecd1a64464d2cc92d7995982d 120000
+--- a/.codex/rules/docs-after-impl.md
++++ b/.codex/rules/docs-after-impl.md
+@@ -1 +1 @@
+-../../../../../libraries/DKH.Architecture/.codex/shared-rules/docs-after-impl.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/docs-after-impl.md
+\ No newline at end of file
+diff --git a/.codex/rules/github-tasks.md b/.codex/rules/github-tasks.md
+index afcf6d033852088e4bc141c6d693849c91bbca98..a3df1f4449ca36165c5429cd593dd6973b6efef4 120000
+--- a/.codex/rules/github-tasks.md
++++ b/.codex/rules/github-tasks.md
+@@ -1 +1 @@
+-../../../../../libraries/DKH.Architecture/.codex/shared-rules/github-tasks.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/github-tasks.md
+\ No newline at end of file
+diff --git a/.codex/rules/gitlab-workflow.md b/.codex/rules/gitlab-workflow.md
+index 819154b258c33b606e211a079fc341f7940facb4..a76ec5c1d3792e12f3aa1021f9c6cb8b69f4db7f 120000
+--- a/.codex/rules/gitlab-workflow.md
++++ b/.codex/rules/gitlab-workflow.md
+@@ -1 +1 @@
+-../../../../../libraries/DKH.Architecture/.codex/shared-rules/gitlab-workflow.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/gitlab-workflow.md
+\ No newline at end of file
+diff --git a/.codex/rules/no-duplication.md b/.codex/rules/no-duplication.md
+index 40bd85f4f6c5081ec83908f9310bc47a22e15c2a..ea2bf50abc564407be1794f892dc2889aa0c0743 120000
+--- a/.codex/rules/no-duplication.md
++++ b/.codex/rules/no-duplication.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.codex/shared-rules/no-duplication.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/no-duplication.md
+\ No newline at end of file
+diff --git a/.codex/rules/plan-execution.md b/.codex/rules/plan-execution.md
+index e93e1a27af38a1eeb97e0420c6d8bf6994c8e1b0..a520900b45de8b10b221887d4208a9c87026dbb5 120000
+--- a/.codex/rules/plan-execution.md
++++ b/.codex/rules/plan-execution.md
+@@ -1 +1 @@
+-../../../../../libraries/DKH.Architecture/.codex/shared-rules/plan-execution.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/plan-execution.md
+\ No newline at end of file
+diff --git a/.codex/rules/platform-release.md b/.codex/rules/platform-release.md
+index 170bcc79781ba242aef34a6e2a931f3873a0fcc2..bb34b1fbc8ea3e4a24ca2898ef5159e95a4436ce 120000
+--- a/.codex/rules/platform-release.md
++++ b/.codex/rules/platform-release.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.codex/shared-rules/platform-release.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/platform-release.md
+\ No newline at end of file
+diff --git a/.codex/rules/prod-config.md b/.codex/rules/prod-config.md
+index 379c15652da025076a23c6db5c88e92b5d375b33..572739aae82de15c9f3bdc77f74f88cffc150fb5 120000
+--- a/.codex/rules/prod-config.md
++++ b/.codex/rules/prod-config.md
+@@ -1 +1 @@
+-../../../../../libraries/DKH.Architecture/.codex/shared-rules/prod-config.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/prod-config.md
+\ No newline at end of file
+diff --git a/.codex/rules/prod-debugging.md b/.codex/rules/prod-debugging.md
+index 621138626008dcf59d3ccb0bb44196ae691b05a5..6ebd90cb72ad68f714a067c701dc4817883708d0 120000
+--- a/.codex/rules/prod-debugging.md
++++ b/.codex/rules/prod-debugging.md
+@@ -1 +1 @@
+-../../../../../libraries/DKH.Architecture/.codex/shared-rules/prod-debugging.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/prod-debugging.md
+\ No newline at end of file
+diff --git a/.codex/rules/ralph-loop.md b/.codex/rules/ralph-loop.md
+index a59d1aa4972828e5491b043646421c36e4b59dc5..281a2daca7aeb5d8b913c6a1b7690bf1c74319d9 120000
+--- a/.codex/rules/ralph-loop.md
++++ b/.codex/rules/ralph-loop.md
+@@ -1 +1 @@
+-../../../../../libraries/DKH.Architecture/.codex/shared-rules/ralph-loop.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/ralph-loop.md
+\ No newline at end of file
+diff --git a/.codex/rules/security.md b/.codex/rules/security.md
+index ad6af2187da8989f72c703aa1a235baf00371787..88faecce060a2a292b12e9b73c40c818f1320d52 120000
+--- a/.codex/rules/security.md
++++ b/.codex/rules/security.md
+@@ -1 +1 @@
+-../../../../../libraries/DKH.Architecture/.codex/shared-rules/security.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.codex/shared-rules/security.md
+\ No newline at end of file
+diff --git a/.gemini/rules/build-before-commit.md b/.gemini/rules/build-before-commit.md
+index 596db9ba8ed9887a856fc1f58232da5e8e0168e1..7671891e62f5687a48c263e222b551b538a261da 120000
+--- a/.gemini/rules/build-before-commit.md
++++ b/.gemini/rules/build-before-commit.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/build-dotnet.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/build-gates.md
+\ No newline at end of file
+diff --git a/.gemini/rules/commits.md b/.gemini/rules/commits.md
+index 8bc33f1ffc9b66a0d23004f60e54a3260d27958d..7488a56aa53b58cdd8f53d1d58eec153090bc8e5 120000
+--- a/.gemini/rules/commits.md
++++ b/.gemini/rules/commits.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/commits.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/commits.md
+\ No newline at end of file
+diff --git a/.gemini/rules/contracts.md b/.gemini/rules/contracts.md
+index 2083b6b9b8ad26818e94c52fffb32c8b8906868b..a31937ad0a8b50083c294482f079272c476c5091 120000
+--- a/.gemini/rules/contracts.md
++++ b/.gemini/rules/contracts.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/contracts.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/contracts.md
+\ No newline at end of file
+diff --git a/.gemini/rules/docs-after-impl.md b/.gemini/rules/docs-after-impl.md
+index 02eeaabcbad8a865d4bcb36c88e46ac820d021bd..f09e11addc042885d248d6cca123f52a403f47f2 120000
+--- a/.gemini/rules/docs-after-impl.md
++++ b/.gemini/rules/docs-after-impl.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/docs-after-impl.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/docs-after-impl.md
+\ No newline at end of file
+diff --git a/.gemini/rules/github-tasks.md b/.gemini/rules/github-tasks.md
+index 3f5c21e61cf776a022d3ba762adc91e7727c547f..15f3ad72ce2025a1792f563212445f83ae9d536d 120000
+--- a/.gemini/rules/github-tasks.md
++++ b/.gemini/rules/github-tasks.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/github-tasks.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/github-tasks.md
+\ No newline at end of file
+diff --git a/.gemini/rules/gitlab-workflow.md b/.gemini/rules/gitlab-workflow.md
+index e35892b493f0b42c34c6eb2879f7116d4532e7ab..79d1bcc92fe0a4124a02c4bfa8fe510b48668131 120000
+--- a/.gemini/rules/gitlab-workflow.md
++++ b/.gemini/rules/gitlab-workflow.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/gitlab-workflow.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/gitlab-workflow.md
+\ No newline at end of file
+diff --git a/.gemini/rules/no-duplication.md b/.gemini/rules/no-duplication.md
+index a478269002ee8b87948f59a8b27b18fe104957f7..d58c7e0329ab71f323b96e37fc60e85995bac093 120000
+--- a/.gemini/rules/no-duplication.md
++++ b/.gemini/rules/no-duplication.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/no-duplication.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/no-duplication.md
+\ No newline at end of file
+diff --git a/.gemini/rules/platform-release.md b/.gemini/rules/platform-release.md
+index 51343921397eeeccdc549130b9433d7c5c802ef1..22eafc12e4fb44407a9b4b796c42ddf03b4cd7b2 120000
+--- a/.gemini/rules/platform-release.md
++++ b/.gemini/rules/platform-release.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/platform-release.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/platform-release.md
+\ No newline at end of file
+diff --git a/.gemini/rules/prod-config.md b/.gemini/rules/prod-config.md
+index d622f8477d69ac6787d5b9c982af642874f94dbf..cf8b210530e9989e80fa77350cf0c75219d3824d 120000
+--- a/.gemini/rules/prod-config.md
++++ b/.gemini/rules/prod-config.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/prod-config.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/prod-config.md
+\ No newline at end of file
+diff --git a/.gemini/rules/ralph-loop.md b/.gemini/rules/ralph-loop.md
+index cd623b631a2f6d78e4f7440f0e03f1f287966a96..919de7d88c50e7be598b48ef04a0c1444170bd86 120000
+--- a/.gemini/rules/ralph-loop.md
++++ b/.gemini/rules/ralph-loop.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/ralph-loop.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/ralph-loop.md
+\ No newline at end of file
+diff --git a/.gemini/rules/security.md b/.gemini/rules/security.md
+index c0320c21b42751d29c058e280088e861f55cb0b0..1eb5168a1d52b9da8c2289eb537e316f13003181 120000
+--- a/.gemini/rules/security.md
++++ b/.gemini/rules/security.md
+@@ -1 +1 @@
+-../../../../libraries/DKH.Architecture/.gemini/shared-rules/security.md
+\ No newline at end of file
++../../../../agents/DKH.AgentRules/.gemini/shared-rules/security.md
+\ No newline at end of file
+diff --git a/AGENTS.md b/AGENTS.md
+index a925f7c6cbab5b937a6bbdd707e65f1c117b5b7f..b84e3f8b202cd9fda4d2975eb33e04c8ba814604 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -29,2 +28,0 @@ Before starting implementation, you MUST also read and follow these local rule f
+-- `.codex/rules/github-tasks.md`
+-- `.codex/rules/gitlab-workflow.md`
+@@ -37,0 +36,3 @@ Before starting implementation, you MUST also read and follow these local rule f
++- `.codex/rules/server-operations.md`
++- `.codex/rules/trust-user-verify-state.md`
++- `.codex/rules/workflow.md`
