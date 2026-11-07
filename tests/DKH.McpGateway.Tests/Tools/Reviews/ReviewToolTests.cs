@@ -1,7 +1,7 @@
 using DKH.McpGateway.Application.Tools.Reviews;
 using DKH.Platform.Grpc.Common.Types;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.QueryCommon.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.QueryCommon.V2;
 using DKH.ReviewService.Contracts.Review.Api.ReviewQuery.v1;
 using DKH.ReviewService.Contracts.Review.Models.Review.v1;
 using DKH.ReviewService.Contracts.Review.Models.ReviewAggregate.v1;
@@ -344,8 +344,8 @@ public class ProductReviewRankingToolTests
         {
             Items =
             {
-                new ProductListItem { Id = new GuidValue(productId1), Name = "Product A" },
-                new ProductListItem { Id = new GuidValue(productId2), Name = "Product B" },
+                new ProductListItemModel { Id = new GuidValue(productId1), Name = "Product A" },
+                new ProductListItemModel { Id = new GuidValue(productId2), Name = "Product B" },
             },
             TotalCount = 2,
         });
@@ -390,8 +390,8 @@ public class ProductReviewRankingToolTests
         {
             Items =
             {
-                new ProductListItem { Id = new GuidValue(productId1), Name = "Product A" },
-                new ProductListItem { Id = new GuidValue(productId2), Name = "Product B" },
+                new ProductListItemModel { Id = new GuidValue(productId1), Name = "Product A" },
+                new ProductListItemModel { Id = new GuidValue(productId2), Name = "Product B" },
             },
             TotalCount = 2,
         });
@@ -430,8 +430,8 @@ public class ProductReviewRankingToolTests
         {
             Items =
             {
-                new ProductListItem { Id = new GuidValue(productId1), Name = "Many Reviews" },
-                new ProductListItem { Id = new GuidValue(productId2), Name = "Few Reviews" },
+                new ProductListItemModel { Id = new GuidValue(productId1), Name = "Many Reviews" },
+                new ProductListItemModel { Id = new GuidValue(productId2), Name = "Few Reviews" },
             },
             TotalCount = 2,
         });
@@ -469,7 +469,7 @@ public class ProductReviewRankingToolTests
     {
         SetupSearch(new SearchProductsResponse
         {
-            Items = { new ProductListItem { Id = new GuidValue(Guid.NewGuid().ToString()), Name = "P1" } },
+            Items = { new ProductListItemModel { Id = new GuidValue(Guid.NewGuid().ToString()), Name = "P1" } },
             TotalCount = 1,
         });
 
@@ -496,7 +496,7 @@ public class ProductReviewRankingToolTests
 
         SetupSearch(new SearchProductsResponse
         {
-            Items = { new ProductListItem { Id = new GuidValue(productId), Name = "P1" } },
+            Items = { new ProductListItemModel { Id = new GuidValue(productId), Name = "P1" } },
             TotalCount = 1,
         });
 
@@ -538,7 +538,7 @@ public class ProductReviewRankingToolTests
     {
         SetupSearch(new SearchProductsResponse
         {
-            Items = { new ProductListItem { Id = new GuidValue(Guid.NewGuid().ToString()), Name = "P1" } },
+            Items = { new ProductListItemModel { Id = new GuidValue(Guid.NewGuid().ToString()), Name = "P1" } },
             TotalCount = 1,
         });
 

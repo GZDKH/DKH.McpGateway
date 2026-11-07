@@ -93,6 +93,7 @@ using OrderDataExchangeClient =
     DKH.OrderService.Contracts.Order.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ProductCatalogDataExchangeClient =
     DKH.ProductCatalogService.Contracts.ProductCatalog.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
+using ProductCatalogV2 = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
 using ReferenceDataExchangeClient =
     DKH.ReferenceService.Contracts.Reference.Api.DataExchange.v1.DataExchangeService.DataExchangeServiceClient;
 using ReviewDataExchangeClient =
@@ -119,6 +120,8 @@ public static class GrpcEndpointsRegistration
         grpc.AddEndpointFromConfiguration<CategoryManagementService.CategoryManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<PackageManagementService.PackageManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<ProductManagementService.ProductManagementServiceClient>();
+        grpc.AddEndpointFromConfiguration<ProductCatalogV2.ProductManagementService.ProductManagementServiceClient>(
+            "ProductManagementV2ServiceClient");
         grpc.AddEndpointFromConfiguration<TagManagementService.TagManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<SpecGroupManagementService.SpecGroupManagementServiceClient>();
         grpc.AddEndpointFromConfiguration<SpecAttributeManagementService.SpecAttributeManagementServiceClient>();

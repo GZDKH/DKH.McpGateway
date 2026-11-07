@@ -1,6 +1,6 @@
 using DKH.McpGateway.Application.Tools.DataExchange;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
 
 using Microsoft.AspNetCore.Http;
 

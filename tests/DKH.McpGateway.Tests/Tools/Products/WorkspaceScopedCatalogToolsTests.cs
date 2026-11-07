@@ -10,6 +10,7 @@ using DKH.ReferenceService.Contracts.Reference.Api.CityManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.CountryManagement.v1;
 using DKH.ReferenceService.Contracts.Reference.Api.StateProvinceManagement.v1;
 using Microsoft.AspNetCore.Http;
+using ProductCatalogV2 = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
 
 namespace DKH.McpGateway.Tests.Tools.Products;
 
@@ -107,19 +108,20 @@ public class WorkspaceScopedCatalogToolsTests
     [Fact]
     public async Task ProductStats_PropagatesWorkspaceOnBothRpcsAsync()
     {
-        _productClient.SearchProductsAsync(
-                Arg.Any<SearchProductsRequest>(),
+        var productClient = Substitute.For<ProductCatalogV2.ProductManagementService.ProductManagementServiceClient>();
+        productClient.SearchProductsAsync(
+                Arg.Any<ProductCatalogV2.SearchProductsRequest>(),
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new SearchProductsResponse()));
+            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new ProductCatalogV2.SearchProductsResponse()));
         _categoryClient.GetCategoryTreeAsync(
                 Arg.Any<GetCategoryTreeRequest>(),
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
             .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new CategoryTree()));
 
-        await ProductStatsTool.ExecuteAsync(_auth, _httpContextAccessor, _productClient, _categoryClient);
+        await ProductStatsTool.ExecuteAsync(_auth, _httpContextAccessor, productClient, _categoryClient);
 
-        _ = _productClient.Received(1).SearchProductsAsync(
-            Arg.Any<SearchProductsRequest>(),
+        _ = productClient.Received(1).SearchProductsAsync(
+            Arg.Any<ProductCatalogV2.SearchProductsRequest>(),
             Arg.Is<Metadata>(m => HasExpectedWorkspaceMetadata(m)),
             Arg.Any<DateTime?>(), Arg.Any<CancellationToken>());
         _ = _categoryClient.Received(1).GetCategoryTreeAsync(
