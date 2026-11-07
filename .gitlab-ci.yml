@@ -9,3 +9,26 @@ include:
 
 variables:
   COMPOSE_SERVICE_NAME: "mcp-gateway"
+
+# Preserve the approved project18 omit-empty-generic decision under the installed
+# immutable source-publication router. Existing TestServer/HTTP tests remain in
+# build-test. A real native project in this source or main always takes priority.
+integration-test:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      exists:
+        paths:
+          - "**/*.IntegrationTests.csproj"
+          - "**/*IntegrationTests*.cs"
+          - "**/IntegrationTests/**/*.cs"
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      exists:
+        paths:
+          - "**/*.IntegrationTests.csproj"
+          - "**/*IntegrationTests*.cs"
+          - "**/IntegrationTests/**/*.cs"
+        project: "gzdkh/gateways/DKH.McpGateway"
+        ref: "refs/heads/main"
+    - if: "$CI_PIPELINE_SOURCE == \"merge_request_event\" && $CI_PROJECT_ID == \"18\" && $CI_PROJECT_PATH == \"gzdkh/gateways/DKH.McpGateway\" && $CI_SERVER_HOST == \"gitlab.xnata.com\" && $CI_DEFAULT_BRANCH == \"main\" && $CI_CONFIG_PATH == \"ci/source-publication.yml@gzdkh/agents/DKH.AgentRules:2da892bb3211fd6c0326889c3f094b488147a354\" && $CI_MERGE_REQUEST_PROJECT_ID == \"18\" && $CI_MERGE_REQUEST_PROJECT_PATH == \"gzdkh/gateways/DKH.McpGateway\" && $CI_MERGE_REQUEST_SOURCE_PROJECT_ID == \"18\" && $CI_MERGE_REQUEST_SOURCE_PROJECT_PATH == \"gzdkh/gateways/DKH.McpGateway\" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == \"main\" && $CI_MERGE_REQUEST_TARGET_BRANCH_PROTECTED == \"true\" && $CI_MERGE_REQUEST_EVENT_TYPE == \"detached\" && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^.+$/ && $CI_MERGE_REQUEST_IID =~ /^[1-9][0-9]*$/ && $CI_MERGE_REQUEST_REF_PATH =~ /^refs\\/merge-requests\\/[1-9][0-9]*\\/head$/ && $CI_COMMIT_SHA =~ /^[0-9a-f]{40}$/ && $CI_COMMIT_SHA !~ /^0{40}$/ && $CI_MERGE_REQUEST_DIFF_BASE_SHA =~ /^[0-9a-f]{40}$/ && $CI_MERGE_REQUEST_DIFF_BASE_SHA !~ /^0{40}$/ && $CI_MERGE_REQUEST_IID == \"186\""
+      when: never
+    - !reference [.dotnet-native-admission, rules]
