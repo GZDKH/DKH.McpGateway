@@ -10,6 +10,7 @@ using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
 using DKH.StorefrontService.Contracts.Storefront.Models.Catalog.v1;
 using Google.Protobuf;
+using CatalogV2 = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
 
 namespace DKH.McpGateway.Tests.Tools.Products;
 
@@ -61,6 +62,20 @@ public sealed class LegacyCatalogFinancialReceivingTests
                 headers = call.ArgAt<Metadata?>(1);
                 return GrpcTestHelpers.CreateAsyncUnaryCall(received);
             });
+        var v2 = Substitute.For<CatalogV2.ProductManagementService.ProductManagementServiceClient>();
+        v2.GetProductDetailAsync(Arg.Any<CatalogV2.GetProductDetailRequest>(), Arg.Any<Metadata>(),
+                Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
+            .Returns(call =>
+            {
+                var request = call.ArgAt<CatalogV2.GetProductDetailRequest>(0);
+                request.CatalogSeoName.Should().Be("catalog-a");
+                request.ProductSeoName.Should().Be("tea");
+                request.LanguageCode.Should().Be("en");
+                call.ArgAt<CancellationToken>(3).Should().Be(cts.Token);
+                headers = call.ArgAt<Metadata?>(1);
+                // Retired fields are unknown wire data to the current owner contract.
+                return GrpcTestHelpers.CreateAsyncUnaryCall(CatalogV2.ProductDetailModel.Parser.ParseFrom(detail.ToByteArray()));
+            });
         var counterparty = Substitute.For<CounterpartyCrudService.CounterpartyCrudServiceClient>();
         var auth = ApiKeyContextMocks.FullAccess();
         string result;
@@ -72,7 +87,7 @@ public sealed class LegacyCatalogFinancialReceivingTests
         else if (route == "resource")
         {
             result = await CatalogResources.GetProductAsync(auth, StorefrontWorkspaceTestContext.HttpContextAccessor,
-                client, counterparty, "tea", "catalog-a", "en", cts.Token);
+                v2, counterparty, "tea", "catalog-a", "en", cts.Token);
         }
         else
         {
@@ -94,7 +109,7 @@ public sealed class LegacyCatalogFinancialReceivingTests
                 {
                     Catalogs = { new StorefrontCatalogItem { SeoName = "catalog-a", Name = "Catalog" } },
                 }));
-            result = await StorefrontGetProductTool.ExecuteAsync(auth, gate, links, catalogs, client,
+            result = await StorefrontGetProductTool.ExecuteAsync(auth, gate, links, catalogs, v2,
                 counterparty, "tea", "en", cts.Token);
             await gate.Received(1).EnsureMcpEnabledAsync(Storefront, cts.Token);
             _ = links.Received(1).GetCatalogsAsync(

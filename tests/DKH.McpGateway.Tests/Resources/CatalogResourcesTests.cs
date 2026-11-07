@@ -5,7 +5,7 @@ using DKH.McpGateway.Tests.Tools.Storefronts;
 using Microsoft.AspNetCore.Http;
 using CatalogMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
 using CategoryMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CategoryManagement.v1;
-using ProductMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
+using ProductMgmt = DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
 
 namespace DKH.McpGateway.Tests.Resources;
 
@@ -93,14 +93,12 @@ public class CatalogResourcesTests
     public async Task GetProduct_Success_ReturnsProductDetailAsync()
     {
         var client = Substitute.For<ProductMgmt.ProductManagementService.ProductManagementServiceClient>();
-        var product = new ProductMgmt.ProductDetail
+        var product = new ProductMgmt.ProductDetailModel
         {
             Name = "Widget",
             SeoName = "widget",
             Code = "W-001",
             Description = "A great widget",
-            Price = 99.99,
-            CurrencyCode = "USD",
         };
         client.GetProductDetailAsync(
                 Arg.Any<ProductMgmt.GetProductDetailRequest>(),

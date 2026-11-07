@@ -40,7 +40,8 @@ public static class GetProductTool
         // ADR-020 — Brand/Manufacturer names resolved from counterparty links, not
         // the legacy product.Brand / product.Manufacturer proto fields.
         var (brandName, manufacturerName) = await ProductCounterpartyNameResolver.ResolveAsync(
-            product, counterpartyClient, languageCode, cancellationToken);
+            product.Counterparties.Select(static link => (link.Role, link.DisplayOrder, link.CounterpartyId?.Value)),
+            counterpartyClient, languageCode, cancellationToken);
 
         // Catalog content does not establish a qualified offer or availability.
         // Preserve the existing financial JSON slots as unknown.

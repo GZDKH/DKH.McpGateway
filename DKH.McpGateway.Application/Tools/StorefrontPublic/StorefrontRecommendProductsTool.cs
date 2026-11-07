@@ -1,5 +1,5 @@
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
 using DKH.SearchService.Contracts.Filters;
 using DKH.SearchService.Contracts.Search.Api.ProductSearch.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;

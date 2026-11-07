@@ -1,7 +1,7 @@
 using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
 using DKH.McpGateway.Application.Tools.Products;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
 using Grpc.Core;
 
@@ -49,7 +49,8 @@ public static class StorefrontGetProductTool
                 // ADR-020 — Brand name resolved from counterparty links, not the
                 // legacy product.Brand proto field.
                 var (brandName, _) = await ProductCounterpartyNameResolver.ResolveAsync(
-                    product, counterpartyClient, languageCode, cancellationToken);
+                    product.Counterparties.Select(static link => (link.Role, link.DisplayOrder, link.CounterpartyId?.Value)),
+                    counterpartyClient, languageCode, cancellationToken);
 
                 // Catalog content does not establish a qualified offer or availability.
                 // Preserve the existing financial JSON slots as unknown.
