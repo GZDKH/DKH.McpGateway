@@ -1,12 +1,10 @@
 using DKH.CounterpartyService.Contracts.Counterparty.Api.CounterpartyCrud.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.QueryCommon.v1;
 
 namespace DKH.McpGateway.Application.Tools.Products;
 
 /// <summary>
 /// ADR-020 (brand/manufacturer removal) — resolves Brand and Manufacturer display
-/// names for a <see cref="ProductDetail"/> from its counterparty links via a single
+/// names from product counterparty links via a single
 /// <c>BatchGetCounterpartyBasics</c> call. Replaces the legacy
 /// <c>product.Brand</c> / <c>product.Manufacturer</c> proto fields, which McpGateway
 /// no longer reads. Picks the link with <c>role=="Brand"</c> / <c>"Manufacturer"</c>
@@ -16,12 +14,12 @@ namespace DKH.McpGateway.Application.Tools.Products;
 internal static class ProductCounterpartyNameResolver
 {
     public static async Task<(string? BrandName, string? ManufacturerName)> ResolveAsync(
-        ProductDetail product,
+        IEnumerable<(string Role, int DisplayOrder, string? Id)> counterparties,
         CounterpartyCrudService.CounterpartyCrudServiceClient client,
         string languageCode,
         CancellationToken cancellationToken)
     {
-        var links = product.Counterparties
+        var links = counterparties
             .Where(static c => c.Role is "Brand" or "Manufacturer")
             .ToList();
 
@@ -31,7 +29,7 @@ internal static class ProductCounterpartyNameResolver
         }
 
         var ids = links
-            .Select(static c => c.CounterpartyId?.Value)
+            .Select(static c => c.Id)
             .Where(static v => !string.IsNullOrWhiteSpace(v))
             .Distinct()
             .ToList();
@@ -56,16 +54,17 @@ internal static class ProductCounterpartyNameResolver
     }
 
     private static string? ResolveName(
-        IReadOnlyCollection<QueryCounterparty> links,
+        IReadOnlyCollection<(string Role, int DisplayOrder, string? Id)> links,
         string role,
         Dictionary<string, string> names)
     {
-        var link = links
+        var id = links
             .Where(c => c.Role == role)
             .OrderBy(c => c.DisplayOrder)
+            .Select(c => c.Id)
             .FirstOrDefault();
 
-        if (link?.CounterpartyId?.Value is not { } id || string.IsNullOrWhiteSpace(id))
+        if (string.IsNullOrWhiteSpace(id))
         {
             return null;
         }

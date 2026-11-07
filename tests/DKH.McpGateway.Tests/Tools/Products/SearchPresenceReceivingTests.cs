@@ -3,7 +3,7 @@ using DKH.McpGateway.Application.Tools.Products;
 using DKH.McpGateway.Application.Tools.StorefrontPublic;
 using DKH.Platform.Grpc.Common.Types;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
 using DKH.SearchService.Contracts.Search.Api.ProductSearch.v1;
 using DKH.SearchService.Contracts.Search.Models.ProductSearch.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
@@ -278,7 +278,7 @@ public sealed class SearchPresenceReceivingTests
         var products = Substitute.For<ProductManagementService.ProductManagementServiceClient>();
         products.GetProductDetailAsync(Arg.Any<GetProductDetailRequest>(), Arg.Any<Metadata>(),
                 Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new ProductDetail
+            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new ProductDetailModel
             {
                 Id = new GuidValue("11111111-1111-1111-1111-111111111111"),
                 Code = "SEED",

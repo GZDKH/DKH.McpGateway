@@ -2,7 +2,7 @@ using DKH.ApiManagementService.Contracts.ApiManagement.Models.ApiKey.v1;
 using DKH.McpGateway.Application.Tools.StorefrontPublic;
 using DKH.Platform.Grpc.Common.Types;
 using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.CatalogManagement.v1;
-using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.v1;
+using DKH.ProductCatalogService.Contracts.ProductCatalog.Api.ProductManagement.V2;
 using DKH.SearchService.Contracts.Search.Api.ProductSearch.v1;
 using DKH.SearchService.Contracts.Search.Models.ProductSearch.v1;
 using DKH.StorefrontService.Contracts.Storefront.Api.StorefrontCatalogManagement.v1;
@@ -75,7 +75,7 @@ public class StorefrontRecommendProductsToolTests
         // (a storefront key can never base "more like this" on another tenant's product — ADR-060).
         _productClient.GetProductDetailAsync(
                 Arg.Any<GetProductDetailRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<ProductDetail>(
+            .Returns(GrpcTestHelpers.CreateFaultedAsyncUnaryCall<ProductDetailModel>(
                 StatusCode.NotFound, "not in this catalog"));
 
         var act = () => ExecuteAsync("foreign-product");
@@ -117,7 +117,7 @@ public class StorefrontRecommendProductsToolTests
         => _productClient.GetProductDetailAsync(
                 Arg.Is<GetProductDetailRequest>(r => r.CatalogSeoName == catalogSeoName),
                 Arg.Any<Metadata>(), Arg.Any<DateTime?>(), Arg.Any<CancellationToken>())
-            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new ProductDetail
+            .Returns(GrpcTestHelpers.CreateAsyncUnaryCall(new ProductDetailModel
             {
                 Id = new GuidValue(SeedId),
                 Code = "SEED",
