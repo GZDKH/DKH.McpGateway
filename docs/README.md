@@ -8,6 +8,7 @@
 | [mcp-tools.md](en/mcp-tools.md) | MCP tools, resources, and prompts reference |
 | [inventory-exact-tools.md](en/inventory-exact-tools.md) | Exact Inventory scope, original Cart/CAS and explicit legacy-tool retirement |
 | [operations.md](en/operations.md) | Operational runbook (running, Docker, logs) |
+| [Historical rule stash](recovery/2026-11-06-rule-stash/README.md) | Inert recovery patch and scope |
 
 ## Russian translations
 
@@ -17,3 +18,4 @@
 | [mcp-tools.md](ru/mcp-tools.md) | Translation Pending |
 | [inventory-exact-tools.md](ru/inventory-exact-tools.md) | Точные stock tools: исходный Cart/CAS, полномочия и вывод legacy операций |
 | [operations.md](ru/operations.md) | Translation Pending |
+| [Исторический stash правил](recovery/2026-11-06-rule-stash/README.ru.md) | Архивный patch и его границы |
