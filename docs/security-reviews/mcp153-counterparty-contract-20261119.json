@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "method": "focused-review",
+  "result": "passed",
+  "capability_unavailable": true,
+  "base_sha": "4d5312bcfe98bdb67c3037eb97fd9d6c603cf82e",
+  "reviewed_blobs": {
+    "Directory.Packages.props": "0be77d278c4e0ad495325a98051ae671a71d0dad",
+    "DKH.McpGateway.Application/Tools/Counterparty/PartnerRelationshipTools.cs": "397f878489e91a874ab2991f64befdb19dc0dca1",
+    "tests/DKH.McpGateway.Tests/Tools/Counterparty/PartnerRelationshipCommissionCompatibilityTests.cs": "2d1a9656299b744c81c1a20ce149d0d5c15d2335"
+  },
+  "issue": "https://gitlab.xnata.com/gzdkh/gateways/DKH.McpGateway/-/issues/5",
+  "merge_request": "https://gitlab.xnata.com/gzdkh/gateways/DKH.McpGateway/-/merge_requests/153",
+  "discovery": {
+    "decision": "fix",
+    "openspec": "discovery-only: restore compatibility with the already retired upstream commission writes; no new tool, permission, financial operation or contract",
+    "consumer_main": "4d5312bcfe98bdb67c3037eb97fd9d6c603cf82e",
+    "producer_main": "35f576083423fc402e370cd55acd42f066140ef4",
+    "producer_evidence": [
+      "DKH.CounterpartyService.Contracts/proto/counterparty/api/partner_relationship/v1/partner_relationship_service.proto",
+      "DKH.CounterpartyService.Application/Counterparties/PartnerRelationships/PartnerRelationshipHandlers.cs"
+    ],
+    "existing_behavior": "CounterpartyService rejects legacy CommissionTerms writes and requires a versioned PartnerCommercialAgreement. The new generated SDK marks those request fields obsolete."
+  },
+  "checks": [
+    {
+      "name": "Reject retired commission writes before RPC",
+      "result": "passed",
+      "evidence": [
+        "PartnerRelationshipCommissionCompatibilityTests.Activate_CommissionInput_ReturnsExplicitErrorWithoutRpcAsync: four fields, including numeric zero",
+        "PartnerRelationshipCommissionCompatibilityTests.Update_CommissionInputOrClear_ReturnsExplicitErrorWithoutRpcAsync: clear flag and all four fields, including fields supplied without the flag",
+        "Every rejected case asserts no downstream call and no echo of private commission notes."
+      ]
+    },
+    {
+      "name": "Preserve supported operations and write authorization",
+      "result": "passed",
+      "evidence": [
+        "NonCommissionOperations_PreserveInputsAndCancellationWithoutLegacyWireFieldsAsync: two cases with actual generated binary round trips; document IDs, tier, exclusivity, badge/review flags and cancellation are retained",
+        "WritePermission_IsRequiredBeforeCommissionValidationAsync: both tools reject a read-only key before validation and make no RPC",
+        "The focused source diff leaves tool names, input parameters, public/admin classification and existing permission guards in place."
+      ]
+    },
+    {
+      "name": "Compile against the genuine resolved contract graph",
+      "result": "passed",
+      "evidence": [
+        "SDK 10.0.404 Release compilation of Application, Api and Tests succeeded with Counterparty.Contracts 1.43.0 and transitive CommerceNetwork.Contracts 1.50.0.",
+        "dotnet test tests/DKH.McpGateway.Tests/DKH.McpGateway.Tests.csproj -c Release --no-restore --disable-build-servers -p:UseSharedCompilation=false --filter FullyQualifiedName~PartnerRelationshipCommissionCompatibilityTests --logger trx;LogFileName=mcp153-commission.trx --results-directory .artifacts/mcp153",
+        "TRX: 13 total, executed and passed; zero failed or unexecuted. SHA256 5b34cd882c15409e1f190591c3c7bc7a51c5769afed16a30e13c5d00284058f3"
+      ]
+    }
+  ],
+  "limitations": [
+    "This focused receipt does not replace complete local qualification, current-head independent review, mandatory MR CI or post-main evidence.",
+    "No real partner agreement, commission, payment or provider operation was performed."
+  ]
+}
