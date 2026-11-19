@@ -1,3 +1,4 @@
+using System.Net;
 using DKH.ApiManagementService.Contracts.ApiManagement.Models.ApiKey.v1;
 
 namespace DKH.McpGateway.Tests.Auth;
@@ -126,6 +127,20 @@ public sealed class McpHttpSurfaceAuthorizationTests
     }
 
     // --- MCP admin key: admin surface requires the privileged bearer ---
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public async Task McpKey_WithBearerWithoutStableSubject_IsRejectedAsync(string? subject)
+    {
+        await using var server = await McpHttpTestServer.StartAsync(s =>
+            s.WithKey(McpKey, ApiKeyScope.Mcp, storefrontId: null, "mcp:read"));
+
+        var connect = async () => await server.ConnectAsync(McpKey, withAdminBearer: true, subject: subject);
+
+        await connect.Should().ThrowAsync<McpHttpRejectedException>()
+            .Where(exception => exception.StatusCode == HttpStatusCode.Forbidden);
+    }
 
     [Fact]
     public async Task McpKey_WithBearer_ListTools_IncludesAdminAndPublicAsync()

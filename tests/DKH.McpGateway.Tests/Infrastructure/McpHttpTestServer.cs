@@ -116,10 +116,12 @@ internal sealed class McpHttpTestServer : IAsyncDisposable
     /// the SDK client so each exchange is independent — no background SSE stream races with the
     /// per-request headers under the in-memory TestServer.
     /// </summary>
-    internal async Task<RawMcpSession> ConnectAsync(string? apiKey, bool withAdminBearer = false)
+    internal async Task<RawMcpSession> ConnectAsync(
+        string? apiKey, bool withAdminBearer = false, string? subject = "test-admin")
     {
         var httpClient = _app.GetTestServer().CreateClient();
-        var bearer = withAdminBearer ? $"{TestBearerScheme} {AdminRole}" : null;
+        var bearerToken = subject is null ? AdminRole : $"{AdminRole}|{subject}";
+        var bearer = withAdminBearer ? $"{TestBearerScheme} {bearerToken}" : null;
         var session = new RawMcpSession(httpClient, apiKey, bearer);
         await session.InitializeAsync();
         return session;
@@ -137,9 +139,9 @@ internal sealed class McpHttpTestServer : IAsyncDisposable
     }
 
     /// <summary>
-    /// Minimal bearer scheme: an <c>Authorization: TestBearer &lt;role&gt;</c> header authenticates a
-    /// principal carrying that role, so the <see cref="McpAuthorizationPolicies.McpAccess"/> role
-    /// policy can be satisfied deterministically without Keycloak.
+    /// Minimal bearer scheme: a <c>TestBearer &lt;role&gt;|&lt;subject&gt;</c> header authenticates a
+    /// principal carrying the role and stable session identifier. Omitting the subject exercises
+    /// the SDK's rejection of authenticated principals without a supported user ID claim.
     /// </summary>
     private sealed class TestBearerAuthHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -154,10 +156,15 @@ internal sealed class McpHttpTestServer : IAsyncDisposable
                 return Task.FromResult(AuthenticateResult.NoResult());
             }
 
-            var roles = header[(TestBearerScheme.Length + 1)..]
+            var tokenParts = header[(TestBearerScheme.Length + 1)..].Split('|', 2);
+            var roles = tokenParts[0]
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             var claims = new List<Claim> { new(ClaimTypes.Name, "test-admin") };
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+            if (tokenParts.Length == 2)
+            {
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, tokenParts[1]));
+            }
 
             var identity = new ClaimsIdentity(claims, TestBearerScheme);
             var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), TestBearerScheme);

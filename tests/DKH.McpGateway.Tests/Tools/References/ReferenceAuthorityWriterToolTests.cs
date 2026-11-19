@@ -18,10 +18,10 @@ public class ReferenceAuthorityVersionGuardTests
     private const string StableId = "11111111-1111-1111-1111-111111111111";
 
     [Fact]
-    public void ManagementReadContracts_UseV2WithoutMutationMethods()
+    public void ManagementContracts_KeepCrudMutationsSeparateFromCurrencyFinancialBootstrap()
     {
         CurrencyMgmt.CurrencyManagementService.Descriptor.Methods.Select(method => method.Name)
-            .Should().Equal("Get", "List");
+            .Should().Equal("Get", "List", "InitializeFinancialMetadata");
         QuantityMgmt.QuantityUnitManagementService.Descriptor.Methods.Select(method => method.Name)
             .Should().Equal("Get", "List");
         WeightMgmt.WeightManagementService.Descriptor.Methods.Select(method => method.Name)
@@ -69,6 +69,16 @@ public class ManageCurrencyAuthorityWriterToolTests
         Substitute.For<CurrencyMgmt.CurrencyManagementService.CurrencyManagementServiceClient>();
     private readonly CurrencyCrud.CurrenciesCrudService.CurrenciesCrudServiceClient _crud =
         Substitute.For<CurrencyCrud.CurrenciesCrudService.CurrenciesCrudServiceClient>();
+
+    [Fact]
+    public async Task InitializeFinancialMetadata_IsNotExposedAsAnMcpCrudActionAsync()
+    {
+        var result = await ExecuteAsync("initializeFinancialMetadata", code: "USD");
+
+        result.Should().Contain("error");
+        _management.ReceivedCalls().Should().BeEmpty();
+        _crud.ReceivedCalls().Should().BeEmpty();
+    }
 
     [Fact]
     public async Task Create_UsesCanonicalCrudAndReturnsStableIdentityAsync()

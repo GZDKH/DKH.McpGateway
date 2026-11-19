@@ -26,6 +26,15 @@ public static class ActivatePartnerRelationshipTool
     {
         apiKeyContext.EnsurePermission(McpPermissions.Write);
 
+        if (!string.IsNullOrWhiteSpace(commissionPercentRate)
+            || !string.IsNullOrWhiteSpace(commissionFlatFee)
+            || !string.IsNullOrWhiteSpace(commissionCurrency)
+            || !string.IsNullOrWhiteSpace(commissionNote))
+        {
+            return McpProtoHelper.FormatError(
+                "Legacy commission terms are retired. Create a versioned PartnerCommercialAgreement instead.");
+        }
+
         if (!CounterpartyToolInput.TryParseEnum<CounterpartyTier>(tier, out var parsedTier))
         {
             return McpProtoHelper.FormatError("tier is invalid");
@@ -35,10 +44,6 @@ public static class ActivatePartnerRelationshipTool
         {
             CounterpartyId = CounterpartyToolInput.ToGuid(counterpartyId),
             Tier = parsedTier,
-            CommissionPercentRate = CounterpartyToolInput.OptionalString(commissionPercentRate),
-            CommissionFlatFee = CounterpartyToolInput.OptionalString(commissionFlatFee),
-            CommissionCurrency = CounterpartyToolInput.OptionalString(commissionCurrency),
-            CommissionNote = CounterpartyToolInput.OptionalString(commissionNote),
             IsExclusive = isExclusive,
             ExclusivityScope = CounterpartyToolInput.OptionalString(exclusivityScope),
             ExclusivityNote = CounterpartyToolInput.OptionalString(exclusivityNote),
@@ -147,15 +152,20 @@ public static class UpdatePartnerRelationshipTermsTool
     {
         apiKeyContext.EnsurePermission(McpPermissions.Write);
 
+        if (changeCommissionTerms
+            || !string.IsNullOrWhiteSpace(commissionPercentRate)
+            || !string.IsNullOrWhiteSpace(commissionFlatFee)
+            || !string.IsNullOrWhiteSpace(commissionCurrency)
+            || !string.IsNullOrWhiteSpace(commissionNote))
+        {
+            return McpProtoHelper.FormatError(
+                "Legacy commission terms are retired. Create a versioned PartnerCommercialAgreement instead.");
+        }
+
         var request = new UpdatePartnerRelationshipTermsRequest
         {
             PartnerRelationshipId = CounterpartyToolInput.ToGuid(partnerRelationshipId),
             Tier = CounterpartyToolInput.ParseOptionalEnum<CounterpartyTier>(tier, out var error),
-            ChangeCommissionTerms = changeCommissionTerms,
-            CommissionPercentRate = CounterpartyToolInput.OptionalString(commissionPercentRate),
-            CommissionFlatFee = CounterpartyToolInput.OptionalString(commissionFlatFee),
-            CommissionCurrency = CounterpartyToolInput.OptionalString(commissionCurrency),
-            CommissionNote = CounterpartyToolInput.OptionalString(commissionNote),
             ChangeExclusivityTerms = changeExclusivityTerms,
             IsExclusive = isExclusive,
             ExclusivityScope = CounterpartyToolInput.OptionalString(exclusivityScope),
