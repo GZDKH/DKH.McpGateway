@@ -38,7 +38,7 @@
     <PackageVersion Include="DKH.TelegramBotService.Contracts" Version="1.55.0"/>
     <PackageVersion Include="DKH.TelegramClientService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.ApiManagementService.Contracts" Version="1.10.0"/>
-    <PackageVersion Include="DKH.InventoryService.Contracts" Version="1.22.0"/>
+    <PackageVersion Include="DKH.InventoryService.Contracts" Version="1.23.0"/>
     <PackageVersion Include="DKH.CartService.Contracts" Version="1.32.0"/>
     <PackageVersion Include="DKH.PaymentService.Contracts" Version="0.36.0"/>
     <PackageVersion Include="DKH.SubscriptionService.Contracts" Version="1.4.0"/>
@@ -48,7 +48,7 @@
     <PackageVersion Include="DKH.WarehouseService.Contracts" Version="1.7.0"/>
     <PackageVersion Include="DKH.ProcurementService.Contracts" Version="0.28.0"/>
     <PackageVersion Include="DKH.CustomsService.Contracts" Version="2.1.0"/>
-    <PackageVersion Include="DKH.CounterpartyService.Contracts" Version="1.44.0"/>
+    <PackageVersion Include="DKH.CounterpartyService.Contracts" Version="1.44.1"/>
     <PackageVersion Include="DKH.StaffService.Contracts" Version="0.6.0"/>
     <PackageVersion Include="DKH.EngagementService.Contracts" Version="1.8.0"/>
     <PackageVersion Include="DKH.AssistantService.Contracts" Version="1.7.0"/>
