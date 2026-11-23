@@ -39,11 +39,11 @@
     <PackageVersion Include="DKH.TelegramClientService.Contracts" Version="1.0.0"/>
     <PackageVersion Include="DKH.ApiManagementService.Contracts" Version="1.10.0"/>
     <PackageVersion Include="DKH.InventoryService.Contracts" Version="1.23.0"/>
-    <PackageVersion Include="DKH.CartService.Contracts" Version="1.32.0"/>
+    <PackageVersion Include="DKH.CartService.Contracts" Version="1.33.0"/>
     <PackageVersion Include="DKH.PaymentService.Contracts" Version="0.36.0"/>
     <PackageVersion Include="DKH.SubscriptionService.Contracts" Version="1.4.0"/>
     <PackageVersion Include="DKH.SearchService.Contracts" Version="1.12.0"/>
-    <PackageVersion Include="DKH.DeliveryService.Contracts" Version="1.21.1"/>
+    <PackageVersion Include="DKH.DeliveryService.Contracts" Version="1.22.0"/>
     <PackageVersion Include="DKH.LogisticsService.Contracts" Version="3.5.0"/>
     <PackageVersion Include="DKH.WarehouseService.Contracts" Version="1.7.0"/>
     <PackageVersion Include="DKH.ProcurementService.Contracts" Version="0.28.0"/>
