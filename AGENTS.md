@@ -3,10 +3,11 @@
 <!-- BEGIN REQUIRED-READING -->
 
 Before GZDKH work, read `agents/DKH.AgentRules/AGENTS.md` and
-`agents/DKH.AgentRules/rules/codex/triggers.md`; open further rules only when
-triggered. Resolve these paths from the GZDKH workspace root. For a linked or
-external worktree, locate that root among the ancestors of the path returned by
-`git rev-parse --path-format=absolute --git-common-dir`, not the worktree directory.
+`agents/DKH.AgentRules/rules/codex/triggers.md`. Use the GZDKH workspace
+supplied for the task if it contains both files. Otherwise search the ancestors
+of `git rev-parse --path-format=absolute --git-common-dir` for both files.
+If neither location contains both files, ask for the GZDKH workspace path.
+Open further rules only when triggered.
 
 <!-- END REQUIRED-READING -->
 
